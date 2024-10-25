@@ -1,0 +1,30 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: "app"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./app:/app
+    command: sh -c "npm ci && npm run dev"
+    tty: true
+
+  db:
+    image: postgres:15
+    container_name: "db"
+    env_file:
+      - .env
+    environment:
+      - TZ=Asia/Tokyo
+      - POSTGRES_DB=$DB_NAME
+      - POSTGRES_USER=$DB_USER
+      - POSTGRES_PASSWORD=$DB_PASS
+    ports:
+      - 5432:5432
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
