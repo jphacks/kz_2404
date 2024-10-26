@@ -23,3 +23,12 @@ check:
 
 lint:
 	docker compose run --rm app npm run lint
+
+prod-build:
+	docker compose -f compose.prod.yml build
+	docker compose -f compose.prod.yml run --rm app npm ci
+	make prod-migrate
+	docker compose -f compose.prod.yml run --rm app npm run build
+
+prod-migrate:
+	docker compose -f compose.prod.yml run --rm app npx prisma migrate deploy
