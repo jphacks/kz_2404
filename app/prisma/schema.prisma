@@ -12,3 +12,52 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id  Int  @id @default(autoincrement())
+  uid String
+  name String
+  email String
+  photoUrl String
+  scores Score[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([uid])
+}
+
+model Score {
+  id  Int  @id @default(autoincrement())
+  point String
+  answerTime DateTime
+  similarity Float
+  assignmentId Int
+  userId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+  assignment Assignment @relation(fields: [assignmentId], references: [id])
+}
+
+model Assignment {
+  id  Int  @id @default(autoincrement())
+  wordId Int
+  date DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  word Word @relation(fields: [wordId], references: [id])
+  scores Score[]
+}
+
+model Word {
+  id  Int  @id @default(autoincrement())
+  english String
+  japanese String
+  difficulty Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  assignment Assignment[]
+}
