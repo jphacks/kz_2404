@@ -48,12 +48,9 @@ interface RankingListTodayProps {
   
     const data = allData[selectedTopic] || [];
   
-    // scoreが高い順にソート
-    const sortedData = data.sort((a, b) => parseInt(b.score) - parseInt(a.score));
-  
     return (
       <div className="mt-4 space-y-4">
-        {sortedData.map((item, index) => {
+        {data.map((item, index) => {
           let bgColor;
           switch (index + 1) {
             case 1:
