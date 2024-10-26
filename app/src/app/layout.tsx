@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
+import Footer from "@/components/layout/footer";
 import SessionProvider from "../provider/SessionProvider";
 
 const notoSansJP = Noto_Sans_JP({
@@ -22,8 +23,11 @@ export default function RootLayout({
 }>) {
 	return (
 		<SessionProvider>
-			<html lang="en">
-				<body className={`${notoSansJP.className}`}>{children}</body>
+			<html lang="ja">
+				<body className={`${notoSansJP.className} min-h-screen flex flex-col`}>
+					<div className="flex-grow">{children}</div>
+					<Footer />
+				</body>
 			</html>
 		</SessionProvider>
 	);
