@@ -18,7 +18,6 @@ export type ReactNodeProps = {
 	children?: React.ReactNode;
 };
 
-
 // prismaの型定義
 export type DBUser = {
 	id: number;
@@ -26,12 +25,12 @@ export type DBUser = {
 	name: string;
 	email: string;
 	photoUrl: string;
-	scores: Score[];
+	scores?: Score[];
 	createdAt: Date;
 	updatedAt: Date;
-  };
-  
-  export type Score = {
+};
+
+export type Score = {
 	id: number;
 	point: number;
 	answerTime: Date;
@@ -43,25 +42,34 @@ export type DBUser = {
 	updatedAt: Date;
 	user: DBUser;
 	assignment: Assignment;
-  };
-  
-  export type Assignment = {
+};
+
+export type Assignment = {
 	id: number;
 	wordId: number;
 	date: Date;
 	createdAt: Date;
 	updatedAt: Date;
-	word: Word;
-	scores: Score[];
-  };
-  
-  export type Word = {
+	word?: Word;
+	scores?: Score[];
+};
+
+export type Word = {
 	id: number;
 	english: string;
 	japanese: string;
 	difficulty: number;
 	createdAt: Date;
 	updatedAt: Date;
-	assignment: Assignment[];
-  };
-  
+	assignment?: Assignment[];
+};
+
+export type ScoreDetail = {
+	id: number;
+	assignment: String;
+	answerIntervalTime: number;
+	userName: string;
+	imageUrl: string;
+	point: number;
+	similarity: number;
+};
