@@ -9,14 +9,15 @@ import { useState } from 'react';
 
 export default function RankingPage() {
   const [selectedTab, setSelectedTab] = useState<'today' | 'weekly' | 'allTime'>('today');
+  const [selectedTopic, setSelectedTopic] = useState('お題1');
 
   return (
     <div>
       <TabNavigation selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
       {selectedTab === 'today' && (
         <>
-          <TopicTabs />
-          <RankingListToday />
+          <TopicTabs selectedTopic={selectedTopic} setSelectedTopic={setSelectedTopic} />
+          <RankingListToday selectedTopic={selectedTopic} />
         </>
       )}
       {selectedTab === 'weekly' && <RankingListWeekly />}
