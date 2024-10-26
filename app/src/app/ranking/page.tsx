@@ -12,7 +12,7 @@ export default function RankingPage() {
   const [selectedTopic, setSelectedTopic] = useState('お題1');
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-100 p-4">
       <TabNavigation selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
       {selectedTab === 'today' && (
         <>
