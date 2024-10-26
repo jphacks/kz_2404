@@ -187,7 +187,7 @@ const CameraApp = () => {
 					}}
 				/>
 			</div>
-			<div className="w-full flex justify-around py-2 sticky bottom-20 bg-white">
+			<div className="w-full flex justify-around items-center py-2 sticky bottom-20 bg-white">
 				<div className="flex flex-col items-center justify-center w-16 h-16">
 					<Label
 						htmlFor="file-upload"
