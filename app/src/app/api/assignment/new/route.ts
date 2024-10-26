@@ -2,7 +2,7 @@ import type { NextApiRequest } from "next";
 import { prisma } from "@lib/prisma";
 import type { Score, ScoreDetail, Word } from "@/types";
 
-// 課題新規作成
+// 課題新規作成（ランダム）
 export async function POST(req: NextApiRequest) {
 	try {
 		const words = await prisma.word.findMany();
