@@ -27,6 +27,7 @@ lint:
 prod-build:
 	docker compose -f compose.prod.yml build
 	docker compose -f compose.prod.yml run --rm app npm ci
+	docker compose -f compose.prod.yml up db -d
 	make prod-migrate
 	docker compose -f compose.prod.yml run --rm app npm run build
 
