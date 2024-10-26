@@ -3,6 +3,7 @@ import { getAuth, createUserWithEmailAndPassword, signInWithPopup } from "fireba
 import { GoogleAuthProvider } from "firebase/auth";
 import { initializeApp } from "firebase/app";
 import { useEffect } from "react";
+import { signInOrUp } from "@/lib/signInAndUp";
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_APIKEY,
@@ -21,22 +22,9 @@ async function signUp() {
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const token = credential?.accessToken;
       const user = result.user;
-      // TODO ユーザのDB登録
-      fetch('/api/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(user),
-      }).then((res) => {
-        if (res.ok) {
-          localStorage.setItem("userID", user.uid);
 
-          window.location.href = "/";
-        } else {
-          throw new Error('ユーザー登録に失敗');
-        }
-      })
+      // ユーザー登録
+      signInOrUp(user);
 
     }).catch((error) => {
       // Handle Errors here.
@@ -60,7 +48,7 @@ export const LoginButton = () => {
 
     return (
         <div>
-            <button onClick={signUp}>SignUp</button>
+            <button onClick={signUp}>ログイン</button>
         </div>
     )
 }

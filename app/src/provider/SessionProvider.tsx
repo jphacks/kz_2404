@@ -1,4 +1,6 @@
 'use client';
+import { isValidUser } from "@/lib/isValidUser";
+import { signOut } from "@/lib/signOut";
 import { useEffect } from "react";
 
 export interface SessionProviderProps {
@@ -16,7 +18,14 @@ const SessionProvider = ({ children }: SessionProviderProps) => {
 
         if(!userId){
             window.location.href = "/login";
+            return;
         }
+
+        isValidUser(userId).then((res) => {
+            if(!res){
+                signOut();
+            }
+        })
 
         console.log(userId);
     },[]);
