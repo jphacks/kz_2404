@@ -23,14 +23,44 @@ export async function GET() {
         orderBy: {
             id: "asc"
         },
-		include: {
-			user: true,
-			assignment: {
-				include: {
-					word: true,
-				},
-			},
-		},
+        select: {
+            id: true,
+            point: true,
+            answerTime: true,
+            similarity: true,
+            imageUrl: true,
+            createdAt: true,
+            updatedAt: true,
+            user: {
+                select: {
+                    uid: true,
+                    name: true,
+                    email: true,
+                    photoUrl: true,
+                }
+            },
+            assignment: {
+                select: {
+                    wordId: true,
+                    date: true,
+                    word: {
+                        select: {
+                            english: true,
+                            japanese: true,
+                            difficulty: true
+                        }
+                    }
+                }
+            }
+        }
+		// include: {
+		// 	user: true,
+		// 	assignment: {
+		// 		include: {
+		// 			word: true,
+		// 		},
+		// 	},
+		// },
 	});
 
     // 空の場合、空配列で返す
@@ -41,7 +71,7 @@ export async function GET() {
 		});
 	}
 
-	return new Response(JSON.stringify(scores), {
+	return new Response(JSON.stringify(scores, null, 2), {
 		status: 200,
 		headers: { "Content-Type": "application/json" },
 	});
