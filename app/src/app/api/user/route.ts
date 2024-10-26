@@ -1,5 +1,5 @@
-import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "@lib/prisma";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 type ResponseData = {
 	message: string;
@@ -7,10 +7,10 @@ type ResponseData = {
 
 type User = {
 	id: number;
-	uid: String;
-	name: String;
-	email: String;
-	photoUrl: String;
+	uid: string;
+	name: string;
+	email: string;
+	photoUrl: string;
 };
 
 // GETメソッドのハンドラ関数

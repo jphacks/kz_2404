@@ -1,4 +1,4 @@
-export const isValidUser = async (userId: String) => {
+export const isValidUser = async (userId: string) => {
 	return fetch(`/api/user/?uid=${userId}`, {
 		method: "GET",
 		headers: {
