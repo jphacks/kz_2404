@@ -1,0 +1,42 @@
+services:
+  cloudflare:
+    image: "cloudflare/cloudflared:latest"
+    container_name: "cloudflare"
+    volumes: ["./cloudflare/prod:/home/nonroot/.cloudflared"]
+    command: tunnel run
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: "app"
+    ports:
+      - "3000:3000"
+      - "5555:5555"
+    volumes:
+      - ./app:/app
+    command: sh -c "npm ci && npm run dev"
+    tty: true
+
+  db:
+    image: postgres:15
+    container_name: "db"
+    env_file:
+      - prod.env
+    ports:
+      - 5432:5432
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  minio:
+    image: minio/minio:latest
+    container_name: "minio"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./minio/data:/data
+    command: "server /data --console-address :9001"
+    env_file:
+      - prod.env
+volumes:
+  db_data:
