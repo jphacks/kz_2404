@@ -1,4 +1,4 @@
-import { User } from "@firebase/auth";
+import type { User } from "@firebase/auth";
 
 export const signInOrUp = async (user: User) => {
 	fetch(`/api/user/?uid=${user.uid}`, {
@@ -11,10 +11,9 @@ export const signInOrUp = async (user: User) => {
 			storeStorageUser(user.uid);
 			toRoot();
 			return;
-		} else {
-			// ない場合は新規登録
-			signUp(user);
 		}
+
+		signUp(user);
 	});
 };
 
