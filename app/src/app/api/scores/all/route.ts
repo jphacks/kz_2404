@@ -1,41 +1,45 @@
+import type { RankingScores } from "@/types";
 import { prisma } from "@lib/prisma";
 
 export async function GET() {
 	const scores = await prisma.score.findMany({
-		orderBy: {
-			id: "asc",
-		},
-		select: {
-			id: true,
-			point: true,
-			answerTime: true,
-			similarity: true,
-			imageUrl: true,
-			createdAt: true,
-			updatedAt: true,
-			user: {
-				select: {
-					uid: true,
-					name: true,
-					email: true,
-					photoUrl: true,
-				},
-			},
+		include: {
+			user: true,
 			assignment: {
-				select: {
-					wordId: true,
-					date: true,
-					word: {
-						select: {
-							english: true,
-							japanese: true,
-							difficulty: true,
-						},
-					},
+				include: {
+					word: true,
 				},
 			},
 		},
 	});
+
+	const userScores = await prisma.user.findMany({
+		select: {
+			id: true,
+			name: true,
+			scores: {
+				select: {
+					point: true,
+				},
+			},
+		},
+	});
+
+	const scoreDetails: RankingScores[] = scores
+		.map((score) => {
+			// ユーザーの合計ポイント
+			const user = userScores.find((user) => user.id === score.id);
+			const sumScore = user ? user.scores.reduce((sum, score) => sum + score.point, 0) : 0;
+
+			const rankingScore: RankingScores = {
+				id: score.id,
+				userName: score.user?.name || "",
+				imageUrl: score.imageUrl,
+				totalPoint: sumScore,
+			};
+			return rankingScore;
+		})
+		.sort((a, b) => b.totalPoint - a.totalPoint);
 
 	// 空の場合、空配列で返す
 	if (!scores) {
@@ -45,7 +49,7 @@ export async function GET() {
 		});
 	}
 
-	return new Response(JSON.stringify(scores, null, 2), {
+	return new Response(JSON.stringify(scoreDetails), {
 		status: 200,
 		headers: { "Content-Type": "application/json" },
 	});
