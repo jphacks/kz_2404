@@ -23,7 +23,7 @@ export default function RootLayout({
 	return (
 		<SessionProvider>
 			<html lang="en">
-			<body className={`${notoSansJP.className}`}>{children}</body>
+				<body className={`${notoSansJP.className}`}>{children}</body>
 			</html>
 		</SessionProvider>
 	);
