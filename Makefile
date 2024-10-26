@@ -36,3 +36,5 @@ prod-db:
 	docker compose -f compose.prod.yml run --rm app npx prisma generate
 	docker compose -f compose.prod.yml run --rm app npx prisma migrate deploy
 
+prod-run:
+	docker compose -f compose.prod.yml up -d
