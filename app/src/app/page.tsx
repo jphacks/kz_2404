@@ -1,6 +1,4 @@
 import Footer from "@/components/layout/footer";
-import Image from "next/image";
-import {LoginButton} from "../components/LoginButton";
 
 export default function Home() {
 	return (
