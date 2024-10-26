@@ -6,6 +6,7 @@ services:
     container_name: "app"
     ports:
       - "3000:3000"
+      - "5555:5555"
     volumes:
       - ./app:/app
     command: sh -c "npm ci && npm run dev"
