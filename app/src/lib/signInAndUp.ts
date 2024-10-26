@@ -11,10 +11,9 @@ export const signInOrUp = async (user: User) => {
 			storeStorageUser(user.uid);
 			toRoot();
 			return;
-		} else {
-			// ない場合は新規登録
-			signUp(user);
 		}
+
+		signUp(user);
 	});
 };
 

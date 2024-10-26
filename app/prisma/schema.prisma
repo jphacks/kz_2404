@@ -58,7 +58,7 @@ model Word {
   japanese String
   difficulty Int
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())  @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 
   assignment Assignment[]
 }

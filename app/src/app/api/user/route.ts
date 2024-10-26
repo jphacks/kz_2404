@@ -5,16 +5,8 @@ type ResponseData = {
 	message: string;
 };
 
-type User = {
-	id: number;
-	uid: string;
-	name: string;
-	email: string;
-	photoUrl: string;
-};
-
 // GETメソッドのハンドラ関数
-export async function GET(req: NextApiRequest, res: NextApiResponse<ResponseData>) {
+export async function GET(req: NextApiRequest) {
 	// クエリパラメータを取得
 	const { searchParams } = new URL(req.url || "");
 	const uid = searchParams.get("uid") || "default-uid";

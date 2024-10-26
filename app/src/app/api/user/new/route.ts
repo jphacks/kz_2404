@@ -1,20 +1,13 @@
+import type { NextApiRequest } from "next";
 import { prisma } from "@lib/prisma";
-import type { NextApiRequest, NextApiResponse } from "next";
+import type { DBUser as User } from "@/types";
 
 type ResponseData = {
 	message: string;
 };
 
-type User = {
-	id: number;
-	uid: string;
-	name: string;
-	email: string;
-	photoUrl: string;
-};
-
 // GETメソッドのハンドラ関数
-export function GET(req: NextApiRequest, res: NextApiResponse<ResponseData>) {
+export function GET() {
 	// 疎通確認
 	return new Response(JSON.stringify({ message: "Hello from Next.js!" }), {
 		status: 200,
@@ -23,14 +16,14 @@ export function GET(req: NextApiRequest, res: NextApiResponse<ResponseData>) {
 }
 
 // POSTメソッドをサポートしたい場合（例）
-export async function POST(req: NextApiRequest, res: NextApiResponse<User>) {
+export async function POST(req: NextApiRequest) {
 	const reader = req.body?.getReader();
 	const { value } = await reader.read();
 	const userData = new TextDecoder().decode(value);
 	// TODO ここバリデーション欲しい
 	const user = JSON.parse(userData);
 	// プリズマでユーザを登録
-	const registerUser = await prisma.user.create({
+	const registerUser: User = await prisma.user.create({
 		data: {
 			uid: user.uid,
 			name: user.displayName,
