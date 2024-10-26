@@ -2,7 +2,7 @@
 interface RankingListTodayProps {
     selectedTopic: string;
   }
-  
+
   export default function RankingListToday({ selectedTopic }: RankingListTodayProps) {
     const allData: { [key: string]: { id: string; name: string; time: string; similarity: string; score: string; image: string; }[] } = {
       'お題1': [
@@ -45,9 +45,9 @@ interface RankingListTodayProps {
         // 他のデータ
       ],
     };
-  
+
     const data = allData[selectedTopic] || [];
-  
+
     return (
       <div className="mt-4 space-y-4">
         {data.map((item, index) => {
@@ -63,9 +63,9 @@ interface RankingListTodayProps {
               bgColor = 'bg-gradient-to-r from-yellow-600 via-yellow-700 to-yellow-800';
               break;
             default:
-              bgColor = 'bg-gray-500';
+              bgColor = 'bg-gray-400';
           }
-  
+
           return (
             <div key={item.id} className="relative flex items-center bg-orange-100 rounded-lg shadow">
               <div className={`absolute -top-1 -left-1 ${bgColor} text-white text-base rounded-br-lg shadow-lg`} style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)', width: '50px', height: '50px', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', padding: '3px' }}>
