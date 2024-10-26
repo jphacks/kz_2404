@@ -1,11 +1,9 @@
 "use client"
 import { getAuth, createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { GoogleAuthProvider } from "firebase/auth";
-// Import the functions you need from the SDKs you need
-import { FirebaseApp, getApp, getApps, initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+import { initializeApp } from "firebase/app";
+import { useEffect } from "react";
+
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_APIKEY,
     authDomain: process.env.NEXT_PUBLIC_AUTHDOMAIN,
@@ -30,6 +28,14 @@ async function signUp() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(user),
+      }).then((res) => {
+        if (res.ok) {
+          localStorage.setItem("userID", user.uid);
+
+          window.location.href = "/";
+        } else {
+          throw new Error('ユーザー登録に失敗');
+        }
       })
 
     }).catch((error) => {
@@ -45,10 +51,15 @@ async function signUp() {
 }
 export const LoginButton = () => {
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+
+    useEffect(() => {
+      if (localStorage.getItem("userID")) {
+        console.log(localStorage.getItem("userID"));
+      }
+    }, []);
+
     return (
         <div>
-            <h1>Div</h1>
             <button onClick={signUp}>SignUp</button>
         </div>
     )
