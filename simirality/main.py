@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import nltk
 from nltk.corpus import wordnet as wn
@@ -9,6 +10,13 @@ nltk.download('omw-1.4')  # WordNetに関連する語彙のデータセットも
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,   # 追記により追加
+    allow_methods=["*"],      # 追記により追加
+    allow_headers=["*"]       # 追記により追加
+)
 
 # 単語の意味を取得
 apple = wn.synset('apple.n.01')  # 名詞 "apple" の代表的な意味
@@ -17,7 +25,6 @@ orange = wn.synset('orange.n.01')  # 名詞 "orange" の代表的な意味
 @app.get("/")
 async def root():
     similarity = apple.wup_similarity(orange)
-    print(f"Similarity: {similarity}")
     return {"message": "Hello World"}
 
 
@@ -38,8 +45,6 @@ async def similarity(reqWords: Words):
         similarity = asignmentWord_synset.wup_similarity(word_synset)
         if similarity is None:
             return {"error": f"'{asignmentWord}' と '{word}' の類似度を計算できません。"}
-
-        print(f"{word}: {similarity}")
 
         if similarity > highscore:
             highscore = similarity
