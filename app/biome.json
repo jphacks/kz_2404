@@ -24,7 +24,8 @@
 		"enabled": true,
 		"rules": {
 			"recommended": true
-		}
+		},
+		"ignore": [".next", "node_modules"]
 	},
 	"javascript": {
 		"formatter": {
@@ -32,21 +33,22 @@
 		}
 	},
 	"overrides": [
-	{
-		"include": [
-			"next.config.js",
-			"layout.tsx",
-			"page.tsx",
-			"loading.tsx",
-			"error.tsx",
-			"not-found.tsx"
-		],
-		"linter": {
-			"rules": {
-				"style": {
-					"noDefaultExport": "off"
+		{
+			"include": [
+				"next.config.js",
+				"layout.tsx",
+				"page.tsx",
+				"loading.tsx",
+				"error.tsx",
+				"not-found.tsx"
+			],
+			"linter": {
+				"rules": {
+					"style": {
+						"noDefaultExport": "off"
+					}
 				}
 			}
 		}
-	}]
+	]
 }
