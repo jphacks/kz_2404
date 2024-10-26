@@ -1,9 +1,10 @@
 {
-  "editor.codeActionsOnSave": {
-    "quickfix.biome": "explicit",
-    "source.organizeImports.biome": "explicit"
-  },
-  "files.autoSave": "afterDelay",
-  "editor.defaultFormatter": "biomejs.biome",
-  "makefile.configureOnOpen": false
+	"editor.codeActionsOnSave": {
+		"quickfix.biome": "explicit",
+		"source.organizeImports.biome": "explicit",
+		"source.fixAll": "explicit"
+	},
+	"files.autoSave": "afterDelay",
+	"editor.defaultFormatter": "biomejs.biome",
+	"editor.formatOnSave": true
 }
