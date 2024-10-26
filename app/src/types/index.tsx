@@ -41,7 +41,7 @@ export type DBUser = {
 	imageUrl: string;
 	createdAt: Date;
 	updatedAt: Date;
-	user: User;
+	user: DBUser;
 	assignment: Assignment;
   };
   

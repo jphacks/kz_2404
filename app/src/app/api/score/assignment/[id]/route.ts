@@ -44,14 +44,16 @@ export async function GET(req: NextApiRequest, res: NextApiResponse<ScoreDetail[
 		where: { id: scores[0].assignment.wordId },
 	});
 
+
 	const scoreDetails: ScoreDetail[] = scores.map((score) => {
 		const answerIntervalTimeMilliseconds = score.answerTime.getTime() - score.assignment.date.getTime();
 		const answerIntervalTimeSeconds = answerIntervalTimeMilliseconds / 1000;
+		console.log(score)
 		const scoreDetail: ScoreDetail = {
 			id: score.id,
 			assignment: word.english,
 			answerIntervalTime: answerIntervalTimeSeconds,
-			userName: score.user?.displayName || "",
+			userName: score.user?.name || "",
 			imageUrl: score.imageUrl,
 			point: score?.point || 0,
 			similarity: score.similarity,
