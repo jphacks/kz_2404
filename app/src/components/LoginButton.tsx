@@ -20,14 +20,18 @@ async function signUp() {
   const auth = getAuth();
   signInWithPopup(auth, provider)
     .then((result) => {
-      // This gives you a Google Access Token. You can use it to access the Google API.
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const token = credential?.accessToken;
-      // The signed-in user info.
       const user = result.user;
-      // IdP data available using getAdditionalUserInfo(result)
-      console.log(user);
-      // ...
+      // TODO ユーザのDB登録
+      fetch('/api/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(user),
+      })
+
     }).catch((error) => {
       // Handle Errors here.
       const errorCode = error.code;
@@ -39,13 +43,13 @@ async function signUp() {
       // ...
     });
 }
-export default function Div() {
+export const LoginButton = () => {
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     return (
         <div>
             <h1>Div</h1>
-            <button onClick={signUp}>aaaaa</button>
+            <button onClick={signUp}>SignUp</button>
         </div>
     )
 }
