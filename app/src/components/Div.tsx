@@ -45,7 +45,7 @@ export default function Div() {
     return (
         <div>
             <h1>Div</h1>
-            <button onClick={signUp}>aaaaa</button>
+            <button type="button" onClick={signUp}>aaaaa</button>
         </div>
     )
 }
