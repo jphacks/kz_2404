@@ -1,7 +1,7 @@
 
 # Let’s Pics
 
-[![IMAGE ALT TEXT HERE](https://jphacks.com/wp-content/uploads/2024/07/JPHACKS2024_ogp.jpg)](https://www.youtube.com/watch?v=DZXUkEj-CSI)
+<img width="631" alt="スクリーンショット 2024-10-28 7 15 21" src="https://github.com/user-attachments/assets/e69e57df-5500-41a9-8429-82b80542dbd0">
 
 ## 製品概要
 
