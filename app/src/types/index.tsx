@@ -80,3 +80,15 @@ export type RankingScores = {
 	totalPoint: number;
 	imageUrl: string;
 };
+
+
+export type MyScoreDetail = {
+	id: number;
+	assignment: string;
+	answerIntervalTime: number;
+	userName: string;
+	imageUrl: string;
+	point: number;
+	similarity: number;
+	answerTime: string;
+};
