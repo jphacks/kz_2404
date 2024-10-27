@@ -1,9 +1,9 @@
-import type { NextApiRequest } from "next";
+import type { NextRequest } from 'next/server';
 import { prisma } from "@lib/prisma";
 import type { Score, ScoreDetail, Word } from "@/types";
 
 // GETメソッドのハンドラ関数
-export async function GET(req: NextApiRequest) {
+export async function GET(req: NextRequest) {
 	// クエリパラメータを取得
 	const { pathname, searchParams } = new URL(req.url || "");
 	const id = pathname.split("/").pop() || "default-id";
