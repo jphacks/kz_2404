@@ -11,6 +11,9 @@ db-push:
 	docker compose run --rm app npx prisma db push
 	docker compose run --rm app npx prisma generate
 
+db-seed:
+	docker compose run --rm app npx prisma db seed
+
 migrate:
 	docker compose run --rm app npx prisma migrate deploy
 
