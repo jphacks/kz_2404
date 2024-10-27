@@ -40,8 +40,8 @@ export type Score = {
 	imageUrl: string;
 	createdAt: Date;
 	updatedAt: Date;
-	user: DBUser;
-	assignment: Assignment;
+	user?: DBUser;
+	assignment?: Assignment;
 };
 
 export type Assignment = {
