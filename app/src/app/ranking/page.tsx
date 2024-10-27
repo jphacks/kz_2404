@@ -9,7 +9,7 @@ import { useState } from 'react';
 
 export default function RankingPage() {
   const [selectedTab, setSelectedTab] = useState<'today' | 'weekly' | 'allTime'>('today');
-  const [selectedTopic, setSelectedTopic] = useState('お題1');
+  const [selectedTopic, setSelectedTopic] = useState(1);
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
