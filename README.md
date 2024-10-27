@@ -28,8 +28,9 @@
 * 
 
 ## 開発技術
+
 ### 活用した技術
-![スクリーンショット 2024-10-27 15 49 45](https://github.com/user-attachments/assets/86968e8a-8500-47b8-be3e-36210969d803)
+![スクリーンショット 2024-10-27 16 36 57](https://github.com/user-attachments/assets/e660f5db-b986-48bc-9a3f-618e81001a90)
 
 #### API・データ
 * 
