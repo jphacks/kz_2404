@@ -1,22 +1,24 @@
-from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-import nltk
-from nltk.corpus import wordnet as wn
 from typing import List
 
-nltk.download('wordnet')
-nltk.download('omw-1.4')  # WordNetに関連する語彙のデータセットもダウンロード
+import nltk
+from fastapi import FastAPI
+from nltk.corpus import wordnet as wn
+from pydantic import BaseModel
+from starlette.middleware.cors import CORSMiddleware
+
+nltk.download("wordnet")
+nltk.download("omw-1.4")  # WordNetに関連する語彙のデータセットもダウンロード
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,   # 追記により追加
-    allow_methods=["*"],      # 追記により追加
-    allow_headers=["*"]       # 追記により追加
+    allow_credentials=True,  # 追記により追加
+    allow_methods=["*"],  # 追記により追加
+    allow_headers=["*"],  # 追記により追加
 )
+
 
 @app.get("/")
 async def root():
@@ -26,6 +28,7 @@ async def root():
 class Words(BaseModel):
     asignmentWord: str
     words: List[str]
+
 
 @app.post("/similarity")
 async def similarity(reqWords: Words):
@@ -53,8 +56,8 @@ async def similarity(reqWords: Words):
         except:
             print(f"Error: '{word}' はWordNetに存在しません。")
 
-
     return {"similarity": highscore}
+
 
 # MEMO こんな感じでPOSTリクエストを送る
 #  curl -X POST "http://localhost:9004/similarity" \
