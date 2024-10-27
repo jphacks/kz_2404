@@ -26,7 +26,7 @@ services:
       - 5432:5432
     volumes:
       - db_data:/var/lib/postgresql/data
-  
+
   similarity_api:
     container_name: FastAPI
     build: ./simirality
