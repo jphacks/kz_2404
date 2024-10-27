@@ -16,25 +16,28 @@ export async function GET(req: NextRequest) {
 		});
 	}
 
+	// ユーザー情報を取得
 	const me = await prisma.user.findFirst({
 		where: { uid: uid },
 	});
 
+	// ユーザーのスコア情報を取得
 	const myScores: Score[] = await prisma.score.findMany({
 		where: { userId: me?.id },
 		include: { user: true, assignment: true },
 	});
 
+	// 単語情報を取得（scoreの中にあるassignmentの中にあるwordIdを使って取得するため）
+	// TODO この処理をfor文で回すのは非効率なので、修正する
 	const words = await prisma.word.findMany();
 
-	console.log(myScores);
-	console.log(words);
-
+	// スコア情報を整形
 	const myScoreDetails: MyScoreDetail[] = myScores.map((score) => {
 		const answerIntervalTimeMilliseconds =
 			score.answerTime.getTime() - score.assignment.date.getTime();
 		const answerIntervalTimeSeconds = answerIntervalTimeMilliseconds / 1000;
 		const word = words.find((word) => word.id === score.assignment.wordId);
+		// 時間差を「○日前」「○時間前」「○分前」の形式に変換
 		const timeAgoString = timeAgo(score.answerTime);
 		const scoreDetail: MyScoreDetail = {
 			id: score.id,
