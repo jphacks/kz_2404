@@ -66,7 +66,7 @@ export type Word = {
 
 export type ScoreDetail = {
 	id: number;
-	assignment: String;
+	assignment: string;
 	answerIntervalTime: number;
 	userName: string;
 	imageUrl: string;
