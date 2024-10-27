@@ -5,9 +5,11 @@ import { Card } from "@/components/ui/card";
 import type { MyScoreDetail } from "@/types";
 import { useEffect, useState } from "react";
 import PhotoCameraIcon from "../../public/icons/icon-photo-camera.svg";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
 	const [myScore, setMyScore] = useState<MyScoreDetail[]>([]);
+	const router = useRouter();
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -57,6 +59,7 @@ export default function Home() {
 						<Button
 							variant="default"
 							className="flex items-center justify-center w-3/4 bg-gray-800 hover:bg-gray-700 text-white py-6 space-x-2"
+							onClick={() => router.push("/camera")}
 						>
 							<div className="w-6 h-auto">
 								<PhotoCameraIcon />
