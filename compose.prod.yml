@@ -1,4 +1,9 @@
 services:
+  cloudflare:
+    image: "cloudflare/cloudflared:latest"
+    container_name: "cloudflare"
+    volumes: ["./cloudflare/prod:/home/nonroot/.cloudflared"]
+    command: tunnel run
   app:
     build:
       context: .
@@ -9,32 +14,20 @@ services:
       - "5555:5555"
     volumes:
       - ./app:/app
-    command: sh -c "npm i && npm run dev"
+    env_file:
+      - ./prod.env
+    command: sh -c "npm run start"
     tty: true
 
   db:
     image: postgres:15
     container_name: "db"
     env_file:
-      - .env
-    environment:
-      - TZ=Asia/Tokyo
-      - POSTGRES_DB=$DB_NAME
-      - POSTGRES_USER=$DB_USER
-      - POSTGRES_PASSWORD=$DB_PASS
+      - ./prod.env
     ports:
       - 5432:5432
     volumes:
       - db_data:/var/lib/postgresql/data
-  
-  similarity_api:
-    container_name: FastAPI
-    build: ./simirality
-    ports:
-      - "9004:9004"
-    volumes:
-      - ./simirality:/simirality
-    command: uvicorn main:app --reload --host 0.0.0.0 --port 9004
 
   minio:
     image: minio/minio:latest
@@ -45,10 +38,7 @@ services:
     volumes:
       - ./minio/data:/data
     command: "server /data --console-address :9001"
-    environment:
-      - TZ=Asia/Tokyo
-      - MINIO_ROOT_USER=root
-      - MINIO_ROOT_PASSWORD=password
-
+    env_file:
+      - prod.env
 volumes:
   db_data:

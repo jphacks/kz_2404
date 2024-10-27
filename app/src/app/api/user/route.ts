@@ -1,12 +1,12 @@
+import type { NextRequest } from 'next/server';
 import { prisma } from "@lib/prisma";
-import type { NextApiRequest, NextApiResponse } from "next";
 
 type ResponseData = {
 	message: string;
 };
 
 // GETメソッドのハンドラ関数
-export async function GET(req: NextApiRequest) {
+export async function GET(req: NextRequest) {
 	// クエリパラメータを取得
 	const { searchParams } = new URL(req.url || "");
 	const uid = searchParams.get("uid") || "default-uid";
