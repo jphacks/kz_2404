@@ -18,9 +18,9 @@ const Footer = () => {
 	};
 
 	return (
-		<footer className="w-full flex justify-evenly py-2 fixed bottom-0 shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px]">
+		<footer className="w-full flex justify-around py-2 shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] sticky bottom-0 bg-white z-10">
 			<Button
-				variant={activeButton === "photo" ? "active" : "footer"}
+				variant={activeButton === "photo" ? "iconActive" : "iconDefault"}
 				className="flex flex-col items-center justify-center w-16 h-16"
 				onClick={() => handleClick("/photo", "photo")}
 			>
@@ -28,7 +28,7 @@ const Footer = () => {
 				<div className="text-xs">撮影</div>
 			</Button>
 			<Button
-				variant={activeButton === "history" ? "active" : "footer"}
+				variant={activeButton === "history" ? "iconActive" : "iconDefault"}
 				className="flex flex-col items-center justify-center w-16 h-16"
 				onClick={() => handleClick("/history", "history")}
 			>
@@ -36,7 +36,7 @@ const Footer = () => {
 				<div className="text-xs">履歴</div>
 			</Button>
 			<Button
-				variant={activeButton === "ranking" ? "active" : "footer"}
+				variant={activeButton === "ranking" ? "iconActive" : "iconDefault"}
 				className="flex flex-col items-center justify-center w-16 h-16"
 				onClick={() => handleClick("/ranking", "ranking")}
 			>
@@ -44,7 +44,7 @@ const Footer = () => {
 				<div className="text-xs">ランキング</div>
 			</Button>
 			<Button
-				variant={activeButton === "user" ? "active" : "footer"}
+				variant={activeButton === "user" ? "iconActive" : "iconDefault"}
 				className="flex flex-col items-center justify-center w-16 h-16"
 				onClick={() => handleClick("/user", "user")}
 			>

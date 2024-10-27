@@ -9,16 +9,25 @@ const buttonVariants = cva(
 	{
 		variants: {
 			variant: {
-				default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
-				destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+				primary: "",
+				default:
+					"bg-primary text-primary-foreground shadow hover:bg-primary/90",
+				destructive:
+					"bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
 				outline:
 					"border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
-				secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+				secondary:
+					"bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
 				ghost: "hover:bg-accent hover:text-accent-foreground",
 				link: "text-primary underline-offset-4 hover:underline",
-				footer:
+				iconDefault:
 					"bg-white text-[#333333] notoSansJP font-bold [&_svg]:size-auto [&_path]:fill-[#BBBBBB]",
-				active: "text-[#FF916D] font-bold [&_svg]:size-auto [&_path]:fill-[#FF916D]",
+				iconActive:
+					"text-[#FF916D] font-bold [&_svg]:size-auto [&_path]:fill-[#FF916D]",
+				shutter:
+					"bg-white text-[#333333] notoSansJP font-bold [&_svg]:size-auto [&_path]:fill-[#BBBBBB]",
+				shutterActive:
+					"bg-[#FF916D] text-white notoSansJP font-bold [&_svg]:size-auto [&_path]:fill-white",
 			},
 			size: {
 				default: "h-9 px-4 py-2",
@@ -44,7 +53,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 	({ className, variant, size, asChild = false, ...props }, ref) => {
 		const Comp = asChild ? Slot : "button";
 		return (
-			<Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+			<Comp
+				className={cn(buttonVariants({ variant, size, className }))}
+				ref={ref}
+				{...props}
+			/>
 		);
 	},
 );
