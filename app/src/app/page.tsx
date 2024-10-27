@@ -3,9 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import type { MyScoreDetail } from "@/types";
-import { useEffect, useState } from "react";
-import PhotoCameraIcon from "../../public/icons/icon-photo-camera.svg";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import ClockIcon from "../../public/icons/icon-clock.svg";
+import PhotoCameraIcon from "../../public/icons/icon-photo-camera.svg";
 
 export default function Home() {
 	const [myScore, setMyScore] = useState<MyScoreDetail[]>([]);
@@ -81,9 +82,12 @@ export default function Home() {
 								className="w-1/4 h-auto rounded-l-md"
 							/>
 							<div className="flex flex-col items-start justify-center w-1/2 text-xs">
-								<div className="pl-4">
+								<div className="pl-4 flex flex-col gap-1">
 									<p className="font-bold">{score.assignment}</p>
-									<p>{score.answerTime}</p>
+									<div className="flex items-center gap-1">
+										<ClockIcon className="w-3 h-3" />
+										<p className="pb-0.5">{score.answerTime}</p>
+									</div>
 								</div>
 							</div>
 							<p className="w-1/4 text-lg font-bold">{score.point}点</p>
