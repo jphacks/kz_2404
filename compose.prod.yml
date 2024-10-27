@@ -29,6 +29,15 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
 
+  similarity_api:
+    container_name: FastAPI
+    build: ./simirality
+    ports:
+      - "9004:9004"
+    volumes:
+      - ./simirality:/simirality
+    command: uvicorn main:app --reload --host 0.0.0.0 --port 9004
+
   minio:
     image: minio/minio:latest
     container_name: "minio"
