@@ -6,12 +6,15 @@ import HistoryIcon from "../../../public/icons/icon-history.svg";
 import PhotoCameraIcon from "../../../public/icons/icon-photo-camera.svg";
 import RankingIcon from "../../../public/icons/icon-ranking.svg";
 import UserIcon from "../../../public/icons/icon-user.svg";
+import { useRouter } from "next/navigation";
 
 const Footer = () => {
 	const [activeButton, setActiveButton] = useState<string | null>(null);
+	const router = useRouter();
 
 	const handleClick = (path: string, buttonId: string) => {
 		setActiveButton(buttonId);
+		router.push(path);
 	};
 
 	return (
