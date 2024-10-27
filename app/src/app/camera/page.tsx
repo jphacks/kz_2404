@@ -128,7 +128,7 @@ const CameraApp = () => {
 			const blob = await base64Response.blob();
 
 				// 拡張子取得
-			const Extension = fileName.split('.').pop();
+			const Extension = blob.type.split('/')[1];
 
 			// 日付取得
 			const date = new Date();
@@ -145,7 +145,8 @@ const CameraApp = () => {
 			const randomStr = generateRandomString();
 
 			// ファイル名作成
-			const imageName = `receipt_${formattedDate}_${randomStr}.${Extension}`;
+			const imageName = `${formattedDate}_${randomStr}.${Extension}`;
+
 
 			const formData = new FormData();
 			formData.append("image", blob, imageName);

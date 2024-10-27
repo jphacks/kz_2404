@@ -1,13 +1,9 @@
 import fs from 'fs';
-import { formidable } from 'formidable';
+import { formidable, IncomingForm } from 'formidable';
+import type { NextRequest } from "next/server";
+import type { IncomingMessage } from 'http';
+import { Readable } from 'stream';
 import { Client } from 'minio';
-import { NextApiRequest, NextApiResponse } from 'next';
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
 
 const minioClient = new Client({
   endPoint: process.env.NEXT_PUBLIC_ENDPOINT || '',
@@ -19,87 +15,63 @@ const minioClient = new Client({
 
 const BUCKET_NAME = 'kz2404';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // 開発環境でバケットがない場合作成
-  if (process.env.NEXT_PUBLIC_APP_ENV === 'development') {
-    const exists = await minioClient.bucketExists(BUCKET_NAME);
-    !exists && (await makeBucket());
-  }
+// NextRequestをIncomingMessageのようにラップする関数
+function toIncomingMessage(request: NextRequest): IncomingMessage {
+  const readable = new Readable({
+    read() {
+      request.body?.getReader().read().then(({ done, value }) => {
+        if (done) {
+          this.push(null);
+        } else {
+          this.push(Buffer.from(value));
+        }
+      });
+    },
+  });
 
-  // ここから画像送信処理
-  if (req.method === 'POST') {
-    const form = formidable();
+  const msg = Object.assign(readable, {
+    headers: Object.fromEntries(request.headers),
+    method: request.method,
+    url: request.nextUrl.pathname,
+  });
 
-    form.parse(req, async (err: any, fields: any, files: any) => {
-      if (err) {
-        throw new Error('Error parsing form');
-      }
-
-      const bucketName = 'finansu';
-      const year = fields.year && fields.year[0];
-      const fileName = `${year}/advertisements/${files.file[0].originalFilename}`;
-      const file = files.file[0];
-      const mimetype = file.mimetype;
-      const metaData = {
-        'Content-Type': mimetype
-      };
-
-      try {
-        const response = await minioClient.putObject(
-          bucketName,
-          fileName,
-          fs.createReadStream(files.file[0].filepath),
-          undefined,
-          metaData,
-        );
-      } catch (err) {
-        res.status(400).json({ message: '失敗' });
-        throw new Error('Error uploading file (' + err + ')');
-      }
-      return res.status(200).json({ message: '成功' });
-    });
-  }
-
-  // 変更の場合の画像を削除する
-  if (req.method === 'DELETE') {
-    const form = formidable();
-
-    form.parse(req, async (err: any, fields: any, files: any) => {
-      if (err) {
-        throw new Error('Error parsing form');
-      }
-
-      const year = fields.year && fields.year[0];
-      const fileName = fields.fileName && fields.fileName;
-      const filePath = `${year}/advertisements/${fileName}`;
-
-      try {
-        await minioClient.removeObject(BUCKET_NAME, filePath);
-        console.log('Removed the object');
-      } catch (err) {
-        res.status(400).json({ message: '失敗' });
-        throw new Error('Error uploading file (' + err + ')');
-      }
-      return res.status(200).json({ message: '成功' });
-    });
-  }
+  return msg as IncomingMessage;
 }
 
-// バケットがない時に作成する関数(環境構築時のみ)
-async function makeBucket() {
-  await minioClient.makeBucket(BUCKET_NAME);
-  const policy = {
-    // awsが導入したポリシー言語のバージョン
-    Version: '2012-10-17',
-    Statement: [
-      {
-        Effect: 'Allow',
-        Principal: '*',
-        Action: ['s3:GetObject'],
-        Resource: `arn:aws:s3:::${BUCKET_NAME}/*`,
-      },
-    ],
-  };
 
-  minioClient.setBucketPolicy(BUCKET_NAME, JSON.stringify(policy));
+export async function POST(req: NextRequest) {
+  const form = formidable();
+  const incomingMessage = toIncomingMessage(req);
+
+  form.parse(incomingMessage, async (err: any, fields: any, files: any) => {
+    if (err) {
+      throw new Error('Error parsing form');
+    }
+    const image = files.image[0];
+    const mimetype = image.type;
+    const metaData = {
+      'Content-Type': mimetype
+    };
+
+    try {
+      const response = await minioClient.putObject(
+        BUCKET_NAME,
+        image.originalFilename,
+        fs.createReadStream(image.filepath),
+        image.size,
+        metaData,
+      );
+    } catch (err) {
+      return new Response(JSON.stringify({ message: '失敗' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+  });
+
+  return new Response(JSON.stringify({ message: '成功' }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  });
+
 }
