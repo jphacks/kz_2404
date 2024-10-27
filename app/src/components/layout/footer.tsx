@@ -1,16 +1,24 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import HistoryIcon from "../../../public/icons/icon-history.svg";
 import PhotoCameraIcon from "../../../public/icons/icon-photo-camera.svg";
 import RankingIcon from "../../../public/icons/icon-ranking.svg";
 import UserIcon from "../../../public/icons/icon-user.svg";
-import { useRouter } from "next/navigation";
 
 const Footer = () => {
 	const [activeButton, setActiveButton] = useState<string | null>(null);
 	const router = useRouter();
+	const pathname = usePathname();
+
+	useEffect(() => {
+		if (pathname.includes("/camera")) setActiveButton("photo");
+		else if (pathname.includes("/")) setActiveButton("history");
+		else if (pathname.includes("/ranking")) setActiveButton("ranking");
+		else if (pathname.includes("/user")) setActiveButton("user");
+	}, [pathname]);
 
 	const handleClick = (path: string, buttonId: string) => {
 		setActiveButton(buttonId);
@@ -22,7 +30,7 @@ const Footer = () => {
 			<Button
 				variant={activeButton === "photo" ? "iconActive" : "iconDefault"}
 				className="flex flex-col items-center justify-center w-16 h-16"
-				onClick={() => handleClick("/photo", "photo")}
+				onClick={() => handleClick("/camera", "photo")}
 			>
 				<PhotoCameraIcon />
 				<div className="text-xs">撮影</div>
@@ -30,7 +38,7 @@ const Footer = () => {
 			<Button
 				variant={activeButton === "history" ? "iconActive" : "iconDefault"}
 				className="flex flex-col items-center justify-center w-16 h-16"
-				onClick={() => handleClick("/history", "history")}
+				onClick={() => handleClick("/", "history")}
 			>
 				<HistoryIcon />
 				<div className="text-xs">履歴</div>

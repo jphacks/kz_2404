@@ -4,6 +4,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth, signInWithPopup } from "firebase/auth";
 import { GoogleAuthProvider } from "firebase/auth";
 import { useEffect } from "react";
+import { Button } from "./ui/button";
 
 const firebaseConfig = {
 	apiKey: process.env.NEXT_PUBLIC_APIKEY,
@@ -46,9 +47,5 @@ export const LoginButton = () => {
 		}
 	}, []);
 
-	return (
-		<div>
-			<button onClick={signUp}>ログイン</button>
-		</div>
-	);
+	return <Button onClick={signUp}>Googleでサインイン</Button>;
 };
