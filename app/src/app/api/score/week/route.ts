@@ -1,5 +1,6 @@
 import { prisma } from "@lib/prisma";
 import { getDay, subDays } from "date-fns";
+import { type RankingScores } from "@/types";
 
 const getLastSunday = (date: Date) => {
 	const dayOfWeek = getDay(date);
@@ -13,57 +14,41 @@ export async function GET() {
 	const startOfDay = new Date(lastSunday.setHours(0, 0, 0, 0));
 	const endOfDay = new Date(today.setHours(23, 59, 59, 999));
 
-	const scores = await prisma.score.findMany({
-		where: {
+    const userScores = await prisma.user.findMany({
+        where: {
 			createdAt: {
 				gte: startOfDay,
 				lte: endOfDay,
 			},
 		},
-		orderBy: {
-			id: "asc",
-		},
 		select: {
 			id: true,
-			point: true,
-			answerTime: true,
-			similarity: true,
-			imageUrl: true,
-			createdAt: true,
-			updatedAt: true,
-			user: {
+			name: true,
+			uid: true,
+			photoUrl: true,
+			scores: {
 				select: {
-					uid: true,
-					name: true,
-					email: true,
-					photoUrl: true,
-				},
-			},
-			assignment: {
-				select: {
-					wordId: true,
-					date: true,
-					word: {
-						select: {
-							english: true,
-							japanese: true,
-							difficulty: true,
-						},
-					},
+					point: true,
 				},
 			},
 		},
+		distinct: ['uid'],
 	});
 
-	// 空の場合、空配列で返す
-	if (scores.length === 0) {
-		return new Response(JSON.stringify([]), {
-			status: 200,
-			headers: { "Content-Type": "application/json" },
-		});
-	}
+	const scoreDetails: RankingScores[] = userScores.map((userScore) => {
+		const sumScore = userScore.scores.reduce((sum, score) => sum + score.point, 0);
 
-	return new Response(JSON.stringify(scores, null, 2), {
+		const rankingScore: RankingScores = {
+			id: userScore.id,
+			userName: userScore?.name || "",
+			imageUrl: userScore.photoUrl,
+			totalPoint: sumScore,
+		};
+		return rankingScore;
+	}).sort((a, b) => b.totalPoint - a.totalPoint)
+
+
+	return new Response(JSON.stringify(scoreDetails), {
 		status: 200,
 		headers: { "Content-Type": "application/json" },
 	});
