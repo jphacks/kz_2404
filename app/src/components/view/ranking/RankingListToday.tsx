@@ -1,3 +1,4 @@
+// app/src/components/view/ranking/RankingListToday.tsx
 import React, { useEffect, useState } from 'react';
 import type { ScoreDetail } from "@/types";
 

@@ -1,33 +1,49 @@
 // app/ranking/components/TopicTabs.tsx
+import { todayAssignment } from '@/types';
+import React, { useEffect, useState } from 'react';
+
 interface TopicTabsProps {
-    selectedTopic: number;
-    setSelectedTopic: (topic: number) => void;
-  }
+  selectedTopic: number;
+  setSelectedTopic: (topic: number) => void;
+}
 
-// 2024-10-26というフォーマットで今日の日付を取得する
+const TopicTabs: React.FC<TopicTabsProps> = ({ selectedTopic, setSelectedTopic }) => {
+  const [topics, setTopics] = useState<todayAssignment[]>([]);
+  const today = new Date().toISOString().split('T')[0];
 
-// 日付をキーにしてAPIを叩いてその日のお題データを取得する
+  useEffect(() => {
+    const fetchTopics = async () => {
+      try {
+        const response = await fetch(`http://localhost:3000/api/assignment/today`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch topics');
+        }
+        const data: todayAssignment[] = await response.json();
+        console.log('Fetched topics:', data);
+        setTopics(data);
+      } catch (error) {
+        console.error('Error fetching topics:', error);
+      }
+    };
 
-const topics = [
-    { id: 1, name: 'お題1' },
-    { id: 2, name: 'お題2' },
-    { id: 3, name: 'お題3' }
-]; // 動的データの場合はAPIで取得
+    fetchTopics();
+  }, [today]);
 
-  export default function TopicTabs({ selectedTopic, setSelectedTopic }: TopicTabsProps) {
-    return (
-      <div className="flex overflow-x-auto space-x-4 mt-4">
-        {topics.map((topic) => (
-          <button
-            key={topic.id}
-            onClick={() => setSelectedTopic(topic.id)}
-            className={`py-2 px-4 ${
-              selectedTopic === topic.id ? 'bg-orange-500 text-white' : 'bg-gray-200'
-            } rounded-full`}
-          >
-            {topic.name}
-          </button>
-        ))}
-      </div>
-    );
-  }
+  return (
+    <div className="flex overflow-x-auto space-x-4 mt-4">
+      {topics.map((topic) => (
+        <button
+          key={topic.assignmentId}
+          onClick={() => setSelectedTopic(topic.assignmentId)}
+          className={`py-2 px-4 ${
+            selectedTopic === topic.assignmentId ? 'bg-orange-500 text-white' : 'bg-gray-200'
+          } rounded-full`}
+        >
+          {topic.english}
+        </button>
+      ))}
+    </div>
+  );
+};
+
+export default TopicTabs;
