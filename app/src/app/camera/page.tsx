@@ -90,6 +90,11 @@ const CameraApp = () => {
 
 	useEffect(() => {
 		const getDevices = async () => {
+			if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+				console.error("メディアデバイスAPIがサポートされていません。");
+				return;
+			}
+
 			try {
 				const devices = await navigator.mediaDevices.enumerateDevices();
 				const videoDevices = devices.filter(
@@ -97,7 +102,7 @@ const CameraApp = () => {
 				);
 				setDevices(videoDevices);
 				if (videoDevices.length > 0) {
-					setActiveDeviceId(videoDevices[1].deviceId);
+					setActiveDeviceId(videoDevices[0].deviceId);
 				}
 			} catch (error) {
 				console.error("デバイスの取得中にエラーが発生しました:", error);
