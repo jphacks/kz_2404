@@ -18,13 +18,8 @@ app.add_middleware(
     allow_headers=["*"]       # 追記により追加
 )
 
-# 単語の意味を取得
-apple = wn.synset('apple.n.01')  # 名詞 "apple" の代表的な意味
-orange = wn.synset('orange.n.01')  # 名詞 "orange" の代表的な意味
-
 @app.get("/")
 async def root():
-    similarity = apple.wup_similarity(orange)
     return {"message": "Hello World"}
 
 
@@ -41,14 +36,24 @@ async def similarity(reqWords: Words):
 
     highscore = 0
     for word in words:
-        word_synset = wn.synset(f"{word}.n.01")
-        similarity = asignmentWord_synset.wup_similarity(word_synset)
-        if similarity is None:
-            return {"error": f"'{asignmentWord}' と '{word}' の類似度を計算できません。"}
+        print(f"word: {word}")
+        try:
+            word_synset = wn.synset(f"{word}.n.01")
+            similarity = asignmentWord_synset.wup_similarity(word_synset)
+            print(f"{word}: {similarity}")
 
-        if similarity > highscore:
-            highscore = similarity
-    
+            if asignmentWord == word:
+                similarity = 1.0
+
+            if similarity is None:
+                print(f"'{asignmentWord}' と '{word}' の類似度を計算できません。")
+
+            if similarity > highscore:
+                highscore = similarity
+        except:
+            print(f"Error: '{word}' はWordNetに存在しません。")
+
+
     return {"similarity": highscore}
 
 # MEMO こんな感じでPOSTリクエストを送る
