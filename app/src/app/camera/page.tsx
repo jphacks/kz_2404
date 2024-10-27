@@ -78,6 +78,7 @@ const imageDataToBase64 = (imageData: ImageData): string => {
 const CameraApp = () => {
 	const [image, setImage] = useState<string | null>(null);
 	const [showImage, setShowImage] = useState<boolean>(false);
+	const [fileName, setFileName] = useState<string>("");
 	const [isUploading, setIsUploading] = useState<boolean>(false);
 	const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
 	const [tempImage, setTempImage] = useState<string | null>(null);
@@ -126,10 +127,30 @@ const CameraApp = () => {
 			const base64Response = await fetch(imageData);
 			const blob = await base64Response.blob();
 
-			const formData = new FormData();
-			formData.append("image", blob, "image.jpg");
+				// 拡張子取得
+			const Extension = fileName.split('.').pop();
 
-			const response = await fetch("/api/upload", {
+			// 日付取得
+			const date = new Date();
+			const thisMonth = date.getMonth() + 1;
+			const month = thisMonth < 10 ? '0' + thisMonth : thisMonth;
+			const day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+			const formattedDate = `${date.getFullYear()}${month}${day}`;
+
+			// ランダム文字列を生成する関数
+			const generateRandomString = (charCount = 7): string => {
+			const str = Math.random().toString(36).substring(2).slice(-charCount);
+			return str.length < charCount ? str + 'a'.repeat(charCount - str.length) : str;
+			};
+			const randomStr = generateRandomString();
+
+			// ファイル名作成
+			const imageName = `receipt_${formattedDate}_${randomStr}.${Extension}`;
+
+			const formData = new FormData();
+			formData.append("image", blob, imageName);
+
+			const response = await fetch("/api/minio", {
 				method: "POST",
 				body: formData,
 			});
@@ -163,7 +184,7 @@ const CameraApp = () => {
 		setTempImage(null);
 	};
 
-	const handleImageCapture = (capturedImage: string | ImageData) => {
+	const handleImageCapture = (capturedImage: string | ImageData, fileName?: string) => {
 		const imageStr =
 			capturedImage instanceof ImageData
 				? imageDataToBase64(capturedImage)
@@ -171,6 +192,9 @@ const CameraApp = () => {
 
 		setTempImage(imageStr);
 		setShowConfirmDialog(true);
+		if (fileName) {
+			setFileName(fileName);
+		}
 	};
 
 	return (
