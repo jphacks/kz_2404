@@ -1,9 +1,9 @@
 "use client";
+import { signInOrUp } from "@/lib/signInAndUp";
+import { initializeApp } from "firebase/app";
 import { getAuth, signInWithPopup } from "firebase/auth";
 import { GoogleAuthProvider } from "firebase/auth";
-import { initializeApp } from "firebase/app";
 import { useEffect } from "react";
-import { signInOrUp } from "@/lib/signInAndUp";
 
 const firebaseConfig = {
 	apiKey: process.env.NEXT_PUBLIC_APIKEY,

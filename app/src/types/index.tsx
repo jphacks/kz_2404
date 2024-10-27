@@ -73,3 +73,10 @@ export type ScoreDetail = {
 	point: number;
 	similarity: number;
 };
+
+export type RankingScores = {
+	id: number;
+	userName: string;
+	totalPoint: number;
+	imageUrl: string;
+};
