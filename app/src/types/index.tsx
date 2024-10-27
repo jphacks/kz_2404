@@ -80,3 +80,8 @@ export type RankingScores = {
 	totalPoint: number;
 	imageUrl: string;
 };
+
+export type todayAssignment = {
+	assignmentId: number;
+	english: string;
+};
