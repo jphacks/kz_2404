@@ -103,7 +103,7 @@ const UserPage = () => {
 
 	if (!userData) return null;
 	return (
-		<div className="w-screen h-screen flex flex-col gap-4 items-center p-4 pt-10">
+		<div className="w-screen h-screen flex flex-col gap-4 items-center p-4 pt-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
 			<div className="flex items-center mb-4">
 				{userData.photoURL ? (
 					<img
@@ -127,41 +127,50 @@ const UserPage = () => {
 				</div>
 			</div>
 			<div className="flex justify-center gap-4 w-screen">
-				<Card className="w-40 h-40 flex flex-col items-center justify-center shadow-none">
+				<Card className="w-40 h-40 flex flex-col items-center justify-center border-none">
 					<LuFlame className="h-12 w-12 text-orange-500 mb-2" />
 					<div className="text-3xl font-bold mb-2">{streak}日</div>
 					<p className="text-xs text-muted-foreground">継続記録</p>
 				</Card>
-				<Card className="w-40 h-40 flex flex-col items-center justify-center shadow-none">
+				<Card className="w-40 h-40 flex flex-col items-center justify-center border-none">
 					<LuTrophy className="h-12 w-12 text-yellow-500 mb-2" />
 					<div className="text-3xl font-bold mb-2">{highestScore}</div>
 					<p className="text-xs text-muted-foreground">最高点</p>
 				</Card>
 			</div>
-			<Card className="flex flex-col items-center shadow-none p-9">
+			<Card className="flex flex-col items-center border-none p-8">
 				<h2 className="text-2xl font-bold mb-4">過去のチャレンジ</h2>
-				{sortedMyScore.map((score) => (
-					<div
-						key={score.id}
-						className="flex w-full items-center mb-2 border rounded-md"
-					>
-						<img
-							src={score.imageUrl}
-							alt="チャレンジ画像"
-							className="w-1/4 h-auto rounded-l-md"
-						/>
-						<div className="flex flex-col items-start justify-center w-1/2 text-xs">
-							<div className="pl-4 flex flex-col gap-1">
-								<p className="font-bold">{score.assignment}</p>
-								<div className="flex items-center gap-1">
-									<LuClock />
-									<p className="pb-0.5">{score.answerTime}</p>
+				{sortedMyScore.length === 0 ? (
+					<div className="text-gray-500 text-center py-8">
+						<p>まだチャレンジの記録がありません</p>
+						<p className="text-sm mt-2">
+							新しいチャレンジに挑戦してみましょう！
+						</p>
+					</div>
+				) : (
+					sortedMyScore.map((score) => (
+						<div
+							key={score.id}
+							className="flex w-full items-center mb-2 border rounded-md"
+						>
+							<img
+								src={score.imageUrl}
+								alt="チャレンジ画像"
+								className="w-1/4 h-auto rounded-l-md"
+							/>
+							<div className="flex flex-col items-start justify-center w-1/2 text-xs">
+								<div className="pl-4 flex flex-col gap-1">
+									<p className="font-bold">{score.assignment}</p>
+									<div className="flex items-center gap-1">
+										<LuClock />
+										<p className="pb-0.5">{score.answerTime}</p>
+									</div>
 								</div>
 							</div>
+							<p className="w-1/4 text-lg font-bold">{score.point}点</p>
 						</div>
-						<p className="w-1/4 text-lg font-bold">{score.point}点</p>
-					</div>
-				))}
+					))
+				)}
 			</Card>
 		</div>
 	);
