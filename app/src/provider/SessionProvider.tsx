@@ -1,6 +1,7 @@
 "use client";
 import { isValidUser } from "@/lib/isValidUser";
 import { signOut } from "@/lib/signOut";
+import type { User } from "@/types";
 import { useEffect } from "react";
 
 export interface SessionProviderProps {
@@ -21,7 +22,8 @@ const SessionProvider = ({ children }: SessionProviderProps) => {
 			return;
 		}
 
-		isValidUser(userId).then((res) => {
+		const parsedUser = JSON.parse(userId) as User;
+		isValidUser(parsedUser.uid).then((res) => {
 			if (!res) {
 				signOut();
 			}
