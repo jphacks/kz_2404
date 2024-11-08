@@ -129,12 +129,12 @@ const UserPage = () => {
 			<div className="flex justify-center gap-4 w-screen">
 				<Card className="w-40 h-40 flex flex-col items-center justify-center shadow-none">
 					<LuFlame className="h-12 w-12 text-orange-500 mb-2" />
-					<div className="text-3xl font-bold">{streak}日</div>
+					<div className="text-3xl font-bold mb-2">{streak}日</div>
 					<p className="text-xs text-muted-foreground">継続記録</p>
 				</Card>
 				<Card className="w-40 h-40 flex flex-col items-center justify-center shadow-none">
 					<LuTrophy className="h-12 w-12 text-yellow-500 mb-2" />
-					<div className="text-3xl font-bold">{highestScore}</div>
+					<div className="text-3xl font-bold mb-2">{highestScore}</div>
 					<p className="text-xs text-muted-foreground">最高点</p>
 				</Card>
 			</div>
