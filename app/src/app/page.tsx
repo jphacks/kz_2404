@@ -70,33 +70,43 @@ export default function Home() {
 				</Card>
 				<Card className="flex flex-col items-center aspect-square w-10/12 p-6 bg-white/80 backdrop-blur-sm">
 					<h2 className="text-lg font-semibold mb-4">過去のチャレンジ</h2>
-					{myScore
-						.sort(
-							(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-						)
-						.slice(0, 3)
-						.map((score) => (
-							<div
-								key={score.id}
-								className="flex w-full items-center mb-2 border rounded-md"
-							>
-								<img
-									src={score.imageUrl}
-									alt="チャレンジ画像"
-									className="w-1/4 h-auto rounded-l-md"
-								/>
-								<div className="flex flex-col items-start justify-center w-1/2 text-xs">
-									<div className="pl-4 flex flex-col gap-1">
-										<p className="font-bold">{score.assignment}</p>
-										<div className="flex items-center gap-1">
-											<ClockIcon className="w-3 h-3" />
-											<p className="pb-0.5">{score.answerTime}</p>
+					{myScore.length === 0 ? (
+						<div className="text-gray-500 text-center py-8">
+							<p>まだチャレンジの記録がありません</p>
+							<p className="text-sm mt-2">
+								新しいチャレンジに挑戦してみましょう！
+							</p>
+						</div>
+					) : (
+						myScore
+							.sort(
+								(a, b) =>
+									new Date(b.date).getTime() - new Date(a.date).getTime(),
+							)
+							.slice(0, 3)
+							.map((score) => (
+								<div
+									key={score.id}
+									className="flex w-full items-center mb-2 border rounded-md"
+								>
+									<img
+										src={score.imageUrl}
+										alt="チャレンジ画像"
+										className="w-1/4 h-auto rounded-l-md"
+									/>
+									<div className="flex flex-col items-start justify-center w-1/2 text-xs">
+										<div className="pl-4 flex flex-col gap-1">
+											<p className="font-bold">{score.assignment}</p>
+											<div className="flex items-center gap-1">
+												<ClockIcon className="w-3 h-3" />
+												<p className="pb-0.5">{score.answerTime}</p>
+											</div>
 										</div>
 									</div>
+									<p className="w-1/4 text-lg font-bold">{score.point}点</p>
 								</div>
-								<p className="w-1/4 text-lg font-bold">{score.point}点</p>
-							</div>
-						))}
+							))
+					)}
 				</Card>
 			</div>
 		</div>
