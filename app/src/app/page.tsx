@@ -14,12 +14,18 @@ export default function Home() {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const uid = localStorage.getItem("userID");
-			if (!uid) {
+			const userIdString = localStorage.getItem("userID");
+			if (!userIdString) {
 				return;
 			}
 
 			try {
+				const userData = JSON.parse(userIdString);
+				const uid = userData.uid;
+				if (!uid) {
+					throw new Error("User ID not found");
+				}
+
 				const response = await fetch(`/api/score/me/${uid}`);
 				if (!response.ok) {
 					throw new Error("データの取得に失敗しました");
@@ -33,13 +39,6 @@ export default function Home() {
 
 		fetchData();
 	}, []);
-
-	function calculateDaysAgo(date: Date): string {
-		const today = new Date();
-		const diffTime = Math.abs(today.getTime() - date.getTime());
-		const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-		return `${diffDays}日前`;
-	}
 
 	return (
 		<div className="flex flex-col h-full px-4 py-10">
@@ -69,30 +68,35 @@ export default function Home() {
 						</Button>
 					</div>
 				</Card>
-				<Card className="flex flex-col items-center aspect-square w-10/12 max-w-72 p-6 bg-white/80 backdrop-blur-sm overflow-y-auto">
+				<Card className="flex flex-col items-center aspect-square w-10/12 p-6 bg-white/80 backdrop-blur-sm">
 					<h2 className="text-lg font-semibold mb-4">過去のチャレンジ</h2>
-					{myScore.map((score) => (
-						<div
-							key={score.id}
-							className="flex w-full items-center mb-2 border rounded-md"
-						>
-							<img
-								src={score.imageUrl}
-								alt="チャレンジ画像"
-								className="w-1/4 h-auto rounded-l-md"
-							/>
-							<div className="flex flex-col items-start justify-center w-1/2 text-xs">
-								<div className="pl-4 flex flex-col gap-1">
-									<p className="font-bold">{score.assignment}</p>
-									<div className="flex items-center gap-1">
-										<ClockIcon className="w-3 h-3" />
-										<p className="pb-0.5">{score.answerTime}</p>
+					{myScore
+						.sort(
+							(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+						)
+						.slice(0, 3)
+						.map((score) => (
+							<div
+								key={score.id}
+								className="flex w-full items-center mb-2 border rounded-md"
+							>
+								<img
+									src={score.imageUrl}
+									alt="チャレンジ画像"
+									className="w-1/4 h-auto rounded-l-md"
+								/>
+								<div className="flex flex-col items-start justify-center w-1/2 text-xs">
+									<div className="pl-4 flex flex-col gap-1">
+										<p className="font-bold">{score.assignment}</p>
+										<div className="flex items-center gap-1">
+											<ClockIcon className="w-3 h-3" />
+											<p className="pb-0.5">{score.answerTime}</p>
+										</div>
 									</div>
 								</div>
+								<p className="w-1/4 text-lg font-bold">{score.point}点</p>
 							</div>
-							<p className="w-1/4 text-lg font-bold">{score.point}点</p>
-						</div>
-					))}
+						))}
 				</Card>
 			</div>
 		</div>
