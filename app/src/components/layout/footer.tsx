@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import HistoryIcon from "../../../public/icons/icon-history.svg";
+import ThemeIcon from "../../../public/icons/icon-history.svg";
 import PhotoCameraIcon from "../../../public/icons/icon-photo-camera.svg";
 import RankingIcon from "../../../public/icons/icon-ranking.svg";
 import UserIcon from "../../../public/icons/icon-user.svg";
@@ -14,14 +14,13 @@ const Footer = () => {
 	const pathname = usePathname();
 
 	useEffect(() => {
-		if (pathname.includes("/camera")) setActiveButton("camera");
-		else if (pathname.includes("/")) setActiveButton("history");
-		else if (pathname.includes("/ranking")) setActiveButton("ranking");
-		else if (pathname.includes("/user")) setActiveButton("user");
+		if (pathname === "/camera") setActiveButton("camera");
+		else if (pathname === "/") setActiveButton("theme");
+		else if (pathname === "/ranking") setActiveButton("ranking");
+		else if (pathname === "/user") setActiveButton("user");
 	}, [pathname]);
 
-	const handleClick = (path: string, buttonId: string) => {
-		setActiveButton(buttonId);
+	const handleClick = (path: string) => {
 		router.push(path);
 	};
 
@@ -30,23 +29,23 @@ const Footer = () => {
 			<Button
 				variant={activeButton === "camera" ? "iconActive" : "iconDefault"}
 				className="flex flex-col items-center justify-center w-16 h-16"
-				onClick={() => handleClick("/camera", "camera")}
+				onClick={() => handleClick("/camera")}
 			>
 				<PhotoCameraIcon />
 				<div className="text-xs">撮影</div>
 			</Button>
 			<Button
-				variant={activeButton === "history" ? "iconActive" : "iconDefault"}
+				variant={activeButton === "theme" ? "iconActive" : "iconDefault"}
 				className="flex flex-col items-center justify-center w-16 h-16"
-				onClick={() => handleClick("/", "history")}
+				onClick={() => handleClick("/")}
 			>
-				<HistoryIcon />
-				<div className="text-xs">履歴</div>
+				<ThemeIcon />
+				<div className="text-xs">お題</div>
 			</Button>
 			<Button
 				variant={activeButton === "ranking" ? "iconActive" : "iconDefault"}
 				className="flex flex-col items-center justify-center w-16 h-16"
-				onClick={() => handleClick("/ranking", "ranking")}
+				onClick={() => handleClick("/ranking")}
 			>
 				<RankingIcon />
 				<div className="text-xs">ランキング</div>
@@ -54,7 +53,7 @@ const Footer = () => {
 			<Button
 				variant={activeButton === "user" ? "iconActive" : "iconDefault"}
 				className="flex flex-col items-center justify-center w-16 h-16"
-				onClick={() => handleClick("/user", "user")}
+				onClick={() => handleClick("/user")}
 			>
 				<UserIcon />
 				<div className="text-xs">ユーザー情報</div>
