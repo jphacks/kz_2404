@@ -1,12 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import HistoryIcon from "../../../public/icons/icon-history.svg";
 import PhotoCameraIcon from "../../../public/icons/icon-photo-camera.svg";
 import RankingIcon from "../../../public/icons/icon-ranking.svg";
 import UserIcon from "../../../public/icons/icon-user.svg";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 const Footer = () => {
 	const [activeButton, setActiveButton] = useState<string | null>(null);
