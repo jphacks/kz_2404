@@ -84,7 +84,7 @@ const UserPage = () => {
 				const userData = JSON.parse(userIdString);
 				setUserData(userData); // LocalStorageのユーザー情報を状態として保存
 
-				const response = await fetch(`/api/score/me/${userData.uid}`);
+				const response = await fetch(`/api/score/me/${userData.uid}?all=true`);
 				if (!response.ok) {
 					throw new Error("データの取得に失敗しました");
 				}

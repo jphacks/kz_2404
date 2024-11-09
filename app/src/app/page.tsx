@@ -26,7 +26,7 @@ export default function Home() {
 					throw new Error("User ID not found");
 				}
 
-				const response = await fetch(`/api/score/me/${uid}`);
+				const response = await fetch(`/api/score/me/${uid}?limit=3`);
 				if (!response.ok) {
 					throw new Error("データの取得に失敗しました");
 				}
@@ -78,34 +78,28 @@ export default function Home() {
 							</p>
 						</div>
 					) : (
-						myScore
-							.sort(
-								(a, b) =>
-									new Date(b.date).getTime() - new Date(a.date).getTime(),
-							)
-							.slice(0, 3)
-							.map((score) => (
-								<div
-									key={score.id}
-									className="flex w-full items-center mb-2 border rounded-md"
-								>
-									<img
-										src={score.imageUrl}
-										alt="チャレンジ画像"
-										className="w-1/4 h-auto rounded-l-md"
-									/>
-									<div className="flex flex-col items-start justify-center w-1/2 text-xs">
-										<div className="pl-4 flex flex-col gap-1">
-											<p className="font-bold">{score.assignment}</p>
-											<div className="flex items-center gap-1">
-												<ClockIcon className="w-3 h-3" />
-												<p className="pb-0.5">{score.answerTime}</p>
-											</div>
+						myScore.map((score) => (
+							<div
+								key={score.id}
+								className="flex w-full items-center mb-2 border rounded-md"
+							>
+								<img
+									src={score.imageUrl}
+									alt="チャレンジ画像"
+									className="w-1/4 h-auto rounded-l-md"
+								/>
+								<div className="flex flex-col items-start justify-center w-1/2 text-xs">
+									<div className="pl-4 flex flex-col gap-1">
+										<p className="font-bold">{score.assignment}</p>
+										<div className="flex items-center gap-1">
+											<ClockIcon className="w-3 h-3" />
+											<p className="pb-0.5">{score.answerTime}</p>
 										</div>
 									</div>
-									<p className="w-1/4 text-lg font-bold">{score.point}点</p>
 								</div>
-							))
+								<p className="w-1/4 text-lg font-bold">{score.point}点</p>
+							</div>
+						))
 					)}
 				</Card>
 			</div>
