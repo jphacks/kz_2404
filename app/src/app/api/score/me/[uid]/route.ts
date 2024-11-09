@@ -1,13 +1,15 @@
 import type { NextRequest } from 'next/server';
 import { prisma } from "@lib/prisma";
-import type { MyScoreDetail, Score, ScoreDetail } from "@/types";
+import type { MyScoreDetail, Score } from "@/types";
 
 // GETメソッドのハンドラ関数
 export async function GET(req: NextRequest) {
 	// クエリパラメータを取得
-
-	const { pathname } = new URL(req.url || "");
+	const { pathname, searchParams } = new URL(req.url || "");
 	const uid = pathname.split("/").pop() || "";
+	const limitParam = searchParams.get("limit");
+	const limit = limitParam ? Number.parseInt(limitParam) : 3;
+	const all = searchParams.get("all") === "true";
 
 	if(uid === ""){
 		return new Response(JSON.stringify({ message: "Not Found" }), {
@@ -25,6 +27,8 @@ export async function GET(req: NextRequest) {
 	const myScores: Score[] = await prisma.score.findMany({
 		where: { userId: me?.id },
 		include: { user: true, assignment: true },
+		...(all ? {} : { take: limit }),
+		orderBy: { answerTime: "desc" },
 	});
 
 	// 単語情報を取得（scoreの中にあるassignmentの中にあるwordIdを使って取得するため）
