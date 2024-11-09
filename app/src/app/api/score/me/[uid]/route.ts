@@ -6,13 +6,21 @@ import type { MyScoreDetail } from "@/types";
 function calculateStreakDays(dates: Date[]): number {
 	if (dates.length === 0) return 0;
 
-	dates.sort((a, b) => b.getTime() - a.getTime());
-	let streak = 1;
-	const currentDate = new Date(dates[0]);
+	// 日付をの重複を除去
+	const uniqueDateStrings = Array.from(
+		new Set(dates.map((date) => date.toDateString())),
+	);
+	// 日付オブジェクトに再変換
+	const uniqueDates = uniqueDateStrings.map((dateStr) => new Date(dateStr));
 
-	for (let i = 1; i < dates.length; i++) {
+	uniqueDates.sort((a, b) => b.getTime() - a.getTime()); // 降順にソート
+
+	let streak = 1;
+	const currentDate = new Date(uniqueDates[0]);
+
+	for (let i = 1; i < uniqueDates.length; i++) {
 		currentDate.setDate(currentDate.getDate() - 1);
-		if (dates[i].toDateString() === currentDate.toDateString()) {
+		if (uniqueDates[i].toDateString() === currentDate.toDateString()) {
 			streak++;
 		} else {
 			break;
@@ -21,7 +29,6 @@ function calculateStreakDays(dates: Date[]): number {
 
 	return streak;
 }
-
 // 時間差を「○日前」「○時間前」「○分前」に変換する関数
 function timeAgo(date: Date): string {
 	const now = new Date();
