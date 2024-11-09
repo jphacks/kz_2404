@@ -36,7 +36,7 @@ const TopicTabs: React.FC<TopicTabsProps> = ({ selectedTopic, setSelectedTopic }
           key={topic.assignmentId}
           onClick={() => setSelectedTopic(topic.assignmentId)}
           className={`py-2 px-4 ${
-            selectedTopic === topic.assignmentId ? 'bg-orange-500 text-white' : 'bg-gray-200'
+            selectedTopic === topic.assignmentId ? 'bg-orange-200 text-[#333333]' : 'bg-gray-200'
           } rounded-full`}
         >
           {topic.english}
