@@ -8,69 +8,9 @@ import { FiEdit2 } from "react-icons/fi";
 import { LuClock, LuFlame, LuTrophy } from "react-icons/lu";
 import { VscAccount } from "react-icons/vsc";
 
-const calculateStreak = (scores: MyScoreDetail[]) => {
-	if (scores.length === 0) return 0;
-
-	// 日付でソート（新しい順）
-	const sortedScores = [...scores].sort((a, b) => {
-		return new Date(b.date).getTime() - new Date(a.date).getTime();
-	});
-
-	let currentStreak = 0;
-	const currentDate = new Date();
-
-	// 日付を年月日のみに変換する関数
-	const getDateOnly = (date: Date) => {
-		return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-	};
-
-	// 最新のスコアが今日または昨日でない場合はストリークなし
-	const latestScoreDate = new Date(sortedScores[0].date);
-	const today = getDateOnly(currentDate);
-	const yesterday = new Date(today);
-	yesterday.setDate(yesterday.getDate() - 1);
-
-	if (getDateOnly(latestScoreDate) < getDateOnly(yesterday)) {
-		return 0;
-	}
-
-	// 日付ごとにユニークな記録を取得
-	const uniqueDates = new Set<string>();
-
-	for (let i = 0; i < sortedScores.length; i++) {
-		const scoreDate = getDateOnly(new Date(sortedScores[i].date));
-		const dateStr = scoreDate.toISOString().split("T")[0];
-
-		if (!uniqueDates.has(dateStr)) {
-			const daysDiff = Math.floor(
-				(today.getTime() - scoreDate.getTime()) / (1000 * 60 * 60 * 24),
-			);
-
-			if (daysDiff === currentStreak) {
-				currentStreak++;
-				uniqueDates.add(dateStr);
-			} else {
-				break;
-			}
-		}
-	}
-
-	return currentStreak;
-};
-const calculateHighestScore = (scores: MyScoreDetail[]) => {
-	if (scores.length === 0) return 0;
-	return Math.max(...scores.map((score) => score.point));
-};
-
 const UserPage = () => {
 	const [userData, setUserData] = useState<User>();
 	const [myScore, setMyScore] = useState<MyScoreDetail[]>([]);
-	const [streak, setStreak] = useState(0);
-	const [highestScore, setHighestScore] = useState(0);
-
-	const sortedMyScore = myScore.sort((a, b) => {
-		return new Date(b.date).getTime() - new Date(a.date).getTime();
-	});
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -91,8 +31,6 @@ const UserPage = () => {
 
 				const data = await response.json();
 				setMyScore(data);
-				setStreak(calculateStreak(data));
-				setHighestScore(calculateHighestScore(data));
 			} catch (error) {
 				console.error("エラーが発生しました:", error);
 			}
@@ -129,18 +67,22 @@ const UserPage = () => {
 			<div className="flex justify-center gap-4 w-screen">
 				<Card className="w-40 h-40 flex flex-col items-center justify-center border-none">
 					<LuFlame className="h-12 w-12 text-orange-500 mb-2" />
-					<div className="text-3xl font-bold mb-2">{streak}日</div>
+					<div className="text-3xl font-bold mb-2">
+						{myScore[0]?.streakDays || 0}日
+					</div>
 					<p className="text-xs text-muted-foreground">継続記録</p>
 				</Card>
 				<Card className="w-40 h-40 flex flex-col items-center justify-center border-none">
 					<LuTrophy className="h-12 w-12 text-yellow-500 mb-2" />
-					<div className="text-3xl font-bold mb-2">{highestScore}</div>
+					<div className="text-3xl font-bold mb-2">
+						{myScore[0]?.highestPoint || 0}
+					</div>
 					<p className="text-xs text-muted-foreground">最高点</p>
 				</Card>
 			</div>
 			<Card className="flex flex-col items-center border-none p-8">
 				<h2 className="text-2xl font-bold mb-4">過去のチャレンジ</h2>
-				{sortedMyScore.length === 0 ? (
+				{myScore.length === 0 ? (
 					<div className="text-gray-500 text-center py-8">
 						<p>まだチャレンジの記録がありません</p>
 						<p className="text-sm mt-2">
@@ -148,13 +90,13 @@ const UserPage = () => {
 						</p>
 					</div>
 				) : (
-					sortedMyScore.map((score) => (
+					myScore.map((score) => (
 						<div
 							key={score.id}
 							className="flex w-full items-center mb-2 border rounded-md"
 						>
 							<img
-								src={score.imageUrl}
+								src={score.imageUrl || "https://placehold.jp/150x150.png"}
 								alt="チャレンジ画像"
 								className="w-1/4 h-auto rounded-l-md"
 							/>
