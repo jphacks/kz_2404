@@ -25,7 +25,7 @@ const Footer = () => {
 	};
 
 	return (
-		<footer className="w-full flex justify-around py-2 shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] fixed bottom-0 bg-white z-10">
+		<footer className="w-full flex justify-around py-2 shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] sticky bottom-0 bg-white z-10">
 			<Button
 				variant={activeButton === "camera" ? "iconActive" : "iconDefault"}
 				className="flex flex-col items-center justify-center w-16 h-16"
