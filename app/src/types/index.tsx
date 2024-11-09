@@ -3,9 +3,10 @@
  */
 export type User = {
   displayName: string | null;
-  phoneNumber: string | null;
+  phoneNumber?: string | null;
+  email: string | null;
   photoURL: string | null;
-  providerId: string;
+  providerId?: string;
   uid: string;
 };
 /**
@@ -88,9 +89,13 @@ export type MyScoreDetail = {
   userName: string;
   imageUrl: string;
   point: number;
+  highestPoint: number;
   similarity: number;
   answerTime: string;
+  date: string;
+  streakDays: number;
 };
+
 export type todayAssignment = {
   assignmentId: number;
   english: string;

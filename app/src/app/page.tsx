@@ -14,13 +14,19 @@ export default function Home() {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const uid = localStorage.getItem("userID");
-			if (!uid) {
+			const userIdString = localStorage.getItem("userID");
+			if (!userIdString) {
 				return;
 			}
 
 			try {
-				const response = await fetch(`/api/score/me/${uid}`);
+				const userData = JSON.parse(userIdString);
+				const uid = userData.uid;
+				if (!uid) {
+					throw new Error("User ID not found");
+				}
+
+				const response = await fetch(`/api/score/me/${uid}?limit=3`);
 				if (!response.ok) {
 					throw new Error("データの取得に失敗しました");
 				}
@@ -34,15 +40,8 @@ export default function Home() {
 		fetchData();
 	}, []);
 
-	function calculateDaysAgo(date: Date): string {
-		const today = new Date();
-		const diffTime = Math.abs(today.getTime() - date.getTime());
-		const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-		return `${diffDays}日前`;
-	}
-
 	return (
-		<div className="flex flex-col h-full px-4 py-10">
+		<div className="flex flex-col h-full px-4 py-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
 			<div className="flex flex-col items-center justify-center space-y-6">
 				<Card
 					className="flex flex-col items-center justify-around aspect-square w-full max-w-72 p-6 backdrop-blur-sm"
@@ -69,30 +68,39 @@ export default function Home() {
 						</Button>
 					</div>
 				</Card>
-				<Card className="flex flex-col items-center aspect-square w-10/12 max-w-72 p-6 bg-white/80 backdrop-blur-sm overflow-y-auto">
+				<Card className="flex flex-col items-center aspect-square w-10/12 p-6 bg-white/80 backdrop-blur-sm">
 					<h2 className="text-lg font-semibold mb-4">過去のチャレンジ</h2>
-					{myScore.map((score) => (
-						<div
-							key={score.id}
-							className="flex w-full items-center mb-2 border rounded-md"
-						>
-							<img
-								src={score.imageUrl}
-								alt="チャレンジ画像"
-								className="w-1/4 h-auto rounded-l-md"
-							/>
-							<div className="flex flex-col items-start justify-center w-1/2 text-xs">
-								<div className="pl-4 flex flex-col gap-1">
-									<p className="font-bold">{score.assignment}</p>
-									<div className="flex items-center gap-1">
-										<ClockIcon className="w-3 h-3" />
-										<p className="pb-0.5">{score.answerTime}</p>
+					{myScore.length === 0 ? (
+						<div className="text-gray-500 text-center py-8">
+							<p>まだチャレンジの記録がありません</p>
+							<p className="text-sm mt-2">
+								新しいチャレンジに挑戦してみましょう！
+							</p>
+						</div>
+					) : (
+						myScore.map((score) => (
+							<div
+								key={score.id}
+								className="flex w-full items-center mb-2 border rounded-md"
+							>
+								<img
+									src={score.imageUrl || "https://placehold.jp/150x150.png"}
+									alt="チャレンジ画像"
+									className="w-1/4 h-auto rounded-l-md"
+								/>
+								<div className="flex flex-col items-start justify-center w-1/2 text-xs">
+									<div className="pl-4 flex flex-col gap-1">
+										<p className="font-bold">{score.assignment}</p>
+										<div className="flex items-center gap-1">
+											<ClockIcon className="w-3 h-3" />
+											<p className="pb-0.5">{score.answerTime}</p>
+										</div>
 									</div>
 								</div>
+								<p className="w-1/4 text-lg font-bold">{score.point}点</p>
 							</div>
-							<p className="w-1/4 text-lg font-bold">{score.point}点</p>
-						</div>
-					))}
+						))
+					)}
 				</Card>
 			</div>
 		</div>
