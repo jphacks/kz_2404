@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import type { MyScoreDetail, User } from "@/types";
 import { useEffect, useState } from "react";
 import { FiEdit2 } from "react-icons/fi";
@@ -11,6 +12,7 @@ import { VscAccount } from "react-icons/vsc";
 const UserPage = () => {
 	const [userData, setUserData] = useState<User>();
 	const [myScore, setMyScore] = useState<MyScoreDetail[]>([]);
+	const [isEditing, setIsEditing] = useState(false);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -54,12 +56,36 @@ const UserPage = () => {
 				)}
 				<div className="ml-4 flex flex-col gap-1">
 					<div className="flex items-center">
-						<span className="text-xl font-bold text-[#333333]">
-							{userData.displayName || "user@example.com"}
-						</span>
-						<Button variant={"primary"} className="ml-2">
-							<FiEdit2 />
-						</Button>
+						{isEditing ? (
+							<div className="flex flex-col gap-2">
+								<Input type="text" placeholder="新しいユーザー名を入力" />
+								<div>
+									<Button variant={"default"} className="bg-[#333333]">
+										保存
+									</Button>
+									<Button
+										variant={"outline"}
+										className="ml-2"
+										onClick={() => setIsEditing(false)}
+									>
+										キャンセル
+									</Button>
+								</div>
+							</div>
+						) : (
+							<>
+								<span className="text-xl font-bold text-[#333333]">
+									{userData.displayName || "user@example.com"}
+								</span>
+								<Button
+									variant={"primary"}
+									className="ml-2"
+									onClick={() => setIsEditing(true)}
+								>
+									<FiEdit2 />
+								</Button>
+							</>
+						)}
 					</div>
 					<span className="text-xs text-[#8A8A8A]">{userData.email || ""}</span>
 				</div>
