@@ -1,42 +1,70 @@
-// app/ranking/components/RankingListWeekly.tsx
+import type { RankingScores } from "@/types";
+import { useEffect, useState } from "react";
+
 export default function RankingListWeekly() {
-    const data = [
-        { id: '1', name: 'yama', totalScore: '500点' },
-        { id: '2', name: 'taro', totalScore: '450点' },
-        { id: '3', name: 'hanako', totalScore: '400点' },
-        { id: '4', name: 'jiro', totalScore: '350点' },
-        { id: '5', name: 'saburo', totalScore: '300点' },
-        // 他のデータ
-    ];
+	const [data, setData] = useState<RankingScores[]>([]);
 
-    return (
-        <div className="mt-4 space-y-4">
-        {data.map((item, index) => {
-            let bgColor;
-            switch (index + 1) {
-            case 1:
-                bgColor = 'bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600';
-                break;
-            case 2:
-                bgColor = 'bg-gradient-to-r from-gray-300 via-gray-400 to-gray-500';
-                break;
-            case 3:
-                bgColor = 'bg-gradient-to-r from-yellow-600 via-yellow-700 to-yellow-800';
-                break;
-            default:
-                bgColor = 'bg-gray-200';
-            }
+	useEffect(() => {
+		const fetchData = () => {
+			return fetch("/api/scores/weekly").then((response) => {
+				if (!response.ok) {
+					throw new Error("Failed to fetch data");
+				}
+				return response.json();
+			});
+		};
 
-            return (
-                <div key={item.id} className={`flex items-center ${bgColor} p-4 rounded-lg shadow`}>
-                    <div className="text-xl font-bold text-gray-600">{index + 1}位</div>
-                    <div className="ml-4">
-                        <p className="font-bold">{item.name}</p>
-                    </div>
-                    <div className="ml-auto text-2xl font-bold text-gray-700">{item.totalScore}</div>
-                </div>
-            );
-        })}
-        </div>
-    );
+		fetchData()
+			.then((result) => setData(result))
+			.catch((error) => console.error("Error fetching data:", error));
+	}, []);
+
+	return (
+		<div className="mt-4 space-y-4">
+			{data.map((item: RankingScores, index: number) => {
+				const bgColor = index < 3 ? "#FF643F" : "white";
+				const textColor = index < 3 ? "white" : "#333333";
+				const triangleColor = index < 3 ? "#005384" : "#BABABA";
+
+				return (
+					<div key={item.id}>
+						<div
+							className="h-20 relative flex items-center rounded-2xl shadow"
+							style={{ backgroundColor: bgColor, color: textColor }}
+						>
+							<div
+								className="absolute -top-[4px] -left-[4px] text-base font-bold rounded-br-lg shadow-lg"
+								style={{
+									clipPath: "polygon(0 0, 100% 0, 0 100%)",
+									width: "60px",
+									height: "60px",
+									display: "flex",
+									alignItems: "flex-start",
+									justifyContent: "flex-start",
+									padding: "1px 4px",
+									backgroundColor: triangleColor,
+									color: textColor,
+									borderRadius: "3px 6px",
+								}}
+							>
+								{index + 1}位
+							</div>
+							<div className="ml-8 flex flex-col w-1/5">
+								<p className="font-bold break-words">{item.userName}</p>
+							</div>
+							<div
+								className="pr-5 ml-auto text-2xl font-bold"
+								style={{ color: textColor }}
+							>
+								{item.totalPoint}
+							</div>
+						</div>
+						{index === 2 && (
+							<hr className="my-4 h-0.5 border-t-0 bg-gray-300" />
+						)}
+					</div>
+				);
+			})}
+		</div>
+	);
 }
