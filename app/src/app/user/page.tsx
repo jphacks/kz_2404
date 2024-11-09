@@ -43,7 +43,7 @@ const UserPage = () => {
 
 	if (!userData) return null;
 	return (
-		<div className="w-screen h-screen flex flex-col gap-4 items-center p-4 pt-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
+		<div className="w-screen h-full flex flex-col gap-4 items-center p-4 pt-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
 			<div className="flex items-center mb-4">
 				{userData.photoURL ? (
 					<img

@@ -41,7 +41,7 @@ export default function Home() {
 	}, []);
 
 	return (
-		<div className="flex flex-col h-screen px-4 py-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
+		<div className="flex flex-col h-full px-4 py-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
 			<div className="flex flex-col items-center justify-center space-y-6">
 				<Card
 					className="flex flex-col items-center justify-around aspect-square w-full max-w-72 p-6 backdrop-blur-sm"
