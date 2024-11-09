@@ -1,4 +1,4 @@
-export const postSimirality = async (assignment: string, words: string[]) => {
+export const postSimilarity = async (assignment: string, words: string[]) => {
     // TODO クライアントサイドかサーバーサイドかでURLを変更する
     // サーバーサイドの場合は、http://FastAPI:9004/similarity
     const response = await fetch('http://localhost:9004/similarity', {
@@ -6,7 +6,7 @@ export const postSimirality = async (assignment: string, words: string[]) => {
         headers: {
         'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ asignmentWord: assignment, words: words }),
+        body: JSON.stringify({ assignmentWord: assignment, words: words }),
     });
 
     if (!response.ok) {
