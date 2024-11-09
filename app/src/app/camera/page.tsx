@@ -126,10 +126,30 @@ const CameraApp = () => {
 			const base64Response = await fetch(imageData);
 			const blob = await base64Response.blob();
 
-			const formData = new FormData();
-			formData.append("image", blob, "image.jpg");
+			// 拡張子取得
+			const Extension = blob.type.split('/')[1];
 
-			const response = await fetch("/api/upload", {
+			// 日付取得
+			const date = new Date();
+			const thisMonth = date.getMonth() + 1;
+			const month = thisMonth < 10 ? '0' + thisMonth : thisMonth;
+			const day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+			const formattedDate = `${date.getFullYear()}${month}${day}`;
+
+			// ランダム文字列を生成する関数
+			const generateRandomString = (charCount = 7): string => {
+			const str = Math.random().toString(36).substring(2).slice(-charCount);
+			return str.length < charCount ? str + 'a'.repeat(charCount - str.length) : str;
+			};
+
+			const randomStr = generateRandomString();
+			// ファイル名作成
+			const imageName = `${formattedDate}_${randomStr}.${Extension}`;
+
+			const formData = new FormData();
+			formData.append("image", blob, imageName);
+
+			const response = await fetch("/api/minio", {
 				method: "POST",
 				body: formData,
 			});
