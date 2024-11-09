@@ -89,9 +89,11 @@ export type MyScoreDetail = {
   userName: string;
   imageUrl: string;
   point: number;
+  highestPoint: number;
   similarity: number;
   answerTime: string;
   date: string;
+  streakDays: number;
 };
 
 export type todayAssignment = {
