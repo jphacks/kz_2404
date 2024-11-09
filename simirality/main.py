@@ -32,24 +32,24 @@ class Words(BaseModel):
 
 @app.post("/similarity")
 async def similarity(reqWords: Words):
-    asignmentWord = reqWords.asignmentWord
+    assignmentWord = reqWords.assignmentWord
     words = reqWords.words
 
-    asignmentWord_synset = wn.synset(f"{asignmentWord}.n.01")
+    assignmentWord_synset = wn.synset(f"{assignmentWord}.n.01")
 
     highscore = 0
     for word in words:
         print(f"word: {word}")
         try:
             word_synset = wn.synset(f"{word}.n.01")
-            similarity = asignmentWord_synset.wup_similarity(word_synset)
+            similarity = assignmentWord_synset.wup_similarity(word_synset)
             print(f"{word}: {similarity}")
 
-            if asignmentWord == word:
+            if assignmentWord == word:
                 similarity = 1.0
 
             if similarity is None:
-                print(f"'{asignmentWord}' と '{word}' の類似度を計算できません。")
+                print(f"'{assignmentWord}' と '{word}' の類似度を計算できません。")
 
             if similarity > highscore:
                 highscore = similarity
