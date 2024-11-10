@@ -1,15 +1,13 @@
-import type { NextRequest } from 'next/server';
-import { prisma } from "@lib/prisma";
 import type { MyScoreDetail } from "@/types";
+import { prisma } from "@lib/prisma";
+import type { NextRequest } from "next/server";
 
 // 連続日数を計算する関数
 function calculateStreakDays(dates: Date[]): number {
 	if (dates.length === 0) return 0;
 
 	// 日付をの重複を除去
-	const uniqueDateStrings = Array.from(
-		new Set(dates.map((date) => date.toDateString())),
-	);
+	const uniqueDateStrings = Array.from(new Set(dates.map((date) => date.toDateString())));
 	// 日付オブジェクトに再変換
 	const uniqueDates = uniqueDateStrings.map((dateStr) => new Date(dateStr));
 
@@ -101,8 +99,7 @@ export async function GET(req: NextRequest) {
 	// スコア情報を整形
 	const myScoreDetails: MyScoreDetail[] = scoresToReturn.map((score) => {
 		const answerIntervalTimeMilliseconds =
-			new Date(score.answerTime).getTime() -
-			new Date(score.assignment.date).getTime();
+			new Date(score.answerTime).getTime() - new Date(score.assignment.date).getTime();
 		const answerIntervalTimeSeconds = answerIntervalTimeMilliseconds / 1000;
 
 		return {

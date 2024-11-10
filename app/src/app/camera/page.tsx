@@ -83,9 +83,7 @@ const CameraApp = () => {
 	const [tempImage, setTempImage] = useState<string | null>(null);
 	const camera = useRef<CameraType>(null);
 	const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
-	const [activeDeviceId, setActiveDeviceId] = useState<string | undefined>(
-		undefined,
-	);
+	const [activeDeviceId, setActiveDeviceId] = useState<string | undefined>(undefined);
 	const [currentDeviceIndex, setCurrentDeviceIndex] = useState<number>(0);
 
 	useEffect(() => {
@@ -97,9 +95,7 @@ const CameraApp = () => {
 
 			try {
 				const devices = await navigator.mediaDevices.enumerateDevices();
-				const videoDevices = devices.filter(
-					(device) => device.kind === "videoinput",
-				);
+				const videoDevices = devices.filter((device) => device.kind === "videoinput");
 				setDevices(videoDevices);
 				if (videoDevices.length > 0) {
 					setActiveDeviceId(videoDevices[0].deviceId);
@@ -127,19 +123,19 @@ const CameraApp = () => {
 			const blob = await base64Response.blob();
 
 			// 拡張子取得
-			const Extension = blob.type.split('/')[1];
+			const Extension = blob.type.split("/")[1];
 
 			// 日付取得
 			const date = new Date();
 			const thisMonth = date.getMonth() + 1;
-			const month = thisMonth < 10 ? '0' + thisMonth : thisMonth;
-			const day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+			const month = thisMonth < 10 ? "0" + thisMonth : thisMonth;
+			const day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
 			const formattedDate = `${date.getFullYear()}${month}${day}`;
 
 			// ランダム文字列を生成する関数
 			const generateRandomString = (charCount = 7): string => {
-			const str = Math.random().toString(36).substring(2).slice(-charCount);
-			return str.length < charCount ? str + 'a'.repeat(charCount - str.length) : str;
+				const str = Math.random().toString(36).substring(2).slice(-charCount);
+				return str.length < charCount ? str + "a".repeat(charCount - str.length) : str;
 			};
 
 			const randomStr = generateRandomString();
@@ -185,9 +181,7 @@ const CameraApp = () => {
 
 	const handleImageCapture = (capturedImage: string | ImageData) => {
 		const imageStr =
-			capturedImage instanceof ImageData
-				? imageDataToBase64(capturedImage)
-				: capturedImage;
+			capturedImage instanceof ImageData ? imageDataToBase64(capturedImage) : capturedImage;
 
 		setTempImage(imageStr);
 		setShowConfirmDialog(true);
@@ -263,9 +257,7 @@ const CameraApp = () => {
 			<AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
 				<AlertDialogContent className="w-5/6 rounded-lg">
 					<AlertDialogHeader>
-						<AlertDialogTitle className="text-center">
-							画像のアップロード確認
-						</AlertDialogTitle>
+						<AlertDialogTitle className="text-center">画像のアップロード確認</AlertDialogTitle>
 						<AlertDialogDescription className="text-center">
 							この画像をアップロードしてもよろしいですか？
 						</AlertDialogDescription>

@@ -1,5 +1,5 @@
-import type { NextRequest } from 'next/server';
 import { prisma } from "@lib/prisma";
+import type { NextRequest } from "next/server";
 
 type ResponseData = {
 	message: string;

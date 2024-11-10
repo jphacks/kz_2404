@@ -1,6 +1,6 @@
-import type { NextRequest } from 'next/server';
-import { prisma } from "@lib/prisma";
 import type { Score, ScoreDetail, Word } from "@/types";
+import { prisma } from "@lib/prisma";
+import type { NextRequest } from "next/server";
 
 // GETメソッドのハンドラ関数
 export async function GET(req: NextRequest) {
@@ -27,12 +27,12 @@ export async function GET(req: NextRequest) {
 	});
 
 	const word: Word | null = await prisma.word.findFirst({
-		where: { id: scores[0].assignment.wordId },
+		where: { id: scores[0].assignment?.wordId },
 	});
 
 	const scoreDetails: ScoreDetail[] = scores.map((score) => {
 		const answerIntervalTimeMilliseconds =
-			score.answerTime.getTime() - score.assignment.date.getTime();
+			score.answerTime.getTime() - (score.assignment?.date?.getTime() || 0);
 		const answerIntervalTimeSeconds = answerIntervalTimeMilliseconds / 1000;
 		const scoreDetail: ScoreDetail = {
 			id: score.id,

@@ -1,6 +1,5 @@
-;import { prisma } from "@lib/prisma";
 import type { Assignment } from "@/types";
-
+import { prisma } from "@lib/prisma";
 
 // 課題新規作成（ランダム）
 export async function POST() {
@@ -28,5 +27,3 @@ export async function POST() {
 		});
 	}
 }
-
-

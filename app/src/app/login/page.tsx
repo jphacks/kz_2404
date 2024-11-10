@@ -1,12 +1,6 @@
 import { LoginButton } from "@/components/LoginButton";
 import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 
 export default function Home() {
@@ -23,9 +17,7 @@ export default function Home() {
 								objectFit="contain"
 							/>
 						</div>
-						<CardTitle className="text-3xl font-bold text-primary">
-							Lets Pics
-						</CardTitle>
+						<CardTitle className="text-3xl font-bold text-primary">Lets Pics</CardTitle>
 						<CardDescription>Share your moments with friends!</CardDescription>
 					</CardHeader>
 					<CardContent>

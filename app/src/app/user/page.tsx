@@ -46,11 +46,7 @@ const UserPage = () => {
 		<div className="w-screen h-full flex flex-col gap-4 items-center p-4 pt-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
 			<div className="flex items-center mb-4">
 				{userData.photoURL ? (
-					<img
-						src={userData.photoURL}
-						alt="User Icon"
-						className="w-16 h-16 rounded-full"
-					/>
+					<img src={userData.photoURL} alt="User Icon" className="w-16 h-16 rounded-full" />
 				) : (
 					<VscAccount className="w-16 h-16 text-[#333333]" />
 				)}
@@ -63,11 +59,7 @@ const UserPage = () => {
 									<Button variant={"default"} className="bg-[#333333]">
 										保存
 									</Button>
-									<Button
-										variant={"outline"}
-										className="ml-2"
-										onClick={() => setIsEditing(false)}
-									>
+									<Button variant={"outline"} className="ml-2" onClick={() => setIsEditing(false)}>
 										キャンセル
 									</Button>
 								</div>
@@ -77,11 +69,7 @@ const UserPage = () => {
 								<span className="text-xl font-bold text-[#333333]">
 									{userData.displayName || "user@example.com"}
 								</span>
-								<Button
-									variant={"primary"}
-									className="ml-2"
-									onClick={() => setIsEditing(true)}
-								>
+								<Button variant={"primary"} className="ml-2" onClick={() => setIsEditing(true)}>
 									<FiEdit2 />
 								</Button>
 							</>
@@ -93,16 +81,12 @@ const UserPage = () => {
 			<div className="flex justify-center gap-4 w-screen">
 				<Card className="w-40 h-40 flex flex-col items-center justify-center border-none">
 					<LuFlame className="h-12 w-12 text-orange-500 mb-2" />
-					<div className="text-3xl font-bold mb-2">
-						{myScore[0]?.streakDays || 0}日
-					</div>
+					<div className="text-3xl font-bold mb-2">{myScore[0]?.streakDays || 0}日</div>
 					<p className="text-xs text-muted-foreground">継続記録</p>
 				</Card>
 				<Card className="w-40 h-40 flex flex-col items-center justify-center border-none">
 					<LuTrophy className="h-12 w-12 text-yellow-500 mb-2" />
-					<div className="text-3xl font-bold mb-2">
-						{myScore[0]?.highestPoint || 0}
-					</div>
+					<div className="text-3xl font-bold mb-2">{myScore[0]?.highestPoint || 0}</div>
 					<p className="text-xs text-muted-foreground">最高点</p>
 				</Card>
 			</div>
@@ -111,16 +95,11 @@ const UserPage = () => {
 				{myScore.length === 0 ? (
 					<div className="text-gray-500 text-center py-8">
 						<p>まだチャレンジの記録がありません</p>
-						<p className="text-sm mt-2">
-							新しいチャレンジに挑戦してみましょう！
-						</p>
+						<p className="text-sm mt-2">新しいチャレンジに挑戦してみましょう！</p>
 					</div>
 				) : (
 					myScore.map((score) => (
-						<div
-							key={score.id}
-							className="flex w-full items-center mb-2 border rounded-md"
-						>
+						<div key={score.id} className="flex w-full items-center mb-2 border rounded-md">
 							<img
 								src={score.imageUrl || "https://placehold.jp/150x150.png"}
 								alt="チャレンジ画像"

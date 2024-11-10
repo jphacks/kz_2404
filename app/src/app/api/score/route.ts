@@ -3,22 +3,22 @@ import { prisma } from "@lib/prisma";
 import type { NextRequest } from "next/server";
 
 const assignmentDate = async function GET() {
-  const assignment = await prisma.assignment.findFirst({
-    select: { date: true },
-  });
-  const date = assignment?.date ?? null;
+	const assignment = await prisma.assignment.findFirst({
+		select: { date: true },
+	});
+	const date = assignment?.date ?? null;
 
-  return new Response(JSON.stringify({ date }), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
+	return new Response(JSON.stringify({ date }), {
+		status: 200,
+		headers: { "Content-Type": "application/json" },
+	});
 };
 
 export async function POST(req: NextRequest) {
-  const reader = req.body?.getReader();
-  if (!reader) {
-    return new Response("リクエストボディが存在しません", { status: 400 });
-  }
+	const reader = req.body?.getReader();
+	if (!reader) {
+		return new Response("リクエストボディが存在しません", { status: 400 });
+	}
 	const { value } = await reader.read();
 	const scoreData = new TextDecoder().decode(value);
 	const score = JSON.parse(scoreData);

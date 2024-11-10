@@ -73,16 +73,11 @@ export default function Home() {
 					{myScore.length === 0 ? (
 						<div className="text-gray-500 text-center py-8">
 							<p>まだチャレンジの記録がありません</p>
-							<p className="text-sm mt-2">
-								新しいチャレンジに挑戦してみましょう！
-							</p>
+							<p className="text-sm mt-2">新しいチャレンジに挑戦してみましょう！</p>
 						</div>
 					) : (
 						myScore.map((score) => (
-							<div
-								key={score.id}
-								className="flex w-full items-center mb-2 border rounded-md"
-							>
+							<div key={score.id} className="flex w-full items-center mb-2 border rounded-md">
 								<img
 									src={score.imageUrl || "https://placehold.jp/150x150.png"}
 									alt="チャレンジ画像"
