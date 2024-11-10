@@ -1,5 +1,5 @@
-import type { NextRequest } from 'next/server';
 import { prisma } from "@lib/prisma";
+import type { NextRequest } from "next/server";
 
 type ResponseData = {
 	message: string;
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
 		});
 	}
 
-	return new Response(JSON.stringify({ message: "すでに登録されています!" }), {
+	return new Response(JSON.stringify(user), {
 		status: 200,
 		headers: { "Content-Type": "application/json" },
 	});
