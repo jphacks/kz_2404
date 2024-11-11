@@ -13,14 +13,21 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+const BUCKET_NAME = "kz2404";
+
 export async function GET(
   req: NextRequest,
   res: NextApiResponse<ResponseData>
 ) {
-  return await generateCaption()
+  	// クエリパラメータを取得
+	const { searchParams } = new URL(req.url || "");
+	const imageName = searchParams.get("imageName") || "default-image-name";
+  const imageURL = `${process.env.NEXT_PUBLIC_MINIO_ENDPOINT}${BUCKET_NAME}/${imageName}`;
+
+  return await generateCaption(imageURL)
     .then((caption) => {
       console.log(caption);
-      return new Response(JSON.stringify({ message: caption }), {
+      return new Response(JSON.stringify({ caption }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
@@ -35,12 +42,8 @@ export async function GET(
 }
 
 // 画像URLからキャプションを生成する関数
-const generateCaption = async () => {
+export const generateCaption = async (imageUrl: string) => {
   try {
-    // 猿人の画像URL
-    const imageUrl =
-      "https://www.cnn.co.jp/storage/2020/01/31/f85a2dac057ec8b6d8e08e9fec7a49e5/t/768/432/d/180226123522-neanderthal-man-super-169.jpg";
-
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -68,7 +71,7 @@ const generateCaption = async () => {
       ],
     });
 
-    const caption = completion.choices[0].message.content;
+    const caption = await completion.choices[0].message.content;
     return caption;
   } catch (error) {
     console.error("Error generating caption:", error);

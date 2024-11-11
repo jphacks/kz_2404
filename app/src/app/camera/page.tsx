@@ -16,11 +16,13 @@ import { Label } from "@/components/ui/label";
 import { shapeCaption } from "@/functions/shapeCaption";
 import { postSimilarity } from "@/functions/simirality";
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { Camera, type CameraType } from "react-camera-pro";
 import AddImageIcon from "../../../public/icons/icon-add-image.svg";
 import RotateCameraIcon from "../../../public/icons/icon-rotate-camera.svg";
 import ShutterIcon from "../../../public/icons/icon-shutter.svg";
+import { generateCaption } from "../../functions/gpt";
+import { User } from "@firebase/auth";
 
 interface ImagePreviewProps {
 	image: string | null;
@@ -39,6 +41,8 @@ interface ScoreData {
 	assignmentId: number;
 	userId: number;
 }
+
+const BUCKET_NAME = 'kz2404';
 
 const ImagePreview = ({ image, onClick }: ImagePreviewProps) => (
 	<div
@@ -163,24 +167,40 @@ const CameraApp = () => {
 			});
 
 			const data = await response.json();
+
 			return { imageName, data };
 		} catch (error) {
 			console.error("画像のアップロードに失敗しました:", error);
 			throw error;
-		} finally {
-			setIsUploading(false);
+		}
+	};
+
+	const getCaption = async (
+		imageName: string,
+	): Promise<{ caption: string }> => {
+		try {
+			const response = await fetch(`/api/image?imageName=${imageName}`);
+			if (!response.ok) {
+				throw new Error("キャプションの取得に失敗しました");
+			}
+
+			return await response.json();
+		}
+		catch (error) {
+			console.error("キャプションの取得に失敗しました:", error);
+			throw error;
 		}
 	};
 
 	// スコア計算を行います。
-	const similarityRequest = async () => {
-		// TODO ここでminioから画像取得→画像からキャプションの生成　を行う。別関数にしてもいいかも？
-		// TODO helloはキャプションされた英文に変更する。
-		const words: string[] = shapeCaption("hello");
+	const similarityRequest = async (caption: string) => {
+		const words: string[] = shapeCaption(caption);
+
 		const response = await fetch("/api/assignment/latest");
 		if (!response.ok) {
 			throw new Error("データ取得に失敗しました");
 		}
+	
 		const assignmentData = await response.json();
 		const assignmentWord: string = assignmentData.english;
 		const resSimilarity = await postSimilarity(assignmentWord, words);
@@ -192,11 +212,13 @@ const CameraApp = () => {
 
 	// userIdの取得
 	const getUserId = async () => {
-		const userId = localStorage.getItem("userID");
-		if (userId === null) {
-			return;
+		const userString = localStorage.getItem("userID");
+		if(userString === null) {
+			return null;
 		}
-		const resUserId = await fetch("/api/user?uid=" + userId, {
+		const userData = JSON.parse(userString);
+
+		const resUserId = await fetch("/api/user?uid=" + userData.uid, {
 			method: "GET",
 			headers: {
 				"Content-Type": "application/json",
@@ -220,7 +242,7 @@ const CameraApp = () => {
 			return;
 		}
 
-		const result = await response.json();
+		return await response.json();
 	};
 
 	const handleConfirm = async () => {
@@ -228,25 +250,39 @@ const CameraApp = () => {
 			try {
 				const { imageName } = await uploadImage(tempImage);
 				// TODO 以下のパスは本番環境時に変更する
-				const imageUrl = `https://minio/9000/` + imageName;
+				// GPTでキャプション生成
+				const imageURL = `${process.env.NEXT_PUBLIC_MINIO_ENDPOINT}${BUCKET_NAME}/${imageName}`;
+
+				const res = await getCaption(imageName);
+				const caption = res.caption;
+
+				console.log("caption:", caption);
+
 				setShowConfirmDialog(false);
 				setImage(tempImage);
 				setShowImage(true);
 				setTempImage(null);
 
 				// hack あらゆるところからデータを取得しているのきもいですね。。。
-				const { similarity, assignmentId } = await similarityRequest();
+				const { similarity, assignmentId } = await similarityRequest(caption);
+
 				const user = await getUserId();
 				const userId: number = user.id;
+
 				const scoreData: ScoreData = {
 					similarity: similarity,
 					answerTime: new Date(),
-					imageUrl: imageUrl,
+					imageUrl: imageURL,
 					assignmentId: assignmentId,
 					userId: userId,
 				};
-				await submitScore(scoreData);
+				const response = await submitScore(scoreData);
+				const score = response.score;
+				const percentSimilarity = Math.floor(similarity * 100);
+				const message = `${caption} \n類似度  ${percentSimilarity}% \nスコア: ${score.point}`;
+				window.alert(message);
 			} catch (error) {
+				setIsUploading(false);
 				console.error("アップロード中にエラーが発生しました:", error);
 			}
 		}

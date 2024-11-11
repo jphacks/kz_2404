@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     };
 
     try {
-      const response = await minioClient.putObject(
+      await minioClient.putObject(
         BUCKET_NAME,
         image.originalFilename,
         fs.createReadStream(image.filepath),
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     }
   });
 
-  return new Response(JSON.stringify({ message: '成功' }), {
+  return new Response(JSON.stringify({ message: "成功" }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' },
   });
