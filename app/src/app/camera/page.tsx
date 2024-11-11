@@ -21,8 +21,8 @@ import { Camera, type CameraType } from "react-camera-pro";
 import AddImageIcon from "../../../public/icons/icon-add-image.svg";
 import RotateCameraIcon from "../../../public/icons/icon-rotate-camera.svg";
 import ShutterIcon from "../../../public/icons/icon-shutter.svg";
-import { generateCaption } from "../../functions/gpt";
-import { User } from "@firebase/auth";
+import { toast } from "sonner"
+import { Toaster } from "@/components/ui/sonner"
 
 interface ImagePreviewProps {
 	image: string | null;
@@ -279,8 +279,9 @@ const CameraApp = () => {
 				const response = await submitScore(scoreData);
 				const score = response.score;
 				const percentSimilarity = Math.floor(similarity * 100);
-				const message = `${caption} \n類似度  ${percentSimilarity}% \nスコア: ${score.point}`;
-				window.alert(message);
+				const message = `${caption} 類似度  ${percentSimilarity}% スコア: ${score.point}`;
+				setIsUploading(false);
+				toast(message)
 			} catch (error) {
 				setIsUploading(false);
 				console.error("アップロード中にエラーが発生しました:", error);
@@ -387,6 +388,7 @@ const CameraApp = () => {
 			</AlertDialog>
 
 			{isUploading && <LoadingSpinner />}
+			<Toaster />
 		</>
 	);
 };
