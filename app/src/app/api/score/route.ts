@@ -3,51 +3,60 @@ import { prisma } from "@lib/prisma";
 import type { NextRequest } from "next/server";
 
 const assignmentDate = async function GET() {
-  const assignment = await prisma.assignment.findFirst({
-    select: { date: true },
-  });
-  const date = assignment?.date ?? null;
+	const assignment = await prisma.assignment.findFirst({
+		select: { date: true },
+	});
+	const date = assignment?.date ?? null;
 
-  return new Response(JSON.stringify({ date }), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
+	return new Response(JSON.stringify({ date }), {
+		status: 200,
+		headers: { "Content-Type": "application/json" },
+	});
 };
 
 export async function POST(req: NextRequest) {
-  const reader = req.body?.getReader();
-  if (!reader) {
-    return new Response("リクエストボディが存在しません", { status: 400 });
-  }
-	const { value } = await reader.read();
-	const scoreData = new TextDecoder().decode(value);
-	const score = JSON.parse(scoreData);
-	// 最大評価一分、最低評価60分
+	const body = await req.json();
+
+	// scoreDataを解構して必要なプロパティを取得
+	const { similarity, answerTime, imageUrl, assignmentId, userId } = body.scoreData;
+
+	// 必須データの存在確認
+	if (
+		similarity == null ||
+		answerTime == null ||
+		imageUrl == null ||
+		assignmentId == null ||
+		userId == null
+	) {
+		return new Response("必要なデータが不足しています", { status: 400 });
+	}
+
+	// ポイントの計算
 	const minTime = 60;
 	const maxTime = 3600;
-	// assignment.dateをget
+
 	const response = await assignmentDate();
 	const assignmentDateValue = await response.json();
-	// ポイントの計算
-	const answerIntervalTime = score.answerTime - assignmentDateValue || 0;
+
+	const answerIntervalTime =
+		new Date(answerTime).getTime() - new Date(assignmentDateValue.date).getTime();
 	const normalizedTime = Math.max(
 		0,
-		Math.min(1, (answerIntervalTime - minTime) / (maxTime - minTime)),
+		Math.min(1, (answerIntervalTime / 1000 - minTime) / (maxTime - minTime)),
 	);
-	const point = score.similarity * 70 + (1 - normalizedTime) * 30;
+	const point = similarity * 70 + (1 - normalizedTime) * 30;
 
-	const registerScore: Score = await prisma.score.create({
+	const score: Score = await prisma.score.create({
 		data: {
-			id: score.id,
 			point: point,
-			similarity: score.similarity,
-			imageUrl: score.imageUrl,
-			assignmentId: score.assignmentId,
-			userId: score.userId,
+			similarity: similarity,
+			imageUrl: imageUrl,
+			assignmentId: assignmentId,
+			userId: userId,
 		},
 	});
 
-	return new Response(JSON.stringify({ registerScore }), {
+	return new Response(JSON.stringify({ message: "successful POST" }), {
 		status: 200,
 		headers: { "Content-Type": "application/json" },
 	});

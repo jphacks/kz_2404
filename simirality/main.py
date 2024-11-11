@@ -26,7 +26,7 @@ async def root():
 
 
 class Words(BaseModel):
-    asignmentWord: str
+    assignmentWord: str
     words: List[str]
 
 
@@ -62,4 +62,4 @@ async def similarity(reqWords: Words):
 # MEMO こんな感じでPOSTリクエストを送る
 #  curl -X POST "http://localhost:9004/similarity" \
 # -H "Content-Type: application/json" \
-# -d '{"asignmentWord": "dog", "words": ["apple", "banana", "cherry"]}'
+# -d '{"assignmentWord": "dog", "words": ["apple", "banana", "cherry"]}'

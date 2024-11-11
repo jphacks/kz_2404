@@ -13,6 +13,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { shapeCaption } from "@/functions/shapeCaption";
+import { postSimilarity } from "@/functions/simirality";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Camera, type CameraType } from "react-camera-pro";
@@ -28,6 +30,14 @@ interface ImagePreviewProps {
 interface UploadResponse {
 	url: string;
 	success: boolean;
+}
+
+interface ScoreData {
+	similarity: number;
+	answerTime: Date;
+	imageUrl: string;
+	assignmentId: number;
+	userId: number;
 }
 
 const ImagePreview = ({ image, onClick }: ImagePreviewProps) => (
@@ -83,9 +93,7 @@ const CameraApp = () => {
 	const [tempImage, setTempImage] = useState<string | null>(null);
 	const camera = useRef<CameraType>(null);
 	const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
-	const [activeDeviceId, setActiveDeviceId] = useState<string | undefined>(
-		undefined,
-	);
+	const [activeDeviceId, setActiveDeviceId] = useState<string | undefined>(undefined);
 	const [currentDeviceIndex, setCurrentDeviceIndex] = useState<number>(0);
 
 	useEffect(() => {
@@ -97,9 +105,7 @@ const CameraApp = () => {
 
 			try {
 				const devices = await navigator.mediaDevices.enumerateDevices();
-				const videoDevices = devices.filter(
-					(device) => device.kind === "videoinput",
-				);
+				const videoDevices = devices.filter((device) => device.kind === "videoinput");
 				setDevices(videoDevices);
 				if (videoDevices.length > 0) {
 					setActiveDeviceId(videoDevices[0].deviceId);
@@ -120,26 +126,28 @@ const CameraApp = () => {
 		}
 	};
 
-	const uploadImage = async (imageData: string): Promise<UploadResponse> => {
+	const uploadImage = async (
+		imageData: string,
+	): Promise<{ imageName: string; data: UploadResponse }> => {
 		setIsUploading(true);
 		try {
 			const base64Response = await fetch(imageData);
 			const blob = await base64Response.blob();
 
 			// 拡張子取得
-			const Extension = blob.type.split('/')[1];
+			const Extension = blob.type.split("/")[1];
 
 			// 日付取得
 			const date = new Date();
 			const thisMonth = date.getMonth() + 1;
-			const month = thisMonth < 10 ? '0' + thisMonth : thisMonth;
-			const day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+			const month = thisMonth < 10 ? "0" + thisMonth : thisMonth;
+			const day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
 			const formattedDate = `${date.getFullYear()}${month}${day}`;
 
 			// ランダム文字列を生成する関数
 			const generateRandomString = (charCount = 7): string => {
-			const str = Math.random().toString(36).substring(2).slice(-charCount);
-			return str.length < charCount ? str + 'a'.repeat(charCount - str.length) : str;
+				const str = Math.random().toString(36).substring(2).slice(-charCount);
+				return str.length < charCount ? str + "a".repeat(charCount - str.length) : str;
 			};
 
 			const randomStr = generateRandomString();
@@ -155,7 +163,7 @@ const CameraApp = () => {
 			});
 
 			const data = await response.json();
-			return data;
+			return { imageName, data };
 		} catch (error) {
 			console.error("画像のアップロードに失敗しました:", error);
 			throw error;
@@ -164,14 +172,80 @@ const CameraApp = () => {
 		}
 	};
 
+	// スコア計算を行います。
+	const similarityRequest = async () => {
+		// TODO ここでminioから画像取得→画像からキャプションの生成　を行う。別関数にしてもいいかも？
+		// TODO helloはキャプションされた英文に変更する。
+		const words: string[] = shapeCaption("hello");
+		const response = await fetch("/api/assignment/latest");
+		if (!response.ok) {
+			throw new Error("データ取得に失敗しました");
+		}
+		const assignmentData = await response.json();
+		const assignmentWord: string = assignmentData.english;
+		const resSimilarity = await postSimilarity(assignmentWord, words);
+		return {
+			similarity: resSimilarity.similarity as number,
+			assignmentId: assignmentData.assignmentId as number,
+		};
+	};
+
+	// userIdの取得
+	const getUserId = async () => {
+		const userId = localStorage.getItem("userID");
+		if (userId === null) {
+			return;
+		}
+		const resUserId = await fetch("/api/user?uid=" + userId, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+			},
+		});
+		return await resUserId.json();
+	};
+
+	// scoreの送信
+	const submitScore = async (scoreData: ScoreData) => {
+		const response = await fetch("/api/score", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ scoreData }),
+		});
+
+		if (!response.ok) {
+			console.error("スコアの送信に失敗しました", response.statusText);
+			return;
+		}
+
+		const result = await response.json();
+	};
+
 	const handleConfirm = async () => {
 		if (tempImage) {
 			try {
-				await uploadImage(tempImage);
+				const { imageName } = await uploadImage(tempImage);
+				// TODO 以下のパスは本番環境時に変更する
+				const imageUrl = `https://minio/9000/` + imageName;
 				setShowConfirmDialog(false);
 				setImage(tempImage);
 				setShowImage(true);
 				setTempImage(null);
+
+				// hack あらゆるところからデータを取得しているのきもいですね。。。
+				const { similarity, assignmentId } = await similarityRequest();
+				const user = await getUserId();
+				const userId: number = user.id;
+				const scoreData: ScoreData = {
+					similarity: similarity,
+					answerTime: new Date(),
+					imageUrl: imageUrl,
+					assignmentId: assignmentId,
+					userId: userId,
+				};
+				await submitScore(scoreData);
 			} catch (error) {
 				console.error("アップロード中にエラーが発生しました:", error);
 			}
@@ -185,9 +259,7 @@ const CameraApp = () => {
 
 	const handleImageCapture = (capturedImage: string | ImageData) => {
 		const imageStr =
-			capturedImage instanceof ImageData
-				? imageDataToBase64(capturedImage)
-				: capturedImage;
+			capturedImage instanceof ImageData ? imageDataToBase64(capturedImage) : capturedImage;
 
 		setTempImage(imageStr);
 		setShowConfirmDialog(true);
@@ -263,9 +335,7 @@ const CameraApp = () => {
 			<AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
 				<AlertDialogContent className="w-5/6 rounded-lg">
 					<AlertDialogHeader>
-						<AlertDialogTitle className="text-center">
-							画像のアップロード確認
-						</AlertDialogTitle>
+						<AlertDialogTitle className="text-center">画像のアップロード確認</AlertDialogTitle>
 						<AlertDialogDescription className="text-center">
 							この画像をアップロードしてもよろしいですか？
 						</AlertDialogDescription>
