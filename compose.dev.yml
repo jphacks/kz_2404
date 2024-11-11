@@ -1,0 +1,40 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: "app"
+    ports:
+      - "3000:3000"
+      - "5555:5555"
+    volumes:
+      - ./app:/app
+    command: sh -c "npm i && npm run dev"
+    tty: true
+
+  db:
+    image: postgres:15
+    container_name: "db"
+    env_file:
+      - .env
+    environment:
+      - TZ=Asia/Tokyo
+      - POSTGRES_DB=$DB_NAME
+      - POSTGRES_USER=$DB_USER
+      - POSTGRES_PASSWORD=$DB_PASS
+    ports:
+      - 5432:5432
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  similarity_api:
+    container_name: FastAPI
+    build: ./simirality
+    ports:
+      - "9004:9004"
+    volumes:
+      - ./simirality:/simirality
+    command: uvicorn main:app --reload --host 0.0.0.0 --port 9004
+
+volumes:
+  db_data:
