@@ -227,6 +227,7 @@ const CameraApp = () => {
 		if (tempImage) {
 			try {
 				const { imageName } = await uploadImage(tempImage);
+				// TODO 以下のパスは本番環境時に変更する
 				const imageUrl = `https://minio/9000/` + imageName;
 				setShowConfirmDialog(false);
 				setImage(tempImage);
