@@ -50,10 +50,14 @@ export default function Home() {
 				if (!resData) {
 					throw new Error("無効なデータが返されました");
 				}
-				const formattedData = resData.map((item) => ({
-					...item,
-					assignTime: new Date(item.assignTime),
-				}));
+
+				const formattedData = resData.map((item) => {
+					const date = item.assignTime ? new Date(item.assignTime) : new Date();
+					return {
+						...item,
+						assignTime: date,
+					};
+				});
 				setAssignment(formattedData);
 				setIsLoading(false);
 			} catch (error) {
@@ -93,9 +97,7 @@ export default function Home() {
 						<h2 className="text-lg font-semibold mb-2">今日のお題</h2>
 						<p className="text-sm text-gray-600">撮影してスコアを競おう！</p>
 					</div>
-					<h1 className="text-3xl font-bold text-center mb-4">
-						{assignment[0]?.english}
-					</h1>
+					<h1 className="text-3xl font-bold text-center mb-4">{assignment[0]?.english}</h1>
 					<div className="flex justify-center w-full">
 						<Button
 							variant="default"
@@ -114,16 +116,11 @@ export default function Home() {
 					{myScore.length === 0 ? (
 						<div className="text-gray-500 text-center py-8">
 							<p>まだチャレンジの記録がありません</p>
-							<p className="text-sm mt-2">
-								新しいチャレンジに挑戦してみましょう！
-							</p>
+							<p className="text-sm mt-2">新しいチャレンジに挑戦してみましょう！</p>
 						</div>
 					) : (
 						myScore.map((score) => (
-							<div
-								key={score.id}
-								className="flex w-full items-center mb-2 border rounded-md"
-							>
+							<div key={score.id} className="flex w-full items-center mb-2 border rounded-md">
 								<img
 									src={score.imageUrl || "https://placehold.jp/150x150.png"}
 									alt="チャレンジ画像"
