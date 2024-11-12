@@ -8,17 +8,11 @@ const RankingListToday: React.FC<{ selectedTopic: number }> = ({
 }) => {
 	const [data, setData] = useState<ScoreDetail[]>([]);
 
-	// 今日の日付をYYYY-MM-DD形式で取得する関数
-	const getTodayDate = useCallback((): string => {
-		const today = new Date().toISOString().split("T")[0];
-		return today;
-	}, []);
-
-	// 前日の日付をYYYY-MM-DD形式で取得する関数
-	const getYesterdayDate = useCallback((): string => {
-		const yesterday = new Date();
-		yesterday.setDate(yesterday.getDate() - 1);
-		return yesterday.toISOString().split("T")[0];
+	// 日付をYYYY-MM-DD形式で取得する関数
+	const getDate = useCallback((daysOffset = 0): string => {
+		const date = new Date();
+		date.setDate(date.getDate() + daysOffset);
+		return date.toISOString().split("T")[0];
 	}, []);
 
 	// 秒数を適切な単位に変換する関数
@@ -42,9 +36,9 @@ const RankingListToday: React.FC<{ selectedTopic: number }> = ({
 					throw new Error("Network response was not ok");
 				}
 				const data: ScoreDetail[] = await response.json();
-				if (data.length === 0 && date === getTodayDate()) {
+				if (data.length === 0 && date === getDate()) {
 					// 今日の日付でデータがない場合、前日のデータを取得
-					fetchData(getYesterdayDate());
+					fetchData(getDate(-1));
 				} else {
 					setData(data);
 				}
@@ -53,8 +47,8 @@ const RankingListToday: React.FC<{ selectedTopic: number }> = ({
 			}
 		};
 
-		fetchData(getTodayDate());
-	}, [selectedTopic, getTodayDate, getYesterdayDate]);
+		fetchData(getDate());
+	}, [selectedTopic, getDate]);
 
 	return (
 		<div className="mt-4 space-y-4">
