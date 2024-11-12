@@ -26,11 +26,32 @@ export async function GET(req: NextRequest) {
 		include: { user: true, assignment: true },
 	});
 
+	if (!scores[0].assignment){
+		return new Response(JSON.stringify({ message: "Not Found" }), {
+			status: 404,
+			headers: { "Content-Type": "application/json" },
+		});
+	}
+
 	const word: Word | null = await prisma.word.findFirst({
 		where: { id: scores[0].assignment.wordId },
 	});
 
+
+
 	const scoreDetails: ScoreDetail[] = scores.map((score) => {
+		if(!score.assignment){
+			return {
+				id: 0,
+				assignment: "",
+				answerIntervalTime: 0,
+				userName: "",
+				imageUrl: "",
+				point: 0,
+				similarity: 0,
+			};
+		}
+
 		const answerIntervalTimeMilliseconds =
 			score.answerTime.getTime() - score.assignment.date.getTime();
 		const answerIntervalTimeSeconds = answerIntervalTimeMilliseconds / 1000;
