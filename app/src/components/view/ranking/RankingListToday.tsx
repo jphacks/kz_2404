@@ -1,89 +1,141 @@
-// app/src/components/view/ranking/RankingListToday.tsx
-import React, { useEffect, useState } from 'react';
 import type { ScoreDetail } from "@/types";
+import { useCallback, useEffect, useState } from "react";
+import { LuClock } from "react-icons/lu";
+import { MdOutlineImageSearch } from "react-icons/md";
 
-const RankingListToday: React.FC<{ selectedTopic: number }> = ({ selectedTopic }) => {
-    const [data, setData] = useState<ScoreDetail[]>([]);
+const LoadingSpinner = () => (
+	<div className="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center z-50">
+		<div className="animate-spin rounded-full h-24 w-24 border-t-4 border-b-4 border-blue-500 mb-4" />
+		<p className="text-white text-lg">読み込み中...</p>
+	</div>
+);
 
-    // 今日の日付をYYYY-MM-DD形式で取得する関数
-    const getTodayDate = (): string => {
-        const today = new Date().toISOString().split('T')[0];
-        return today;
-    };
+const RankingListToday: React.FC<{ selectedTopic: number }> = ({
+	selectedTopic,
+}) => {
+	const [data, setData] = useState<ScoreDetail[]>([]);
+	const [isLoading, setIsLoading] = useState<boolean>(true);
 
-    // 前日の日付をYYYY-MM-DD形式で取得する関数
-    const getYesterdayDate = (): string => {
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        return yesterday.toISOString().split('T')[0];
-    };
+	// 日付をYYYY-MM-DD形式で取得する関数
+	const getDate = useCallback((daysOffset = 0): string => {
+		const date = new Date();
+		date.setDate(date.getDate() + daysOffset);
+		return date.toISOString().split("T")[0];
+	}, []);
 
-    useEffect(() => {
-        const fetchData = async (date: string) => {
-            try {
-                const response = await fetch(`http://localhost:3000/api/score/assignment/${selectedTopic}?date=${date}`);
-                // const response = await fetch(`http://localhost:3000/api/score/assignment/1?date=2024-10-26`);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data: ScoreDetail[] = await response.json();
-                console.log('Fetched data:', data);
-                if (data.length === 0 && date === getTodayDate()) {
-                    // 今日の日付でデータがない場合、前日のデータを取得
-                    fetchData(getYesterdayDate());
-                } else {
-                    setData(data);
-                }
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
+	// 秒数を適切な単位に変換する関数
+	const formatTime = (seconds: number): string => {
+		if (seconds < 60) return `${Math.floor(seconds)} 秒`;
+		const minutes = Math.floor(seconds / 60);
+		if (minutes < 60) return `${minutes} 分`;
+		const hours = Math.floor(minutes / 60);
+		if (hours < 24) return `${hours} 時間`;
+		const days = Math.floor(hours / 24);
+		return `${days} 日`;
+	};
 
-        fetchData(getTodayDate());
-    }, [selectedTopic]);
+	// similarityをパーセンテージに変換する関数
+	const formatSimilarity = (value: number): string => {
+		return `${Math.floor(value * 100)} %`;
+	};
 
-    return (
-        <div className="mt-4 space-y-4">
-            {data.map((item, index) => {
-                let bgColor;
-                switch (index + 1) {
-                    case 1:
-                        bgColor = 'bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600';
-                        break;
-                    case 2:
-                        bgColor = 'bg-gradient-to-r from-gray-300 via-gray-400 to-gray-500';
-                        break;
-                    case 3:
-                        bgColor = 'bg-gradient-to-r from-yellow-600 via-yellow-700 to-yellow-800';
-                        break;
-                    default:
-                        bgColor = 'bg-gray-400';
-                }
+	useEffect(() => {
+		const fetchData = async (date: string) => {
+			try {
+				setIsLoading(true);
+				const response = await fetch(
+					`/api/score/assignment/${selectedTopic}?date=${date}`,
+				);
+				if (!response.ok) {
+					throw new Error("Network response was not ok");
+				}
+				const result: ScoreDetail[] = await response.json();
+				if (result.length === 0 && date === getDate()) {
+					// 今日の日付でデータがない場合、前日のデータを取得
+					fetchData(getDate(-1));
+				} else {
+					setData(result);
+				}
+			} catch (error) {
+				console.error("Error fetching data:", error);
+			} finally {
+				setIsLoading(false);
+			}
+		};
 
-                return (
-                    <div key={item.id} className="relative flex items-center bg-orange-100 rounded-lg shadow">
-                    <div className={`absolute -top-1 -left-1 ${bgColor} text-white text-base rounded-br-lg shadow-lg`} style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)', width: '50px', height: '50px', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', padding: '3px' }}>
-                        {index + 1}位
-                    </div>
-                    <img src={item.imageUrl} alt={item.userName} className="w-20 h-20 object-cover rounded ml-0" />
-                    <div className="m-2 flex flex-col w-1/5">
-                        <p className="text-lg font-bold break-words">{item.userName}</p>
-                    </div>
-                    <div className="flex">
-                        <div className="flex flex-col text-sm">
-                            <p>時間:</p>
-                            <p>正確率:</p>
-                        </div>
-                        <div className="flex flex-col ml-2 text-sm">
-                            <p>{item.answerIntervalTime}</p>
-                            <p>{item.similarity}</p>
-                        </div>
-                    </div>
-                    <div className="pr-2 ml-auto text-2xl font-bold text-gray-700">{item.point}</div>
-                    </div>
-                );
-            })}
-        </div>
-    );
-  }
+		fetchData(getDate());
+	}, [selectedTopic, getDate]);
+
+	if (isLoading) {
+		return <LoadingSpinner />;
+	}
+
+	return (
+		<div className="mt-4 space-y-4">
+			{data.map((item, index) => {
+				const bgColor = index < 3 ? "#FF643F" : "white";
+				const textColor = index < 3 ? "white" : "#333333";
+				const rankingColor = index < 3 ? "#005384" : "#BABABA";
+
+				return (
+					<div key={item.id}>
+						<div
+							className="relative flex items-center bg-orange-100 rounded-2xl shadow"
+							style={{ backgroundColor: bgColor, color: textColor }}
+						>
+							<div
+								className="absolute -top-[4px] -left-[4px] text-base font-bold rounded-br-lg shadow-lg"
+								style={{
+									clipPath: "polygon(0 0, 100% 0, 0 100%)",
+									width: "60px",
+									height: "60px",
+									display: "flex",
+									alignItems: "flex-start",
+									justifyContent: "flex-start",
+									padding: "1px 4px",
+									backgroundColor: rankingColor,
+									color: textColor,
+									borderRadius: "3px 6px",
+								}}
+							>
+								{index + 1}位
+							</div>
+							<img
+								src={item.imageUrl || "https://placehold.jp/150x150.png"}
+								alt={item.userName}
+								className="w-20 h-20 object-cover rounded-l-2xl ml-0"
+							/>
+							<div className="ml-4 flex flex-col w-1/4">
+								<p className="font-bold break-words">{item.userName}</p>
+								<p className="text-xs whitespace-nowrap overflow-hidden text-ellipsis">
+									問題：{item.assignment}
+								</p>
+							</div>
+							<div className="flex flex-col ml-2 text-xs w-1/4">
+								<div className="flex gap-2 items-center">
+									<LuClock />
+									<p>{formatTime(item.answerIntervalTime)}</p>
+								</div>
+								<div className="flex gap-2 items-center">
+									<MdOutlineImageSearch />
+									<p>{formatSimilarity(item.similarity)}</p>
+								</div>
+							</div>
+							<div
+								className="pr-3 ml-auto text-2xl font-bold whitespace-nowrap"
+								style={{ color: textColor }}
+							>
+								{item.point} 点
+							</div>
+						</div>
+						{index === 2 && (
+							<hr className="my-4 h-0.5 border-t-0 bg-gray-300" />
+						)}
+					</div>
+				);
+			})}
+		</div>
+	);
+};
+
 export default RankingListToday;
