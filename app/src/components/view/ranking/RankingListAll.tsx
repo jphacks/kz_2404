@@ -39,7 +39,12 @@ export default function RankingListAllTime() {
 				<div className="flex justify-center items-end space-x-4">
 					{data[1] && (
 						<div className="text-center">
-							<div className="w-20 h-28 bg-gray-300 rounded-t-lg flex items-end justify-center pb-2">
+							<div className="w-20 h-28 bg-gray-300 rounded-t-lg flex flex-col items-center pb-2">
+								<img
+									src={data[1].imageUrl}
+									alt={data[1].userName}
+									className="w-12 h-12 rounded-full mt-2"
+								/>
 								<div className="text-4xl">{getEmoji(2)}</div>
 							</div>
 							<Card className="p-2 rounded-none rounded-b-lg">
@@ -51,7 +56,12 @@ export default function RankingListAllTime() {
 					)}
 					{data[0] && (
 						<div className="text-center">
-							<div className="w-24 h-32 bg-yellow-500 rounded-t-lg flex items-end justify-center pb-2">
+							<div className="w-24 h-32 bg-yellow-500 rounded-t-lg flex flex-col items-center pb-2">
+								<img
+									src={data[0].imageUrl}
+									alt={data[0].userName}
+									className="w-14 h-14 rounded-full mt-2"
+								/>
 								<div className="text-5xl">{getEmoji(1)}</div>
 							</div>
 							<Card className="p-2 rounded-none rounded-b-lg">
@@ -63,7 +73,12 @@ export default function RankingListAllTime() {
 					)}
 					{data[2] && (
 						<div className="text-center">
-							<div className="w-20 h-24 bg-amber-600 rounded-t-lg flex items-end justify-center pb-2">
+							<div className="w-20 h-24 bg-amber-600 rounded-t-lg flex flex-col items-center pb-2">
+								<img
+									src={data[2].imageUrl}
+									alt={data[2].userName}
+									className="w-12 h-12 rounded-full mt-2"
+								/>
 								<div className="text-4xl">{getEmoji(3)}</div>
 							</div>
 							<Card className="p-2 rounded-none rounded-b-lg">
@@ -107,10 +122,13 @@ export default function RankingListAllTime() {
 							<div className="ml-8 flex flex-col w-1/5">
 								<p className="font-bold break-words">{item.userName}</p>
 							</div>
-							<div className="flex items-center gap-2 pr-3 ml-auto text-2xl font-bold whitespace-nowrap" style={{ color: textColor }}>
-                                <span className="text-xs text-white mt-1">合計</span>
-                                <span>{item.totalPoint} 点</span>
-                            </div>
+							<div
+								className="flex items-center gap-2 pr-3 ml-auto text-2xl font-bold whitespace-nowrap"
+								style={{ color: textColor }}
+							>
+								<span className="text-xs text-white mt-1">合計</span>
+								<span>{item.totalPoint} 点</span>
+							</div>
 						</div>
 						{index === 2 && (
 							<hr className="my-4 h-0.5 border-t-0 bg-gray-300" />
