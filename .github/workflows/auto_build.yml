@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
-      
+
       - name: Set environment variables from .env file1
         run: |
           echo "${{ secrets.DB_ENV_FILE }}" > .env
@@ -25,6 +25,9 @@ jobs:
 
       - name: Build Docker compose up
         run: docker compose -f compose.dev.yml up --build -d
+      
+      - name: npm run build
+        run: docker compose exec app npm run install
 
       - name: npm run build
         run: docker compose exec app npm run build
