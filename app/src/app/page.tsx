@@ -1,8 +1,10 @@
 "use client";
 
+import Timer from "@/components/Timer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import type { MyScoreDetail } from "@/types";
+import { Progress } from "@/components/ui/progress";
+import type { MyScoreDetail, todayAssignment } from "@/types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import ClockIcon from "../../public/icons/icon-clock.svg";
@@ -10,6 +12,9 @@ import PhotoCameraIcon from "../../public/icons/icon-photo-camera.svg";
 
 export default function Home() {
 	const [myScore, setMyScore] = useState<MyScoreDetail[]>([]);
+	const [assignment, setAssignment] = useState<todayAssignment[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
+	const [progressCount, setProgressCount] = useState(0);
 	const router = useRouter();
 
 	useEffect(() => {
@@ -20,11 +25,13 @@ export default function Home() {
 			}
 
 			try {
+				// get api/score/me
 				const userData = JSON.parse(userIdString);
 				const uid = userData.uid;
 				if (!uid) {
 					throw new Error("User ID not found");
 				}
+				setProgressCount(33);
 
 				const response = await fetch(`/api/score/me/${uid}?limit=3`);
 				if (!response.ok) {
@@ -32,6 +39,23 @@ export default function Home() {
 				}
 				const data = await response.json();
 				setMyScore(data);
+				setProgressCount(66);
+
+				// get api/assignment/today
+				const resAssignment = await fetch(`/api/assignment/today`);
+				if (!resAssignment.ok) {
+					throw new Error("データの取得に失敗しました");
+				}
+				const resData: todayAssignment[] = await resAssignment.json();
+				if (!resData) {
+					throw new Error("無効なデータが返されました");
+				}
+				const formattedData = resData.map((item) => ({
+					...item,
+					assignTime: new Date(item.assignTime),
+				}));
+				setAssignment(formattedData);
+				setIsLoading(false);
 			} catch (error) {
 				console.error("エラーが発生しました:", error);
 			}
@@ -43,6 +67,21 @@ export default function Home() {
 	return (
 		<div className="flex flex-col h-full px-4 py-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
 			<div className="flex flex-col items-center justify-center space-y-6">
+				{isLoading ? (
+					<Card>
+						<div className="h-[6rem] w-[16rem] p-4 flex flex-col items-center justify-center">
+							Loading...
+							<Progress value={progressCount} />
+						</div>
+					</Card>
+				) : (
+					<div className="text-lg padding">
+						{assignment && (
+							// fixme [0]番目を参照しているがお題ごとに可変的にする必要あり。
+							<Timer assignTime={assignment[0].assignTime} />
+						)}
+					</div>
+				)}
 				<Card
 					className="flex flex-col items-center justify-around aspect-square w-full max-w-72 p-6 backdrop-blur-sm"
 					style={{
@@ -73,16 +112,11 @@ export default function Home() {
 					{myScore.length === 0 ? (
 						<div className="text-gray-500 text-center py-8">
 							<p>まだチャレンジの記録がありません</p>
-							<p className="text-sm mt-2">
-								新しいチャレンジに挑戦してみましょう！
-							</p>
+							<p className="text-sm mt-2">新しいチャレンジに挑戦してみましょう！</p>
 						</div>
 					) : (
 						myScore.map((score) => (
-							<div
-								key={score.id}
-								className="flex w-full items-center mb-2 border rounded-md"
-							>
+							<div key={score.id} className="flex w-full items-center mb-2 border rounded-md">
 								<img
 									src={score.imageUrl || "https://placehold.jp/150x150.png"}
 									alt="チャレンジ画像"
