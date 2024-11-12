@@ -44,7 +44,8 @@ export default function RankingListAllTime() {
 							</div>
 							<Card className="p-2 rounded-none rounded-b-lg">
 								<div className="font-bold">{data[1].totalPoint}点</div>
-								<div className="text-sm">{data[1].userName}</div>
+								<div className="text-xs text-muted-foreground">合計</div>
+								<div className="text-sm mt-1">{data[1].userName}</div>
 							</Card>
 						</div>
 					)}
@@ -55,7 +56,8 @@ export default function RankingListAllTime() {
 							</div>
 							<Card className="p-2 rounded-none rounded-b-lg">
 								<div className="font-bold">{data[0].totalPoint}点</div>
-								<div className="text-sm">{data[0].userName}</div>
+								<div className="text-xs text-muted-foreground mt-1">合計</div>
+								<div className="text-sm mt-1">{data[0].userName}</div>
 							</Card>
 						</div>
 					)}
@@ -65,7 +67,8 @@ export default function RankingListAllTime() {
 								<div className="text-4xl">{getEmoji(3)}</div>
 							</div>
 							<Card className="p-2 rounded-none rounded-b-lg">
-								<div className="font-bold">{data[2].totalPoint}点</div>
+								<div className="font-bold mt-1">{data[2].totalPoint}点</div>
+								<div className="text-xs text-muted-foreground mt-1">合計</div>
 								<div className="text-sm">{data[2].userName}</div>
 							</Card>
 						</div>
@@ -104,12 +107,10 @@ export default function RankingListAllTime() {
 							<div className="ml-8 flex flex-col w-1/5">
 								<p className="font-bold break-words">{item.userName}</p>
 							</div>
-							<div
-								className="pr-5 ml-auto text-2xl font-bold"
-								style={{ color: textColor }}
-							>
-								{item.totalPoint} 点
-							</div>
+							<div className="flex items-center gap-2 pr-3 ml-auto text-2xl font-bold whitespace-nowrap" style={{ color: textColor }}>
+                                <span className="text-xs text-white mt-1">合計</span>
+                                <span>{item.totalPoint} 点</span>
+                            </div>
 						</div>
 						{index === 2 && (
 							<hr className="my-4 h-0.5 border-t-0 bg-gray-300" />
