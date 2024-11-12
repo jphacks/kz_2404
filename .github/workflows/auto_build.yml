@@ -25,9 +25,9 @@ jobs:
 
       - name: Build Docker compose up
         run: docker compose -f compose.dev.yml up --build -d
-      
-      - name: npm run build
-        run: docker compose exec app npm run install
+
+      - name: npm install
+        run: docker compose exec app npm install
 
       - name: npm run build
         run: docker compose exec app npm run build
