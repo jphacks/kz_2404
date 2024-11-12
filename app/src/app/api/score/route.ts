@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
 		},
 	});
 
-	return new Response(JSON.stringify({ message: "successful POST" }), {
+	return new Response(JSON.stringify({ score }), {
 		status: 200,
 		headers: { "Content-Type": "application/json" },
 	});
