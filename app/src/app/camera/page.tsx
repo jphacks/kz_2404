@@ -314,9 +314,23 @@ const CameraApp = () => {
 				const score = response.score;
 				const percentSimilarity = Math.floor(similarity * 100);
 				const message = `${caption} 類似度  ${percentSimilarity}% スコア: ${score.point} ランキングから順位を確認しましょう!`;
+				const newAssignments = assignments.map((assignment) => {
+					if (assignment.assignmentId === assignmentId) {
+						assignment.isAnswered = true;
+					}
+					return assignment;
+				});
 				setIsUploading(false);
 				toast(message);
 				openDialog;
+				setAssignments(newAssignments);
+				if (newAssignments.every((assignment) => assignment.isAnswered)) {
+					setIsActive(false);
+				}
+				const notAnsweredAssignment = newAssignments.find(
+					(assignment: todayAssignment) => !assignment.isAnswered,
+				);
+				setTodayAssignment(notAnsweredAssignment);
 			} catch (error) {
 				setIsUploading(false);
 				console.error("アップロード中にエラーが発生しました:", error);
@@ -438,7 +452,11 @@ const CameraApp = () => {
 					{isUploading && <LoadingSpinner />}
 					<Toaster />
 					{todayAssignment?.english && (
-						<AssignmentBadge assignment={todayAssignment?.english} />
+						<AssignmentBadge
+							assignment={todayAssignment}
+							assignments={assignments}
+							setAssignment={setTodayAssignment}
+						/>
 					)}
 				</>
 			) : (
