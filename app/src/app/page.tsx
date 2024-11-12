@@ -1,6 +1,6 @@
 "use client";
 
-import Timer from "@/components/Timer";
+import Timer from "@/components/view/Timer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -42,7 +42,7 @@ export default function Home() {
 				setProgressCount(66);
 
 				// get api/assignment/today
-				const resAssignment = await fetch(`/api/assignment/today`);
+				const resAssignment = await fetch('/api/assignment/today');
 				if (!resAssignment.ok) {
 					throw new Error("データの取得に失敗しました");
 				}
