@@ -1,5 +1,4 @@
 import type { ScoreDetail } from "@/types";
-// app/src/components/view/ranking/RankingListToday.tsx
 import { useCallback, useEffect, useState } from "react";
 import { LuClock } from "react-icons/lu";
 import { MdOutlineImageSearch } from "react-icons/md";
@@ -24,7 +23,7 @@ const RankingListToday: React.FC<{ selectedTopic: number }> = ({
 
 	// 秒数を適切な単位に変換する関数
 	const formatTime = (seconds: number): string => {
-		if (seconds < 60) return `${seconds} 秒`;
+		if (seconds < 60) return `${Math.floor(seconds)} 秒`;
 		const minutes = Math.floor(seconds / 60);
 		if (minutes < 60) return `${minutes} 分`;
 		const hours = Math.floor(minutes / 60);
@@ -37,13 +36,12 @@ const RankingListToday: React.FC<{ selectedTopic: number }> = ({
 		const fetchData = async (date: string) => {
 			try {
 				const response = await fetch(
-					`http://localhost:3000/api/score/assignment/${selectedTopic}?date=${date}`,
+					`/api/score/assignment/${selectedTopic}?date=${date}`,
 				);
 				if (!response.ok) {
 					throw new Error("Network response was not ok");
 				}
 				const data: ScoreDetail[] = await response.json();
-				console.log("Fetched data:", data);
 				if (data.length === 0 && date === getTodayDate()) {
 					// 今日の日付でデータがない場合、前日のデータを取得
 					fetchData(getYesterdayDate());
@@ -58,68 +56,72 @@ const RankingListToday: React.FC<{ selectedTopic: number }> = ({
 		fetchData(getTodayDate());
 	}, [selectedTopic, getTodayDate, getYesterdayDate]);
 
-    return (
-        <div className="mt-4 space-y-4">
-            {data.map((item, index) => {
-                const bgColor = index < 3 ? "#FF643F" : "white";
-                const textColor = index < 3 ? "white" : "#333333";
-                const triangleColor = index < 3 ? "#005384" : "#BABABA";
-    
-                return (
-                    <div key={item.id}>
-                        <div
-                            className="relative flex items-center bg-orange-100 rounded-2xl shadow"
-                            style={{ backgroundColor: bgColor, color: textColor }}
-                        >
-                            <div
-                                className="absolute -top-[4px] -left-[4px] text-base font-bold rounded-br-lg shadow-lg"
-                                style={{
-                                    clipPath: "polygon(0 0, 100% 0, 0 100%)",
-                                    width: "60px",
-                                    height: "60px",
-                                    display: "flex",
-                                    alignItems: "flex-start",
-                                    justifyContent: "flex-start",
-                                    padding: "1px 4px",
-                                    backgroundColor: triangleColor,
-                                    color: textColor,
-                                    borderRadius: "3px 6px",
-                                }}
-                            >
-                                {index + 1}位
-                            </div>
-                            <img
-                                src={item.imageUrl || "https://placehold.jp/150x150.png"}
-                                alt={item.userName}
-                                className="w-20 h-20 object-cover rounded-l-2xl ml-0"
-                            />
-                            <div className="ml-4 flex flex-col w-1/5">
-                                <p className="font-bold break-words">{item.userName}</p>
-                                <p className="text-xs">問題：{item.assignment}</p>
-                            </div>
-                            <div className="flex flex-col ml-2 text-xs">
-                                <div className="flex gap-2 items-center">
-                                    <LuClock />
-                                    <p>{formatTime(item.answerIntervalTime)}</p>
-                                </div>
-                                <div className="flex gap-2 items-center">
-                                    <MdOutlineImageSearch />
-                                    <p>{item.similarity} %</p>
-                                </div>
-                            </div>
-                            <div
-                                className="pr-3 ml-auto text-2xl font-bold"
-                                style={{ color: textColor }}
-                            >
-                                {item.point} 点
-                            </div>
-                        </div>
-                        {index === 2 && <hr className="my-4 h-0.5 border-t-0 bg-gray-300" />}
-                    </div>
-                );
-            })}
-        </div>
-    );
-}
+	return (
+		<div className="mt-4 space-y-4">
+			{data.map((item, index) => {
+				const bgColor = index < 3 ? "#FF643F" : "white";
+				const textColor = index < 3 ? "white" : "#333333";
+				const rankingColor = index < 3 ? "#005384" : "#BABABA";
+
+				return (
+					<div key={item.id}>
+						<div
+							className="relative flex items-center bg-orange-100 rounded-2xl shadow"
+							style={{ backgroundColor: bgColor, color: textColor }}
+						>
+							<div
+								className="absolute -top-[4px] -left-[4px] text-base font-bold rounded-br-lg shadow-lg"
+								style={{
+									clipPath: "polygon(0 0, 100% 0, 0 100%)",
+									width: "60px",
+									height: "60px",
+									display: "flex",
+									alignItems: "flex-start",
+									justifyContent: "flex-start",
+									padding: "1px 4px",
+									backgroundColor: rankingColor,
+									color: textColor,
+									borderRadius: "3px 6px",
+								}}
+							>
+								{index + 1}位
+							</div>
+							<img
+								src={item.imageUrl || "https://placehold.jp/150x150.png"}
+								alt={item.userName}
+								className="w-20 h-20 object-cover rounded-l-2xl ml-0"
+							/>
+							<div className="ml-4 flex flex-col w-1/4">
+								<p className="font-bold break-words">{item.userName}</p>
+								<p className="text-xs whitespace-nowrap overflow-hidden text-ellipsis">
+									問題：{item.assignment}
+								</p>
+							</div>
+							<div className="flex flex-col ml-2 text-xs w-1/4">
+								<div className="flex gap-2 items-center">
+									<LuClock />
+									<p>{formatTime(item.answerIntervalTime)}</p>
+								</div>
+								<div className="flex gap-2 items-center">
+									<MdOutlineImageSearch />
+									<p>{item.similarity} %</p>
+								</div>
+							</div>
+							<div
+								className="pr-3 ml-auto text-2xl font-bold whitespace-nowrap"
+								style={{ color: textColor }}
+							>
+								{item.point} 点
+							</div>
+						</div>
+						{index === 2 && (
+							<hr className="my-4 h-0.5 border-t-0 bg-gray-300" />
+						)}
+					</div>
+				);
+			})}
+		</div>
+	);
+};
 
 export default RankingListToday;
