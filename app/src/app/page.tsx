@@ -1,9 +1,9 @@
 "use client";
 
-import Timer from "@/components/view/Timer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import Timer from "@/components/view/Timer";
 import type { MyScoreDetail, todayAssignment } from "@/types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -42,7 +42,7 @@ export default function Home() {
 				setProgressCount(66);
 
 				// get api/assignment/today
-				const resAssignment = await fetch('/api/assignment/today');
+				const resAssignment = await fetch("/api/assignment/today");
 				if (!resAssignment.ok) {
 					throw new Error("データの取得に失敗しました");
 				}
@@ -68,7 +68,7 @@ export default function Home() {
 		<div className="flex flex-col h-full px-10 py-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
 			<div className="flex flex-col items-center justify-center space-y-6">
 				{isLoading ? (
-					<Card>
+					<Card className="w-full py-3 px-7">
 						<div className="h-[6rem] gap-2 font-bold #333 flex flex-col items-center justify-center">
 							Loading...
 							<Progress value={progressCount} />
@@ -93,7 +93,9 @@ export default function Home() {
 						<h2 className="text-lg font-semibold mb-2">今日のお題</h2>
 						<p className="text-sm text-gray-600">撮影してスコアを競おう！</p>
 					</div>
-					<h1 className="text-3xl font-bold text-center mb-4">{assignment[0]?.english}</h1>
+					<h1 className="text-3xl font-bold text-center mb-4">
+						{assignment[0]?.english}
+					</h1>
 					<div className="flex justify-center w-full">
 						<Button
 							variant="default"
@@ -112,11 +114,16 @@ export default function Home() {
 					{myScore.length === 0 ? (
 						<div className="text-gray-500 text-center py-8">
 							<p>まだチャレンジの記録がありません</p>
-							<p className="text-sm mt-2">新しいチャレンジに挑戦してみましょう！</p>
+							<p className="text-sm mt-2">
+								新しいチャレンジに挑戦してみましょう！
+							</p>
 						</div>
 					) : (
 						myScore.map((score) => (
-							<div key={score.id} className="flex w-full items-center mb-2 border rounded-md">
+							<div
+								key={score.id}
+								className="flex w-full items-center mb-2 border rounded-md"
+							>
 								<img
 									src={score.imageUrl || "https://placehold.jp/150x150.png"}
 									alt="チャレンジ画像"
