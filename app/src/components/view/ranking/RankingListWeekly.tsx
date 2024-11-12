@@ -41,7 +41,7 @@ export default function RankingListWeekly() {
 						<div className="text-center">
 							<div className="w-20 h-28 bg-gray-300 rounded-t-lg flex flex-col items-center pb-2">
 								<img
-									src={data[1].imageUrl}
+									src={data[1].imageUrl || "https://placehold.jp/150x150.png"}
 									alt={data[1].userName}
 									className="w-12 h-12 rounded-full mt-2"
 								/>
@@ -58,7 +58,7 @@ export default function RankingListWeekly() {
 						<div className="text-center">
 							<div className="w-24 h-32 bg-yellow-500 rounded-t-lg flex flex-col items-center pb-2">
 								<img
-									src={data[0].imageUrl}
+									src={data[0].imageUrl || "https://placehold.jp/150x150.png"}
 									alt={data[0].userName}
 									className="w-14 h-14 rounded-full mt-2"
 								/>
@@ -75,7 +75,7 @@ export default function RankingListWeekly() {
 						<div className="text-center">
 							<div className="w-20 h-24 bg-amber-600 rounded-t-lg flex flex-col items-center pb-2">
 								<img
-									src={data[2].imageUrl}
+									src={data[2].imageUrl || "https://placehold.jp/150x150.png"}
 									alt={data[2].userName}
 									className="w-12 h-12 rounded-full mt-2"
 								/>
