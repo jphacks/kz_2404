@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { shapeCaption } from "@/functions/shapeCaption";
 import { postSimilarity } from "@/functions/simirality";
 import type React from "react";
-import { use, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Camera, type CameraType } from "react-camera-pro";
 import AddImageIcon from "../../../public/icons/icon-add-image.svg";
 import RotateCameraIcon from "../../../public/icons/icon-rotate-camera.svg";
@@ -249,21 +249,16 @@ const CameraApp = () => {
 		if (tempImage) {
 			try {
 				const { imageName } = await uploadImage(tempImage);
-				// TODO 以下のパスは本番環境時に変更する
-				// GPTでキャプション生成
 				const imageURL = `${process.env.NEXT_PUBLIC_MINIO_ENDPOINT}${BUCKET_NAME}/${imageName}`;
 
 				const res = await getCaption(imageName);
 				const caption = res.caption;
-
-				console.log("caption:", caption);
 
 				setShowConfirmDialog(false);
 				setImage(tempImage);
 				setShowImage(true);
 				setTempImage(null);
 
-				// hack あらゆるところからデータを取得しているのきもいですね。。。
 				const { similarity, assignmentId } = await similarityRequest(caption);
 
 				const user = await getUserId();
@@ -279,7 +274,7 @@ const CameraApp = () => {
 				const response = await submitScore(scoreData);
 				const score = response.score;
 				const percentSimilarity = Math.floor(similarity * 100);
-				const message = `${caption} 類似度  ${percentSimilarity}% スコア: ${score.point}`;
+				const message = `${caption} 類似度  ${percentSimilarity}% スコア: ${score.point} ランキングから順位を確認しましょう!`;
 				setIsUploading(false);
 				toast(message)
 			} catch (error) {
