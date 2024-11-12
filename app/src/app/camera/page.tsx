@@ -111,6 +111,7 @@ const CameraApp = () => {
 	const [todayAssignment, setTodayAssignment] = useState<
 		todayAssignment | undefined
 	>();
+	const [assignments, setAssignments] = useState<todayAssignment[]>([]);
 	const [isActive, setIsActive] = useState<boolean>(true);
 
 	useEffect(() => {
@@ -138,7 +139,12 @@ const CameraApp = () => {
 				return;
 			}
 
-			setTodayAssignment(assignmentData[0]);
+			const notAnsweredAssignment = assignmentData.find(
+				(assignment: todayAssignment) => !assignment.isAnswered,
+			);
+
+			setTodayAssignment(notAnsweredAssignment);
+			setAssignments(assignmentData);
 
 			if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
 				console.error("メディアデバイスAPIがサポートされていません。");
