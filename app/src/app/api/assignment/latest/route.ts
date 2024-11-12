@@ -1,4 +1,4 @@
-import type { todayAssignment } from "@/types";
+import type { latestAssignment } from "@/types";
 import { prisma } from "@lib/prisma";
 
 // 最新の課題を取得
@@ -17,7 +17,7 @@ export async function GET() {
 		});
 	}
 
-	const latestAssignment: todayAssignment = {
+	const latestAssignment: latestAssignment = {
 		assignmentId: assignment.id,
 		english: assignment.word.english,
 		isAnswered: false,

@@ -2,7 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import type { MyScoreDetail } from "@/types";
+import { Progress } from "@/components/ui/progress";
+import Timer from "@/components/view/Timer";
+import type { MyScoreDetail, todayAssignment } from "@/types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import ClockIcon from "../../public/icons/icon-clock.svg";
@@ -10,6 +12,9 @@ import PhotoCameraIcon from "../../public/icons/icon-photo-camera.svg";
 
 export default function Home() {
 	const [myScore, setMyScore] = useState<MyScoreDetail[]>([]);
+	const [assignment, setAssignment] = useState<todayAssignment[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
+	const [progressCount, setProgressCount] = useState(0);
 	const router = useRouter();
 
 	useEffect(() => {
@@ -20,11 +25,13 @@ export default function Home() {
 			}
 
 			try {
+				// get api/score/me
 				const userData = JSON.parse(userIdString);
 				const uid = userData.uid;
 				if (!uid) {
 					throw new Error("User ID not found");
 				}
+				setProgressCount(33);
 
 				const response = await fetch(`/api/score/me/${uid}?limit=3`);
 				if (!response.ok) {
@@ -32,6 +39,23 @@ export default function Home() {
 				}
 				const data = await response.json();
 				setMyScore(data);
+				setProgressCount(66);
+
+				// get api/assignment/today
+				const resAssignment = await fetch("/api/assignment/today");
+				if (!resAssignment.ok) {
+					throw new Error("データの取得に失敗しました");
+				}
+				const resData: todayAssignment[] = await resAssignment.json();
+				if (!resData) {
+					throw new Error("無効なデータが返されました");
+				}
+				const formattedData = resData.map((item) => ({
+					...item,
+					assignTime: new Date(item.assignTime),
+				}));
+				setAssignment(formattedData);
+				setIsLoading(false);
 			} catch (error) {
 				console.error("エラーが発生しました:", error);
 			}
@@ -41,10 +65,25 @@ export default function Home() {
 	}, []);
 
 	return (
-		<div className="flex flex-col h-full px-4 py-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
+		<div className="flex flex-col h-full px-10 py-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
 			<div className="flex flex-col items-center justify-center space-y-6">
+				{isLoading ? (
+					<Card className="w-full py-3 px-7">
+						<div className="h-[6rem] gap-2 font-bold #333 flex flex-col items-center justify-center">
+							Loading...
+							<Progress value={progressCount} />
+						</div>
+					</Card>
+				) : (
+					<div className="text-lg w-full">
+						{assignment && (
+							// fixme [0]番目を参照しているがお題ごとに可変的にする必要あり。
+							<Timer assignTime={assignment[0]?.assignTime} />
+						)}
+					</div>
+				)}
 				<Card
-					className="flex flex-col items-center justify-around aspect-square w-full max-w-72 p-6 backdrop-blur-sm"
+					className="flex flex-col items-center justify-around aspect-square w-full p-6 backdrop-blur-sm"
 					style={{
 						background:
 							"linear-gradient(90deg, rgba(255, 145, 109, 0.56) 0%, rgba(255, 90, 170, 0.44) 51%, rgba(139, 166, 255, 0.61) 100%)",
@@ -54,7 +93,9 @@ export default function Home() {
 						<h2 className="text-lg font-semibold mb-2">今日のお題</h2>
 						<p className="text-sm text-gray-600">撮影してスコアを競おう！</p>
 					</div>
-					<h1 className="text-3xl font-bold text-center mb-4">Labyrinthine</h1>
+					<h1 className="text-3xl font-bold text-center mb-4">
+						{assignment[0]?.english}
+					</h1>
 					<div className="flex justify-center w-full">
 						<Button
 							variant="default"
@@ -68,7 +109,7 @@ export default function Home() {
 						</Button>
 					</div>
 				</Card>
-				<Card className="flex flex-col items-center aspect-square w-10/12 p-6 bg-white/80 backdrop-blur-sm">
+				<Card className="flex flex-col items-center aspect-square w-full p-6 bg-white/80 backdrop-blur-sm">
 					<h2 className="text-lg font-semibold mb-4">過去のチャレンジ</h2>
 					{myScore.length === 0 ? (
 						<div className="text-gray-500 text-center py-8">

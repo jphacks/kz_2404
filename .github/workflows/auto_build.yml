@@ -1,0 +1,36 @@
+name: Build and Test
+
+on:
+  push
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Set environment variables from .env file1
+        run: |
+          echo "${{ secrets.DB_ENV_FILE }}" > .env
+
+      - name: Set environment variables from .env file2
+        working-directory: app
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
+
+      - name: Build Docker compose up
+        run: docker compose -f compose.dev.yml up --build -d
+
+      - name: npm install
+        run: docker compose exec app npm install
+
+      - name: npm run build
+        run: docker compose exec app npm run build
+
+      - name: Build Docker compose down
+        run: docker compose down
