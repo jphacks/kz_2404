@@ -3,10 +3,18 @@ import { useCallback, useEffect, useState } from "react";
 import { LuClock } from "react-icons/lu";
 import { MdOutlineImageSearch } from "react-icons/md";
 
+const LoadingSpinner = () => (
+	<div className="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center z-50">
+		<div className="animate-spin rounded-full h-24 w-24 border-t-4 border-b-4 border-blue-500 mb-4" />
+		<p className="text-white text-lg">読み込み中...</p>
+	</div>
+);
+
 const RankingListToday: React.FC<{ selectedTopic: number }> = ({
 	selectedTopic,
 }) => {
 	const [data, setData] = useState<ScoreDetail[]>([]);
+	const [isLoading, setIsLoading] = useState<boolean>(true);
 
 	// 日付をYYYY-MM-DD形式で取得する関数
 	const getDate = useCallback((daysOffset = 0): string => {
@@ -34,26 +42,33 @@ const RankingListToday: React.FC<{ selectedTopic: number }> = ({
 	useEffect(() => {
 		const fetchData = async (date: string) => {
 			try {
+				setIsLoading(true);
 				const response = await fetch(
 					`/api/score/assignment/${selectedTopic}?date=${date}`,
 				);
 				if (!response.ok) {
 					throw new Error("Network response was not ok");
 				}
-				const data: ScoreDetail[] = await response.json();
-				if (data.length === 0 && date === getDate()) {
+				const result: ScoreDetail[] = await response.json();
+				if (result.length === 0 && date === getDate()) {
 					// 今日の日付でデータがない場合、前日のデータを取得
 					fetchData(getDate(-1));
 				} else {
-					setData(data);
+					setData(result);
 				}
 			} catch (error) {
 				console.error("Error fetching data:", error);
+			} finally {
+				setIsLoading(false);
 			}
 		};
 
 		fetchData(getDate());
 	}, [selectedTopic, getDate]);
+
+	if (isLoading) {
+		return <LoadingSpinner />;
+	}
 
 	return (
 		<div className="mt-4 space-y-4">

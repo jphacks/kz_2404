@@ -2,22 +2,33 @@ import { Card } from "@/components/ui/card";
 import type { RankingScores } from "@/types";
 import { useEffect, useState } from "react";
 
+const LoadingSpinner = () => (
+	<div className="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center z-50">
+		<div className="animate-spin rounded-full h-24 w-24 border-t-4 border-b-4 border-blue-500 mb-4" />
+		<p className="text-white text-lg">読み込み中...</p>
+	</div>
+);
+
 export default function RankingListWeekly() {
 	const [data, setData] = useState<RankingScores[]>([]);
+	const [isLoading, setIsLoading] = useState<boolean>(true);
 
 	useEffect(() => {
 		const fetchData = () => {
-			return fetch("/api/score/week").then((response) => {
-				if (!response.ok) {
-					throw new Error("Failed to fetch data");
-				}
-				return response.json();
-			});
+			setIsLoading(true);
+			return fetch("/api/score/week")
+				.then((response) => {
+					if (!response.ok) {
+						throw new Error("Failed to fetch data");
+					}
+					return response.json();
+				})
+				.then((result) => setData(result))
+				.catch((error) => console.error("Error fetching data:", error))
+				.finally(() => setIsLoading(false));
 		};
 
-		fetchData()
-			.then((result) => setData(result))
-			.catch((error) => console.error("Error fetching data:", error));
+		fetchData();
 	}, []);
 
 	const getEmoji = (rank: number) => {
@@ -32,6 +43,10 @@ export default function RankingListWeekly() {
 				return "🏅";
 		}
 	};
+
+	if (isLoading) {
+		return <LoadingSpinner />;
+	}
 
 	return (
 		<div className="mt-4 space-y-4">
