@@ -4,7 +4,7 @@ on:
   push
 
 env:
-  DATABASE_URL: ""
+  DATABASE_URL: "postgresql://nutfes:gidaifes@db:5432/postgre?schema=public"
   NEXT_PUBLIC_APIKEY: ""
   NEXT_PUBLIC_AUTHDOMAIN: ""
   NEXT_PUBLIC_PROJECTID: ""
