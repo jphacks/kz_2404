@@ -1,5 +1,7 @@
 "use client";
 
+import { Answered } from "@/components/Answered";
+import { AssignmentBadge } from "@/components/AssignmentBadge";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -17,6 +19,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { PointDialog } from "@/components/view/PointDialog";
 import { shapeCaption } from "@/functions/shapeCaption";
 import { postSimilarity } from "@/functions/simirality";
+import type { todayAssignment } from "@/types";
 import { useSetAtom } from "jotai";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
@@ -105,12 +108,40 @@ const CameraApp = () => {
 	);
 	const [currentDeviceIndex, setCurrentDeviceIndex] = useState<number>(0);
 	const openDialog = useSetAtom(openDialogAtom);
+	const [todayAssignment, setTodayAssignment] = useState<
+		todayAssignment | undefined
+	>();
+	const [isActive, setIsActive] = useState<boolean>(true);
 
 	useEffect(() => {
 		const getDevices = async () => {
+			const user = localStorage.getItem("userID");
+			if (user === null) {
+				console.error("ユーザー情報が取得できませんでした。");
+				return;
+			}
+			const userInfo = JSON.parse(user);
+			const resAssignment = await fetch(
+				`/api/assignment/today?uid=${userInfo?.uid}`,
+			);
+			const assignmentData = await resAssignment.json();
+
+			if (assignmentData.length === 0) {
+				return;
+			}
+
+			const isAnsweredAll = assignmentData.every(
+				(assignment: todayAssignment) => assignment.isAnswered,
+			);
+			if (isAnsweredAll) {
+				setIsActive(false);
+				return;
+			}
+
+			setTodayAssignment(assignmentData[0]);
+
 			if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
 				console.error("メディアデバイスAPIがサポートされていません。");
-				return;
 			}
 
 			try {
@@ -204,18 +235,11 @@ const CameraApp = () => {
 	// スコア計算を行います。
 	const similarityRequest = async (caption: string) => {
 		const words: string[] = shapeCaption(caption);
-
-		const response = await fetch("/api/assignment/latest");
-		if (!response.ok) {
-			throw new Error("データ取得に失敗しました");
-		}
-
-		const assignmentData = await response.json();
-		const assignmentWord: string = assignmentData.english;
+		const assignmentWord: string = todayAssignment?.english || "";
 		const resSimilarity = await postSimilarity(assignmentWord, words);
 		return {
 			similarity: resSimilarity.similarity as number,
-			assignmentId: assignmentData.assignmentId as number,
+			assignmentId: todayAssignment?.assignmentId as number,
 		};
 	};
 
@@ -312,93 +336,108 @@ const CameraApp = () => {
 	return (
 		<>
 			<PointDialog type="photo" />
-			<div className="flex items-center justify-center">
-				<Camera
-					ref={camera}
-					aspectRatio={3 / 4}
-					facingMode="environment"
-					videoSourceDeviceId={activeDeviceId}
-					errorMessages={{
-						noCameraAccessible:
-							"カメラデバイスにアクセスできません。カメラを接続するか、別のブラウザを試してください。",
-						permissionDenied:
-							"許可が拒否されました。リフレッシュしてカメラの許可を与えてください。",
-						switchCamera:
-							"アクセス可能なビデオデバイスが1つしかないため、別のカメラに切り替えることはできません。",
-						canvas: "キャンバスはサポートされていません。",
-					}}
-				/>
-			</div>
-			<div className="w-full flex justify-around items-center py-2 sticky bottom-20 bg-white">
-				<div className="flex flex-col items-center justify-center w-16 h-16">
-					<Label
-						htmlFor="file-upload"
-						className="flex flex-col items-center justify-center text-[#333333] notoSansJP font-bold active:scale-90"
+			{isActive ? (
+				<>
+					<div className="flex items-center justify-center">
+						<Camera
+							ref={camera}
+							aspectRatio={3 / 4}
+							facingMode="environment"
+							videoSourceDeviceId={activeDeviceId}
+							errorMessages={{
+								noCameraAccessible:
+									"カメラデバイスにアクセスできません。カメラを接続するか、別のブラウザを試してください。",
+								permissionDenied:
+									"許可が拒否されました。リフレッシュしてカメラの許可を与えてください。",
+								switchCamera:
+									"アクセス可能なビデオデバイスが1つしかないため、別のカメラに切り替えることはできません。",
+								canvas: "キャンバスはサポートされていません。",
+							}}
+						/>
+					</div>
+					<div className="w-full flex justify-around items-center py-2 sticky bottom-20 bg-white">
+						<div className="flex flex-col items-center justify-center w-16 h-16">
+							<Label
+								htmlFor="file-upload"
+								className="flex flex-col items-center justify-center text-[#333333] notoSansJP font-bold active:scale-90"
+							>
+								<AddImageIcon className="[&_path]:fill-[#5E5E5E]" />
+								<div className="text-xs">追加</div>
+							</Label>
+							<Input
+								type="file"
+								id="file-upload"
+								className="sr-only"
+								onChange={(event) => {
+									const file = event.target.files?.[0];
+									if (file) {
+										const reader = new FileReader();
+										reader.onload = () => {
+											handleImageCapture(reader.result as string);
+										};
+										reader.readAsDataURL(file);
+									}
+								}}
+							/>
+						</div>
+						<Button
+							variant={"iconDefault"}
+							className="flex flex-col items-center justify-center h-auto [&_path]:fill-[#ffffff] bg-transparent active:scale-90"
+							onClick={() => {
+								if (camera.current) {
+									const photo = camera.current.takePhoto();
+									handleImageCapture(photo);
+								}
+							}}
+						>
+							<ShutterIcon />
+							<div className="text-xs">撮影</div>
+						</Button>
+						<Button
+							variant={"iconDefault"}
+							className="flex flex-col items-center justify-center w-16 h-16 [&_path]:fill-[#5E5E5E] bg-transparent active:scale-90"
+							onClick={switchCamera}
+						>
+							<RotateCameraIcon />
+							<div className="text-xs">切り替え</div>
+						</Button>
+					</div>
+
+					<AlertDialog
+						open={showConfirmDialog}
+						onOpenChange={setShowConfirmDialog}
 					>
-						<AddImageIcon className="[&_path]:fill-[#5E5E5E]" />
-						<div className="text-xs">追加</div>
-					</Label>
-					<Input
-						type="file"
-						id="file-upload"
-						className="sr-only"
-						onChange={(event) => {
-							const file = event.target.files?.[0];
-							if (file) {
-								const reader = new FileReader();
-								reader.onload = () => {
-									handleImageCapture(reader.result as string);
-								};
-								reader.readAsDataURL(file);
-							}
-						}}
-					/>
-				</div>
-				<Button
-					variant={"iconDefault"}
-					className="flex flex-col items-center justify-center h-auto [&_path]:fill-[#ffffff] bg-transparent active:scale-90"
-					onClick={() => {
-						if (camera.current) {
-							const photo = camera.current.takePhoto();
-							handleImageCapture(photo);
-						}
-					}}
-				>
-					<ShutterIcon />
-					<div className="text-xs">撮影</div>
-				</Button>
-				<Button
-					variant={"iconDefault"}
-					className="flex flex-col items-center justify-center w-16 h-16 [&_path]:fill-[#5E5E5E] bg-transparent active:scale-90"
-					onClick={switchCamera}
-				>
-					<RotateCameraIcon />
-					<div className="text-xs">切り替え</div>
-				</Button>
-			</div>
+						<AlertDialogContent className="w-5/6 rounded-lg">
+							<AlertDialogHeader>
+								<AlertDialogTitle className="text-center">
+									画像のアップロード確認
+								</AlertDialogTitle>
+								<AlertDialogDescription className="text-center">
+									この画像をアップロードしてもよろしいですか？
+								</AlertDialogDescription>
+							</AlertDialogHeader>
 
-			<AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-				<AlertDialogContent className="w-5/6 rounded-lg">
-					<AlertDialogHeader>
-						<AlertDialogTitle className="text-center">
-							画像のアップロード確認
-						</AlertDialogTitle>
-						<AlertDialogDescription className="text-center">
-							この画像をアップロードしてもよろしいですか？
-						</AlertDialogDescription>
-					</AlertDialogHeader>
+							<DialogImagePreview image={tempImage} />
 
-					<DialogImagePreview image={tempImage} />
-
-					<AlertDialogFooter className="sm:space-x-4">
-						<AlertDialogCancel onClick={handleCancel}>いいえ</AlertDialogCancel>
-						<AlertDialogAction onClick={handleConfirm}>はい</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
-
-			{isUploading && <LoadingSpinner />}
-			<Toaster />
+							<AlertDialogFooter className="sm:space-x-4">
+								<AlertDialogCancel onClick={handleCancel}>
+									いいえ
+								</AlertDialogCancel>
+								<AlertDialogAction onClick={handleConfirm}>
+									はい
+								</AlertDialogAction>
+							</AlertDialogFooter>
+						</AlertDialogContent>
+					</AlertDialog>
+					{isUploading && <LoadingSpinner />}
+					<Toaster />
+					{todayAssignment?.english && (
+						<AssignmentBadge assignment={todayAssignment?.english} />
+					)}
+				</>
+			) : (
+				<Answered />
+			)}
 		</>
 	);
 };

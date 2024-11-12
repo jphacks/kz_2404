@@ -99,7 +99,7 @@ export type MyScoreDetail = {
 export type todayAssignment = {
 	assignmentId: number;
 	english: string;
-	assignTime: Date;
+	isAnswered: boolean;
 };
 
 export type latestAssignment = {
