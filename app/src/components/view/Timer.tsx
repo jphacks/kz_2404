@@ -9,7 +9,6 @@ const Timer: FC<TimerProps> = ({ assignTime }) => {
 	const [elapsedTime, setElapsedTime] = useState(0);
 	const startTime = new Date(assignTime).getTime();
 
-	console.log(assignTime);
 	useEffect(() => {
 		const interval = setInterval(() => {
 			const currentTime = new Date();
@@ -20,7 +19,7 @@ const Timer: FC<TimerProps> = ({ assignTime }) => {
 		return () => {
 			clearInterval(interval);
 		};
-	}, []);
+	}, [startTime]);
 
 	// 経過時間を時間、分、秒に変換
 	const formatTime = (ms: number) => {
