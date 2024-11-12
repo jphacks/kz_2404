@@ -20,6 +20,7 @@ export async function GET() {
 	const latestAssignment: todayAssignment = {
 		assignmentId: assignment.id,
 		english: assignment.word.english,
+		isAnswered: false,
 	};
 
 	return new Response(JSON.stringify(latestAssignment), {
