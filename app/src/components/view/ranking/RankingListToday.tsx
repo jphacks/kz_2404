@@ -26,6 +26,11 @@ const RankingListToday: React.FC<{ selectedTopic: number }> = ({
 		return `${days} 日`;
 	};
 
+	// similarityをパーセンテージに変換する関数
+	const formatSimilarity = (value: number): string => {
+		return `${Math.floor(value * 100)} %`;
+	};
+
 	useEffect(() => {
 		const fetchData = async (date: string) => {
 			try {
@@ -98,7 +103,7 @@ const RankingListToday: React.FC<{ selectedTopic: number }> = ({
 								</div>
 								<div className="flex gap-2 items-center">
 									<MdOutlineImageSearch />
-									<p>{item.similarity} %</p>
+									<p>{formatSimilarity(item.similarity)}</p>
 								</div>
 							</div>
 							<div
