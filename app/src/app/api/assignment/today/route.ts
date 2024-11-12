@@ -1,8 +1,11 @@
-import type { Assignment, todayAssignment } from "@/types";
-import { prisma } from "@lib/prisma";
+;import { prisma } from "@lib/prisma";
+import type { todayAssignment } from "@/types";
+import { NextRequest } from "next/server";
 
-// 課題新規作成（ランダム）
-export async function GET() {
+export async function GET(req: NextRequest) {
+	const { searchParams } = new URL(req.url || "");
+	const userID = searchParams.get("uid") || undefined;
+
 	const startOfToday = new Date();
 	startOfToday.setHours(0, 0, 0, 0); // 今日の開始時間を設定 (00:00:00)
 
@@ -15,16 +18,41 @@ export async function GET() {
 				gte: startOfToday, // 今日の開始時間以上
 				lte: endOfToday, // 今日の終了時間以下
 			},
-		},
-		include: { word: true },
+		  },
+		  include: { word: true, scores: true },
 	});
-	console.log(assignments);
+
+	if(userID){
+		const user = await prisma.user.findUnique({
+			where: {
+				uid: userID,
+			},
+		});
+
+		if(!user){
+			return new Response("ユーザーが見つかりません", { status: 404 });
+		}
+
+		const todayAssignments: todayAssignment[] = assignments.map((assignment) => {
+			const score = assignment.scores?.find((score) => score.userId === Number(user.id));
+			const todayAssignment: todayAssignment = {
+				assignmentId: assignment.id,
+				english: assignment.word.english,
+				isAnswered: score ? true : false,
+			};
+			return todayAssignment;
+		})
+		return new Response(JSON.stringify(todayAssignments), {
+			status: 200,
+			headers: { "Content-Type": "application/json" },
+		});
+	}
 
 	const todayAssignments: todayAssignment[] = assignments.map((assignment) => {
 		const todayAssignment: todayAssignment = {
 			assignmentId: assignment.id,
 			english: assignment.word.english,
-			assignTime: assignment.date,
+			isAnswered: false,
 		};
 		return todayAssignment;
 	});
