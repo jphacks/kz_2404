@@ -2,8 +2,6 @@ import type { NextApiResponse } from "next";
 import type { NextRequest } from "next/server";
 
 import { OpenAI } from "openai";
-import fs from "fs";
-import path from "path";
 
 type ResponseData = {
   message: string;

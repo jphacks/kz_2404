@@ -23,6 +23,9 @@ import RotateCameraIcon from "../../../public/icons/icon-rotate-camera.svg";
 import ShutterIcon from "../../../public/icons/icon-shutter.svg";
 import { toast } from "sonner"
 import { Toaster } from "@/components/ui/sonner"
+import { todayAssignment } from "@/types";
+import { Answered } from "@/components/Answered";
+import { AssignmentBadge } from "@/components/AssignmentBadge";
 
 interface ImagePreviewProps {
 	image: string | null;
@@ -99,12 +102,34 @@ const CameraApp = () => {
 	const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
 	const [activeDeviceId, setActiveDeviceId] = useState<string | undefined>(undefined);
 	const [currentDeviceIndex, setCurrentDeviceIndex] = useState<number>(0);
+	const [todayAssignment, setTodayAssignment] = useState<todayAssignment|undefined>();
+	const [isActive, setIsActive] = useState<boolean>(true);
 
 	useEffect(() => {
 		const getDevices = async () => {
+			const user = localStorage.getItem("userID");
+			if (user === null) {
+				console.error("ユーザー情報が取得できませんでした。");
+				return;
+			}
+			const userInfo = JSON.parse(user);
+			const resAssignment = await fetch(`/api/assignment/today?uid=${userInfo?.uid}`);
+			const assignmentData = await resAssignment.json();
+
+			if (assignmentData.length === 0) {
+				return;
+			}
+
+			const isAnsweredAll = assignmentData.every((assignment: todayAssignment) => assignment.isAnswered);
+			if (isAnsweredAll) {
+				setIsActive(false);
+				return;
+			}
+
+			setTodayAssignment(assignmentData[0]);
+
 			if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
 				console.error("メディアデバイスAPIがサポートされていません。");
-				return;
 			}
 
 			try {
@@ -195,18 +220,11 @@ const CameraApp = () => {
 	// スコア計算を行います。
 	const similarityRequest = async (caption: string) => {
 		const words: string[] = shapeCaption(caption);
-
-		const response = await fetch("/api/assignment/latest");
-		if (!response.ok) {
-			throw new Error("データ取得に失敗しました");
-		}
-	
-		const assignmentData = await response.json();
-		const assignmentWord: string = assignmentData.english;
+		const assignmentWord: string = todayAssignment?.english || "";
 		const resSimilarity = await postSimilarity(assignmentWord, words);
 		return {
 			similarity: resSimilarity.similarity as number,
-			assignmentId: assignmentData.assignmentId as number,
+			assignmentId: todayAssignment?.assignmentId as number,
 		};
 	};
 
@@ -299,6 +317,9 @@ const CameraApp = () => {
 
 	return (
 		<>
+		{isActive ? (
+			<>
+
 			<div className="flex items-center justify-center">
 				<Camera
 					ref={camera}
@@ -381,11 +402,16 @@ const CameraApp = () => {
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
-
 			{isUploading && <LoadingSpinner />}
 			<Toaster />
+			{todayAssignment?.english && <AssignmentBadge assignment={todayAssignment?.english} />}
+			</>
+				) : (
+					<Answered />
+				)}
 		</>
 	);
 };
+
 
 export default CameraApp;
