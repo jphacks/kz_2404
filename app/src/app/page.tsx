@@ -80,7 +80,7 @@ export default function Home() {
 					</Card>
 				) : (
 					<div className="text-lg w-full">
-						{assignment && (
+						{assignment[0]?.assignTime && (
 							// fixme [0]番目を参照しているがお題ごとに可変的にする必要あり。
 							<Timer assignTime={assignment[0]?.assignTime} />
 						)}
