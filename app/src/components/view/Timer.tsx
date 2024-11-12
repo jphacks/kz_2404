@@ -41,12 +41,13 @@ const Timer: FC<TimerProps> = ({ assignTime }) => {
 	const formattedSeconds = String(ss).padStart(2, "0");
 
 	return (
-		<Card>
-			<div className="text-lg h-[6rem] w-[16rem] p-4 flex flex-col justify-center items-center">
-				<div>お題が出てからの経過時間</div>
-				<div className="flex">
-					<span>{formattedHours}</span>:<span>{formattedMinutes}</span>:
-					<span>{formattedSeconds}</span>
+		<Card className="bg-white rounded-lg border-gray-300 w-full">
+			<div className="text-lg h-[6rem] w-full p-4 flex flex-col justify-center items-center text-gray-800">
+				<div className="mb-2 text-xl font-semibold">経過時間</div>
+				<div className="flex text-3xl font-bold font-mono">
+					<span className="mx-1">{formattedHours}</span>:
+					<span className="mx-1">{formattedMinutes}</span>:
+					<span className="mx-1">{formattedSeconds}</span>
 				</div>
 			</div>
 		</Card>

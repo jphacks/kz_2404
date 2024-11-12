@@ -65,25 +65,25 @@ export default function Home() {
 	}, []);
 
 	return (
-		<div className="flex flex-col h-full px-4 py-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
+		<div className="flex flex-col h-full px-10 py-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
 			<div className="flex flex-col items-center justify-center space-y-6">
 				{isLoading ? (
 					<Card>
-						<div className="h-[6rem] w-[16rem] p-4 flex flex-col items-center justify-center">
+						<div className="h-[6rem] gap-2 font-bold #333 flex flex-col items-center justify-center">
 							Loading...
 							<Progress value={progressCount} />
 						</div>
 					</Card>
 				) : (
-					<div className="text-lg padding">
+					<div className="text-lg w-full">
 						{assignment && (
 							// fixme [0]番目を参照しているがお題ごとに可変的にする必要あり。
-							<Timer assignTime={assignment[0].assignTime} />
+							<Timer assignTime={assignment[0]?.assignTime} />
 						)}
 					</div>
 				)}
 				<Card
-					className="flex flex-col items-center justify-around aspect-square w-full max-w-72 p-6 backdrop-blur-sm"
+					className="flex flex-col items-center justify-around aspect-square w-full p-6 backdrop-blur-sm"
 					style={{
 						background:
 							"linear-gradient(90deg, rgba(255, 145, 109, 0.56) 0%, rgba(255, 90, 170, 0.44) 51%, rgba(139, 166, 255, 0.61) 100%)",
@@ -93,7 +93,7 @@ export default function Home() {
 						<h2 className="text-lg font-semibold mb-2">今日のお題</h2>
 						<p className="text-sm text-gray-600">撮影してスコアを競おう！</p>
 					</div>
-					<h1 className="text-3xl font-bold text-center mb-4">Labyrinthine</h1>
+					<h1 className="text-3xl font-bold text-center mb-4">{assignment[0]?.english}</h1>
 					<div className="flex justify-center w-full">
 						<Button
 							variant="default"
@@ -107,7 +107,7 @@ export default function Home() {
 						</Button>
 					</div>
 				</Card>
-				<Card className="flex flex-col items-center aspect-square w-10/12 p-6 bg-white/80 backdrop-blur-sm">
+				<Card className="flex flex-col items-center aspect-square w-full p-6 bg-white/80 backdrop-blur-sm">
 					<h2 className="text-lg font-semibold mb-4">過去のチャレンジ</h2>
 					{myScore.length === 0 ? (
 						<div className="text-gray-500 text-center py-8">
