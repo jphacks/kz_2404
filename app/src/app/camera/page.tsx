@@ -129,7 +129,9 @@ const CameraApp = () => {
 				return;
 			}
 
-			const isAnsweredAll = assignmentData.every((assignment: todayAssignment) => assignment.isAnswered);
+			const isAnsweredAll = assignmentData.every(
+				(assignment: todayAssignment) => assignment.isAnswered,
+			);
 			if (isAnsweredAll) {
 				setIsActive(false);
 				return;
@@ -218,9 +220,7 @@ const CameraApp = () => {
 		}
 	};
 
-	const getCaption = async (
-		imageName: string,
-	): Promise<{ caption: string }> => {
+	const getCaption = async (imageName: string): Promise<{ caption: string }> => {
 		try {
 			const response = await fetch(`/api/image?imageName=${imageName}`);
 			if (!response.ok) {
@@ -470,6 +470,5 @@ const CameraApp = () => {
 		</>
 	);
 };
-
 
 export default CameraApp;
