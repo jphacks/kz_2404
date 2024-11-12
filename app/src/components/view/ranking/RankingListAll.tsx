@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import type { RankingScores } from "@/types";
 import { useEffect, useState } from "react";
 
@@ -6,7 +7,7 @@ export default function RankingListAllTime() {
 
 	useEffect(() => {
 		const fetchData = () => {
-			return fetch("/api/scores/all").then((response) => {
+			return fetch("/api/score/all").then((response) => {
 				if (!response.ok) {
 					throw new Error("Failed to fetch data");
 				}
@@ -19,8 +20,59 @@ export default function RankingListAllTime() {
 			.catch((error) => console.error("Error fetching data:", error));
 	}, []);
 
+	const getEmoji = (rank: number) => {
+		switch (rank) {
+			case 1:
+				return "🥇";
+			case 2:
+				return "🥈";
+			case 3:
+				return "🥉";
+			default:
+				return "🏅";
+		}
+	};
+
 	return (
 		<div className="mt-4 space-y-4">
+			{data.length >= 3 && (
+				<div className="flex justify-center items-end space-x-4">
+					{data[1] && (
+						<div className="text-center">
+							<div className="w-20 h-28 bg-gray-300 rounded-t-lg flex items-end justify-center pb-2">
+								<div className="text-4xl">{getEmoji(2)}</div>
+							</div>
+							<Card className="p-2 rounded-none rounded-b-lg">
+								<div className="font-bold">{data[1].totalPoint}点</div>
+								<div className="text-sm">{data[1].userName}</div>
+							</Card>
+						</div>
+					)}
+					{data[0] && (
+						<div className="text-center">
+							<div className="w-24 h-32 bg-yellow-500 rounded-t-lg flex items-end justify-center pb-2">
+								<div className="text-5xl">{getEmoji(1)}</div>
+							</div>
+							<Card className="p-2 rounded-none rounded-b-lg">
+								<div className="font-bold">{data[0].totalPoint}点</div>
+								<div className="text-sm">{data[0].userName}</div>
+							</Card>
+						</div>
+					)}
+					{data[2] && (
+						<div className="text-center">
+							<div className="w-20 h-24 bg-amber-600 rounded-t-lg flex items-end justify-center pb-2">
+								<div className="text-4xl">{getEmoji(3)}</div>
+							</div>
+							<Card className="p-2 rounded-none rounded-b-lg">
+								<div className="font-bold">{data[2].totalPoint}点</div>
+								<div className="text-sm">{data[2].userName}</div>
+							</Card>
+						</div>
+					)}
+				</div>
+			)}
+			<hr className="my-4 h-0.5 border-t-0 bg-gray-300" />
 			{data.map((item: RankingScores, index: number) => {
 				const bgColor = index < 3 ? "#FF643F" : "white";
 				const textColor = index < 3 ? "white" : "#333333";
@@ -56,7 +108,7 @@ export default function RankingListAllTime() {
 								className="pr-5 ml-auto text-2xl font-bold"
 								style={{ color: textColor }}
 							>
-								{item.totalPoint}
+								{item.totalPoint} 点
 							</div>
 						</div>
 						{index === 2 && (
