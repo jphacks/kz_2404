@@ -29,23 +29,19 @@ export async function GET(req: NextRequest) {
 			},
 		});
 
-		if (!user) {
+		if(!user){
 			return new Response("ユーザーが見つかりません", { status: 404 });
 		}
 
-		const todayAssignments: todayAssignment[] = assignments.map(
-			(assignment) => {
-				const score = assignment.scores?.find(
-					(score) => score.userId === Number(user.id),
-				);
-				const todayAssignment: todayAssignment = {
-					assignmentId: assignment.id,
-					english: assignment.word.english,
-					isAnswered: score ? true : false,
-				};
-				return todayAssignment;
-			},
-		);
+		const todayAssignments: todayAssignment[] = assignments.map((assignment) => {
+			const score = assignment.scores?.find((score) => score.userId === Number(user.id));
+			const todayAssignment: todayAssignment = {
+				assignmentId: assignment.id,
+				english: assignment.word.english,
+				isAnswered: score ? true : false,
+			};
+			return todayAssignment;
+		})
 		return new Response(JSON.stringify(todayAssignments), {
 			status: 200,
 			headers: { "Content-Type": "application/json" },

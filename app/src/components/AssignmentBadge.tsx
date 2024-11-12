@@ -5,7 +5,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { todayAssignment } from "@/types";
+import type { todayAssignment } from "@/types";
 
 interface AssignmentBadgeProps {
 	assignment: todayAssignment;

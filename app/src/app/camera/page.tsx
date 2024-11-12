@@ -122,19 +122,14 @@ const CameraApp = () => {
 				return;
 			}
 			const userInfo = JSON.parse(user);
-			const resAssignment = await fetch(
-				`/api/assignment/today?uid=${userInfo?.uid}`,
-			);
+			const resAssignment = await fetch(`/api/assignment/today?uid=${userInfo?.uid}`);
 			const assignmentData = await resAssignment.json();
 
 			if (assignmentData.length === 0) {
-				setIsActive(false);
 				return;
 			}
 
-			const isAnsweredAll = assignmentData.every(
-				(assignment: todayAssignment) => assignment.isAnswered,
-			);
+			const isAnsweredAll = assignmentData.every((assignment: todayAssignment) => assignment.isAnswered);
 			if (isAnsweredAll) {
 				setIsActive(false);
 				return;
@@ -475,5 +470,6 @@ const CameraApp = () => {
 		</>
 	);
 };
+
 
 export default CameraApp;
