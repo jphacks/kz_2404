@@ -31,7 +31,7 @@ export async function PUT(req: NextRequest) {
 		return NextResponse.json({ putSimilarity }, { status: 200 });
 	} catch (error) {
 		return NextResponse.json(
-			{ error: "Failed to update speedPoint", details: error },
+			{ error: "Failed to update similarityPoint", details: error },
 			{ status: 500 },
 		);
 	}
