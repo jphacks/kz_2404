@@ -1,11 +1,14 @@
 "use client";
+import Dialog from "@/components/view/Dialog";
 import type { todayAssignment } from "@/types";
+import { useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 import RankingListAllTime from "../../components/view/ranking/RankingListAll";
 import RankingListToday from "../../components/view/ranking/RankingListToday";
 import RankingListWeekly from "../../components/view/ranking/RankingListWeekly";
 import TabNavigation from "../../components/view/ranking/TabNavigation";
 import TopicTabs from "../../components/view/ranking/TopicTabs";
+import { openDialogAtom } from "../../lib/atom";
 
 export default function RankingPage() {
 	const [selectedTab, setSelectedTab] = useState<
@@ -13,6 +16,7 @@ export default function RankingPage() {
 	>("today");
 	const [selectedTopic, setSelectedTopic] = useState(0);
 	const [topics, setTopics] = useState<todayAssignment[]>([]);
+	const openDialog = useSetAtom(openDialogAtom);
 
 	useEffect(() => {
 		const fetchTopics = async () => {
@@ -29,8 +33,14 @@ export default function RankingPage() {
 		fetchTopics();
 	}, []);
 
+	// TODO 結果発表のタイミングに修正する。
+	useEffect(() => {
+		openDialog;
+	});
+
 	return (
 		<div className="min-h-screen bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50 px-4">
+			<Dialog type="ranking" />
 			<div className="w-full flex flex-col items-center justify-center sticky top-0 z-10 pt-4">
 				<TabNavigation
 					selectedTab={selectedTab}
