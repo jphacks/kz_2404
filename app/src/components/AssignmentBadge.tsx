@@ -28,7 +28,7 @@ export const AssignmentBadge = ({
 	return (
 		<div className="flex flex-col items-center justify-center text-center fixed top-0 left-0 w-full h-1/4">
 			<div className="py-2 px-4 bg-orange-500 text-white rounded-full">
-				<Select defaultValue={assignment.english} onValueChange={handleSelect}>
+				<Select value={assignment.english} onValueChange={handleSelect}>
 					<SelectTrigger className="w-[180px]">
 						<SelectValue />
 					</SelectTrigger>

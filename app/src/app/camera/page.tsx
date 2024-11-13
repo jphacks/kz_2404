@@ -305,16 +305,21 @@ const CameraApp = () => {
 					}
 					return assignment;
 				});
-				setIsUploading(false);
-				toast(message);
-				setAssignments(newAssignments);
-				if (newAssignments.every((assignment) => assignment.isAnswered)) {
-					setIsActive(false);
-				}
 				const notAnsweredAssignment = newAssignments.find(
 					(assignment: todayAssignment) => !assignment.isAnswered,
 				);
+
 				setTodayAssignment(notAnsweredAssignment);
+
+				setIsUploading(false);
+				toast(message);
+				setAssignments(newAssignments);
+
+				if (newAssignments.every((assignment) => assignment.isAnswered)) {
+					setIsActive(false);
+				}
+
+
 			} catch (error) {
 				setIsUploading(false);
 				console.error("アップロード中にエラーが発生しました:", error);
