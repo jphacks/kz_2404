@@ -20,6 +20,7 @@ model User {
   email String
   photoUrl String
   scores Score[]
+  experiencePoint ExperiencePoint? @relation()
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
@@ -61,4 +62,17 @@ model Word {
   updatedAt DateTime @default(now())  @updatedAt
 
   assignment Assignment[]
+}
+
+model ExperiencePoint {
+  id Int @id @default(autoincrement())
+  speedPoint Int
+  similarityPoint Int
+  totalPoint Int
+  continuationDay Int
+  userId Int @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }
