@@ -99,12 +99,14 @@ export type MyScoreDetail = {
 export type todayAssignment = {
 	assignmentId: number;
 	english: string;
-	assignTime: Date;
+	assignTime?: Date;
+  	isAnswered: boolean;
 };
 
 export type latestAssignment = {
-	assignmentId: number;
-	english: string;
+  	assignmentId: number;
+  	english: string;
+  	isAnswered: boolean;
 };
 
 export type experiencePoint = {
