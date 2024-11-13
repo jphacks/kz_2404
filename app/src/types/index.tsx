@@ -104,7 +104,20 @@ export type todayAssignment = {
 };
 
 export type latestAssignment = {
-  assignmentId: number;
-  english: string;
-  isAnswered: boolean;
+  	assignmentId: number;
+  	english: string;
+  	isAnswered: boolean;
+};
+
+export type experiencePoint = {
+	id: number;
+	speedPoint: number;
+	similarityPoint: number;
+	totalPoint: number;
+	continuationDay: number;
+	userId: number;
+	createdAt: Date;
+	updatedAt: Date;
+
+	user?: User;
 };
