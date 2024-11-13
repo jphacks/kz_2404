@@ -118,6 +118,7 @@ const CameraApp = () => {
 			const assignmentData = await resAssignment.json();
 
 			if (assignmentData.length === 0) {
+				setIsActive(false);
 				return;
 			}
 
@@ -431,7 +432,7 @@ const CameraApp = () => {
 					)}
 				</>
 			) : (
-				<Answered />
+				<Answered assignments={assignments}/>
 			)}
 		</>
 	);
