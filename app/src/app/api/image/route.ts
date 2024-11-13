@@ -40,7 +40,7 @@ export async function GET(
 }
 
 // 画像URLからキャプションを生成する関数
-export const generateCaption = async (imageUrl: string) => {
+const generateCaption = async (imageUrl: string) => {
   try {
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
