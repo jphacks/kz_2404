@@ -3,10 +3,13 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import Dialog from "@/components/view/Dialog";
 import Timer from "@/components/view/Timer";
+import { openDialogAtom } from "@/lib/atom";
 import type { MyScoreDetail, todayAssignment } from "@/types";
+import { useSetAtom } from "jotai";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import ClockIcon from "../../public/icons/icon-clock.svg";
 import PhotoCameraIcon from "../../public/icons/icon-photo-camera.svg";
 
@@ -16,6 +19,7 @@ export default function Home() {
 	const [isLoading, setIsLoading] = useState(true);
 	const [progressCount, setProgressCount] = useState(0);
 	const router = useRouter();
+	const openDialog = useSetAtom(openDialogAtom);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -68,8 +72,13 @@ export default function Home() {
 		fetchData();
 	}, []);
 
+	useEffect(() => {
+		openDialog();
+	}, [openDialog]);
+
 	return (
 		<div className="flex flex-col h-full px-10 py-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
+			<Dialog type="login" />
 			<div className="flex flex-col items-center justify-center space-y-6">
 				{isLoading ? (
 					<Card className="w-full py-3 px-7">
