@@ -27,6 +27,7 @@
     "firebase": "^11.0.1",
     "firebase-admin": "^12.7.0",
     "formidable": "^3.5.2",
+    "jotai": "^2.10.2",
     "lucide-react": "^0.453.0",
     "minio": "^8.0.2",
     "next": "14.2.16",
