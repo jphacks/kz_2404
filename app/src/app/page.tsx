@@ -68,6 +68,10 @@ export default function Home() {
 		fetchData();
 	}, []);
 
+	const latestAssignment = assignment
+		.filter((item) => item.assignTime)
+		.sort((a, b) => (b.assignTime?.getTime() ?? 0) - (a.assignTime?.getTime() ?? 0))[0];
+
 	return (
 		<div className="flex flex-col h-full px-10 py-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
 			<div className="flex flex-col items-center justify-center space-y-6">
@@ -80,9 +84,9 @@ export default function Home() {
 					</Card>
 				) : (
 					<div className="text-lg w-full">
-						{assignment[0]?.assignTime && (
+						{latestAssignment?.assignTime && (
 							// fixme [0]番目を参照しているがお題ごとに可変的にする必要あり。
-							<Timer assignTime={assignment[0]?.assignTime} />
+							<Timer assignTime={latestAssignment?.assignTime} />
 						)}
 					</div>
 				)}
@@ -97,7 +101,7 @@ export default function Home() {
 						<h2 className="text-lg font-semibold mb-2">今日のお題</h2>
 						<p className="text-sm text-gray-600">撮影してスコアを競おう！</p>
 					</div>
-					<h1 className="text-3xl font-bold text-center mb-4">{assignment[0]?.english}</h1>
+					<h1 className="text-3xl font-bold text-center mb-4">{latestAssignment?.english}</h1>
 					<div className="flex justify-center w-full">
 						<Button
 							variant="default"
