@@ -23,6 +23,10 @@ export const signInOrUp = async (firebaseUser: FirebaseUser) => {
 
 		if (res.status === 200) {
 			storeStorageUser(user);
+			const userData = await res.json();
+			if (!userData.experiencePoint) {
+				await createExp(userData.id);
+			}
 			toRoot();
 		} else {
 			await signUp(user);
@@ -47,6 +51,26 @@ const signUp = async (user: User) => {
 			toRoot();
 		} else {
 			throw new Error("ユーザー登録に失敗");
+		}
+	} catch (error) {
+		console.error("エラーが発生しました:", error);
+	}
+};
+
+const createExp = async (userId: number) => {
+	try {
+		const res = await fetch("/api/experiencePoint/new", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(userId),
+		});
+
+		if (res.status === 200) {
+			toRoot();
+		} else {
+			throw new Error("作成に失敗しました");
 		}
 	} catch (error) {
 		console.error("エラーが発生しました:", error);
