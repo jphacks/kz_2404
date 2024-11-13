@@ -3,7 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import StatusChangeDialog from "@/components/view/user/StatusChangeDialog";
+import { openStatusChangeDialogOpenAtom } from "@/lib/atom";
 import type { MyScoreDetail, User } from "@/types";
+import { useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { FiEdit2 } from "react-icons/fi";
 import { LuClock, LuFlame, LuTrophy } from "react-icons/lu";
@@ -13,6 +16,7 @@ const UserPage = () => {
 	const [userData, setUserData] = useState<User>();
 	const [myScore, setMyScore] = useState<MyScoreDetail[]>([]);
 	const [isEditing, setIsEditing] = useState(false);
+	const open = useSetAtom(openStatusChangeDialogOpenAtom);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -41,9 +45,14 @@ const UserPage = () => {
 		fetchData();
 	}, []);
 
+	useEffect(() => {
+		open;
+	});
+
 	if (!userData) return null;
 	return (
 		<div className="w-screen min-h-screen flex flex-col gap-4 items-center p-4 pt-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
+			<StatusChangeDialog />
 			<div className="flex items-center mb-4">
 				{userData.photoURL ? (
 					<img
