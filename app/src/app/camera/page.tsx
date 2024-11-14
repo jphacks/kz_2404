@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Toaster } from "@/components/ui/sonner";
-import { Dialog } from "@/components/view/Dialog";
+import { PointDialog } from "@/components/view/PointDialog";
 import { shapeCaption } from "@/functions/shapeCaption";
 import { postSimilarity } from "@/functions/simirality";
 import type { todayAssignment } from "@/types";
@@ -361,7 +361,7 @@ const CameraApp = () => {
 		<>
 			{isActive ? (
 				<>
-					<Dialog type="photo" />
+					<PointDialog type="photo" />
 					<div className="flex items-center justify-center">
 						<Camera
 							ref={camera}

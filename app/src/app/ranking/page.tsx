@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import Dialog from "@/components/view/Dialog";
 import { ImageList } from "@/components/view/ranking/ImageList";
+import { PointDialog } from "@/components/view/PointDialog";
 import type { todayAssignment } from "@/types";
 import { useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
@@ -44,7 +44,7 @@ export default function RankingPage() {
 
 	return (
 		<div className="min-h-screen bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50 px-4">
-			<Dialog type="ranking" />
+			<PointDialog type="ranking" />
 			{rankingType === "nomal" && (
 				<>
 					<div className="w-full flex flex-col items-center justify-center sticky top-0 z-10 pt-4">
