@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import type { RankingScores, ScoreDetail } from "@/types";
+import type { ScoreDetail } from "@/types";
 import { useEffect, useState } from "react";
+import { VscListOrdered } from "react-icons/vsc";
 
 const LoadingSpinner = () => (
 	<div className="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center z-50">
@@ -47,14 +48,20 @@ export const ImageList = ({ setMode }: ImageListProps) => {
 
 	return (
 		<div>
-			<Button
-				onClick={() => {
-					setMode(MODE.NOMAL);
-				}}
-				className="mb-4"
-			>
-				通常表示に切り替える
-			</Button>
+			<div className="flex justify-end">
+				<button
+					type="button"
+					onClick={() => {
+						setMode(MODE.NOMAL);
+					}}
+					className="bg-transparent text-[#333333] rounded-md py-6 right-0"
+				>
+					<div className="flex flex-col justify-center items-center w-20">
+						<VscListOrdered size={"30"} />
+						<p>ランキング</p>
+					</div>
+				</button>
+			</div>
 			<div className="grid grid-cols-3 md:grid-cols-6">
 				{scoreDetails.map((score) => (
 					<div key={score.id}>

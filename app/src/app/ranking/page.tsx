@@ -42,25 +42,26 @@ export default function RankingPage() {
 							selectedTab={selectedTab}
 							setSelectedTab={setSelectedTab}
 						/>
-						<div>
-							<Button
-								onClick={() => {
-									setRankingType("image");
-								}}
-								className="bg-transparent text-[#333333] rounded-md p-4 my-2 right-0"
-							>
-								<div className="flex flex-col justify-center items-center">
-									<BsGrid1X2 />
-									<p>みんなの写真</p>
-								</div>
-							</Button>
-						</div>
 						{selectedTab === "today" && (
-							<TopicTabs
-								selectedTopic={selectedTopic}
-								setSelectedTopic={setSelectedTopic}
-								topics={topics}
-							/>
+							<div className="flex w-screen content-between p-4 justify-between">
+								<TopicTabs
+									selectedTopic={selectedTopic}
+									setSelectedTopic={setSelectedTopic}
+									topics={topics}
+								/>
+								<button
+									type="button"
+									onClick={() => {
+										setRankingType("image");
+									}}
+									className="bg-transparent text-[#333333] rounded-md right-0"
+								>
+									<div className="flex flex-col justify-center items-center">
+										<BsGrid1X2 size={"24"} />
+										<p>みんなの写真</p>
+									</div>
+								</button>
+							</div>
 						)}
 					</div>
 					<div>
