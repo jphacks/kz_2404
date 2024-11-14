@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import Dialog from "@/components/view/Dialog";
+import { PointDialog } from "@/components/view/PointDialog";
 import Timer from "@/components/view/Timer";
 import { openDialogAtom } from "@/lib/atom";
 import type { MyScoreDetail, todayAssignment } from "@/types";
@@ -74,7 +74,7 @@ export default function Home() {
 
 	return (
 		<div className="flex flex-col h-full px-10 py-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
-			<Dialog type="login" />
+			<PointDialog type="login" />
 			<div className="flex flex-col items-center justify-center space-y-6">
 				{isLoading ? (
 					<Card className="w-full py-3 px-7">

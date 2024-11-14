@@ -20,7 +20,7 @@ interface NotificationDialogProps {
 	customSubMessage?: string;
 }
 
-export default function Component({
+export function PointDialog({
 	type = "login",
 	customTitle,
 	customMessage,
