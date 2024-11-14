@@ -1,5 +1,7 @@
 "use client";
 
+import { Answered } from "@/components/Answered";
+import { AssignmentBadge } from "@/components/AssignmentBadge";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -13,19 +15,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Toaster } from "@/components/ui/sonner";
 import { shapeCaption } from "@/functions/shapeCaption";
 import { postSimilarity } from "@/functions/simirality";
+import type { todayAssignment } from "@/types";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Camera, type CameraType } from "react-camera-pro";
+import { toast } from "sonner";
 import AddImageIcon from "../../../public/icons/icon-add-image.svg";
 import RotateCameraIcon from "../../../public/icons/icon-rotate-camera.svg";
 import ShutterIcon from "../../../public/icons/icon-shutter.svg";
-import { toast } from "sonner";
-import { Toaster } from "@/components/ui/sonner";
-import { todayAssignment } from "@/types";
-import { Answered } from "@/components/Answered";
-import { AssignmentBadge } from "@/components/AssignmentBadge";
 
 interface ImagePreviewProps {
 	image: string | null;
@@ -100,9 +100,13 @@ const CameraApp = () => {
 	const [tempImage, setTempImage] = useState<string | null>(null);
 	const camera = useRef<CameraType>(null);
 	const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
-	const [activeDeviceId, setActiveDeviceId] = useState<string | undefined>(undefined);
+	const [activeDeviceId, setActiveDeviceId] = useState<string | undefined>(
+		undefined,
+	);
 	const [currentDeviceIndex, setCurrentDeviceIndex] = useState<number>(0);
-	const [todayAssignment, setTodayAssignment] = useState<todayAssignment | undefined>();
+	const [todayAssignment, setTodayAssignment] = useState<
+		todayAssignment | undefined
+	>();
 	const [assignments, setAssignments] = useState<todayAssignment[]>([]);
 	const [isActive, setIsActive] = useState<boolean>(true);
 
@@ -114,7 +118,9 @@ const CameraApp = () => {
 				return;
 			}
 			const userInfo = JSON.parse(user);
-			const resAssignment = await fetch(`/api/assignment/today?uid=${userInfo?.uid}`);
+			const resAssignment = await fetch(
+				`/api/assignment/today?uid=${userInfo?.uid}`,
+			);
 			const assignmentData = await resAssignment.json();
 
 			if (assignmentData.length === 0) {
@@ -143,7 +149,9 @@ const CameraApp = () => {
 
 			try {
 				const devices = await navigator.mediaDevices.enumerateDevices();
-				const videoDevices = devices.filter((device) => device.kind === "videoinput");
+				const videoDevices = devices.filter(
+					(device) => device.kind === "videoinput",
+				);
 				setDevices(videoDevices);
 				if (videoDevices.length > 0) {
 					setActiveDeviceId(videoDevices[0].deviceId);
@@ -185,7 +193,9 @@ const CameraApp = () => {
 			// ランダム文字列を生成する関数
 			const generateRandomString = (charCount = 7): string => {
 				const str = Math.random().toString(36).substring(2).slice(-charCount);
-				return str.length < charCount ? str + "a".repeat(charCount - str.length) : str;
+				return str.length < charCount
+					? str + "a".repeat(charCount - str.length)
+					: str;
 			};
 
 			const randomStr = generateRandomString();
@@ -209,7 +219,9 @@ const CameraApp = () => {
 		}
 	};
 
-	const getCaption = async (imageName: string): Promise<{ caption: string }> => {
+	const getCaption = async (
+		imageName: string,
+	): Promise<{ caption: string }> => {
 		try {
 			const response = await fetch(`/api/image?imageName=${imageName}`);
 			if (!response.ok) {
@@ -318,8 +330,6 @@ const CameraApp = () => {
 				if (newAssignments.every((assignment) => assignment.isAnswered)) {
 					setIsActive(false);
 				}
-
-
 			} catch (error) {
 				setIsUploading(false);
 				console.error("アップロード中にエラーが発生しました:", error);
@@ -334,7 +344,9 @@ const CameraApp = () => {
 
 	const handleImageCapture = (capturedImage: string | ImageData) => {
 		const imageStr =
-			capturedImage instanceof ImageData ? imageDataToBase64(capturedImage) : capturedImage;
+			capturedImage instanceof ImageData
+				? imageDataToBase64(capturedImage)
+				: capturedImage;
 
 		setTempImage(imageStr);
 		setShowConfirmDialog(true);
@@ -409,10 +421,15 @@ const CameraApp = () => {
 						</Button>
 					</div>
 
-					<AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+					<AlertDialog
+						open={showConfirmDialog}
+						onOpenChange={setShowConfirmDialog}
+					>
 						<AlertDialogContent className="w-5/6 rounded-lg">
 							<AlertDialogHeader>
-								<AlertDialogTitle className="text-center">画像のアップロード確認</AlertDialogTitle>
+								<AlertDialogTitle className="text-center">
+									画像のアップロード確認
+								</AlertDialogTitle>
 								<AlertDialogDescription className="text-center">
 									この画像をアップロードしてもよろしいですか？
 								</AlertDialogDescription>
@@ -421,8 +438,12 @@ const CameraApp = () => {
 							<DialogImagePreview image={tempImage} />
 
 							<AlertDialogFooter className="sm:space-x-4">
-								<AlertDialogCancel onClick={handleCancel}>いいえ</AlertDialogCancel>
-								<AlertDialogAction onClick={handleConfirm}>はい</AlertDialogAction>
+								<AlertDialogCancel onClick={handleCancel}>
+									いいえ
+								</AlertDialogCancel>
+								<AlertDialogAction onClick={handleConfirm}>
+									はい
+								</AlertDialogAction>
 							</AlertDialogFooter>
 						</AlertDialogContent>
 					</AlertDialog>
@@ -437,7 +458,7 @@ const CameraApp = () => {
 					)}
 				</>
 			) : (
-				<Answered assignments={assignments}/>
+				<Answered assignments={assignments} />
 			)}
 		</>
 	);
