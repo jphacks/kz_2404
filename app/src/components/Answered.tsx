@@ -1,4 +1,4 @@
-import { todayAssignment } from "@/types";
+import type { todayAssignment } from "@/types";
 
 interface AssignmentProps {
 	assignments: todayAssignment[];
@@ -6,7 +6,7 @@ interface AssignmentProps {
 
 export const Answered = ({ assignments }: AssignmentProps) => {
 	//　本日は回答済みですの画面表示
-	const isNoAssignmentToday = assignments.length === 0
+	const isNoAssignmentToday = assignments.length === 0;
 
 	return (
 		<div className="flex flex-col items-center justify-center text-center fixed top-0 left-0 w-full h-full">
