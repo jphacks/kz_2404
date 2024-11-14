@@ -18,13 +18,12 @@ interface PlayStyleSettings {
 }
 
 export default function StatusChangeDialog() {
-	const [open, setOpen] = useState(true);
 	const [settings, setSettings] = useState<PlayStyleSettings>({
 		speed: 12,
 		similarity: 70,
 		total: 100,
 	});
-	const [_, setIsOpen] = useStatusChangeDialog();
+	const [isOpen, setIsOpen] = useStatusChangeDialog();
 
 	// TODO APIの繋ぎ込みをおこなう。その際に値のバリデージョンも実装する。
 	const handleSave = async () => {
@@ -35,7 +34,7 @@ export default function StatusChangeDialog() {
 		settings.total - (settings.speed + settings.similarity);
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
+		<Dialog open={isOpen} onOpenChange={setIsOpen}>
 			<DialogContent className="max-w-[90vw] sm:max-w-[425px] flex flex-col items-center px-4">
 				<DialogHeader className="text-center">
 					<DialogTitle className="text-lg sm:text-xl font-semibold">
