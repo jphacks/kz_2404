@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import type { IncomingMessage } from "node:http";
 import { Readable } from "node:stream";
+import { generateCaption } from "@/functions/gpt";
 import { scoreRegister } from "@/functions/scoreRegister";
 import { shapeCaption } from "@/functions/shapeCaption";
 import { postSimilarity } from "@/functions/simirality";
@@ -9,7 +10,6 @@ import type { ScoreData, ScoreResponse } from "@/types";
 import { formidable } from "formidable";
 import { Client } from "minio";
 import type { NextRequest } from "next/server";
-import { generateCaption } from "../image/route";
 
 const minioClient = new Client({
 	endPoint: process.env.NEXT_PUBLIC_ENDPOINT || "",
