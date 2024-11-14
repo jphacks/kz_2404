@@ -204,7 +204,7 @@ const CameraApp = () => {
 			const imageName = `${formattedDate}_${randomStr}.${Extension}`;
 
 			const formData = new FormData();
-			formData.append("image", compressedBlob, imageName);
+			formData.append("file", compressedBlob, imageName);
 
 			const response = await fetch(
 				`/api/minio?file=${imageName}&&assignment=${todayAssignment?.english}&&uid=${loginUser?.uid}&&assignmentId=${todayAssignment?.assignmentId}`,

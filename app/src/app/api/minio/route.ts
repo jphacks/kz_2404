@@ -1,4 +1,3 @@
-import * as fs from "node:fs";
 import type { IncomingMessage } from "node:http";
 import { Readable } from "node:stream";
 import { generateCaption } from "@/functions/gpt";
@@ -7,7 +6,6 @@ import { shapeCaption } from "@/functions/shapeCaption";
 import { postSimilarity } from "@/functions/simirality";
 import { prisma } from "@/lib/prisma";
 import type { ScoreData, ScoreResponse } from "@/types";
-import { formidable } from "formidable";
 import { Client } from "minio";
 import type { NextRequest } from "next/server";
 
@@ -48,8 +46,8 @@ function toIncomingMessage(request: NextRequest): IncomingMessage {
 }
 
 export async function POST(req: NextRequest) {
-	const form = formidable();
-	const incomingMessage = toIncomingMessage(req);
+	const formData = await req.formData();
+	const file = formData.get("file");
 
 	const { searchParams } = new URL(req.url || "");
 	const fileName = searchParams.get("file") || "";
@@ -57,31 +55,35 @@ export async function POST(req: NextRequest) {
 	const uid = searchParams.get("uid") || "";
 	const assignmentId = Number(searchParams.get("assignmentId") || 0);
 
-	form.parse(incomingMessage, async (err: Error | null, _, files: any) => {
-		if (err || !files.image) {
-			throw new Error("Error parsing form");
-		}
-		const image = files.image[0];
-		const mimetype = image.type;
-		const metaData = {
-			"Content-Type": mimetype,
-		};
+	if (!file) {
+		return new Response(JSON.stringify({ message: "送信失敗" }), {
+			status: 400,
+			headers: { "Content-Type": "application/json" },
+		});
+	}
 
-		try {
-			await minioClient.putObject(
-				BUCKET_NAME,
-				image.originalFilename,
-				fs.createReadStream(image.filepath),
-				image.size,
-				metaData,
-			);
-		} catch (err) {
-			return new Response(JSON.stringify({ message: "失敗" }), {
-				status: 400,
-				headers: { "Content-Type": "application/json" },
-			});
-		}
-	});
+	const mimetype = (file as File).type || "";
+	const metaData = {
+		"Content-Type": mimetype,
+	};
+
+	// File オブジェクトから Buffer に変換
+	const buffer = Buffer.from(await (file as File).arrayBuffer());
+
+	try {
+		await minioClient.putObject(
+			BUCKET_NAME,
+			fileName,
+			buffer,
+			(file as File).size,
+			metaData,
+		);
+	} catch (err) {
+		return new Response(JSON.stringify({ message: "失敗" }), {
+			status: 400,
+			headers: { "Content-Type": "application/json" },
+		});
+	}
 
 	const imageURL = `${process.env.NEXT_PUBLIC_MINIO_ENDPOINT}${BUCKET_NAME}/${fileName}`;
 
