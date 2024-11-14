@@ -1,8 +1,13 @@
-import { atom } from "jotai";
+import { atom, useAtom, useSetAtom } from "jotai";
 
-export const statusChangeDialogOpenAtom = atom(false);
+export const statusChangeDialogAtom = atom<boolean>(false);
 
-export const openStatusChangeDialogOpenAtom = atom(
-	(get) => get(statusChangeDialogOpenAtom),
-	(get, set) => set(statusChangeDialogOpenAtom, true),
-);
+export const useStatusChangeDialog = () => useAtom(statusChangeDialogAtom);
+
+export const useOpenStatusChangeDialog = () =>
+	useSetAtom(statusChangeDialogAtom);
+
+export const toggleStatusChangeDialog = () => {
+	const [isOpen, setIsOpen] = useStatusChangeDialog();
+	setIsOpen(!isOpen);
+};

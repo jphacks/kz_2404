@@ -8,6 +8,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
+import { useStatusChangeDialog } from "@/lib/atom";
 import { useState } from "react";
 
 interface PlayStyleSettings {
@@ -23,10 +24,11 @@ export default function StatusChangeDialog() {
 		similarity: 70,
 		total: 100,
 	});
+	const [_, setIsOpen] = useStatusChangeDialog();
 
 	// TODO APIの繋ぎ込みをおこなう。その際に値のバリデージョンも実装する。
 	const handleSave = async () => {
-		setOpen(false);
+		setIsOpen(false);
 	};
 
 	const remainingPoints =
@@ -93,7 +95,7 @@ export default function StatusChangeDialog() {
 						</div>
 					</div>
 					<div className="flex justify-center gap-3 pt-4">
-						<Button variant="outline" onClick={() => setOpen(false)}>
+						<Button variant="outline" onClick={() => setIsOpen(false)}>
 							キャンセル
 						</Button>
 						<Button onClick={handleSave}>保存</Button>
