@@ -5,85 +5,85 @@ import { useEffect, useState } from "react";
 import { VscListOrdered } from "react-icons/vsc";
 
 const LoadingSpinner = () => (
-	<div className="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center z-50">
-		<div className="animate-spin rounded-full h-24 w-24 border-t-4 border-b-4 border-blue-500 mb-4" />
-		<p className="text-white text-lg">読み込み中...</p>
-	</div>
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center z-50">
+    <div className="animate-spin rounded-full h-24 w-24 border-t-4 border-b-4 border-blue-500 mb-4" />
+    <p className="text-white text-lg">読み込み中...</p>
+  </div>
 );
 
 type ImageListProps = {
-	setMode: (mode: "nomal" | "image") => void;
+  setMode: (mode: "nomal" | "image") => void;
 };
 
 const MODE = {
-	NOMAL: "nomal",
-	IMAGE: "image",
+  NOMAL: "nomal",
+  IMAGE: "image",
 } as const;
 
 export const ImageList = ({ setMode }: ImageListProps) => {
-	const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-	const [scoreDetails, setScoreDetails] = useState<ScoreDetail[]>([]);
-	useEffect(() => {
-		const fetchData = () => {
-			setIsLoading(true);
-			return fetch("/api/score/imagelist")
-				.then((response) => {
-					if (!response.ok) {
-						throw new Error("Failed to fetch data");
-					}
-					return response.json();
-				})
-				.then((result) => setScoreDetails(result))
-				.catch((error) => console.error("Error fetching data:", error))
-				.finally(() => setIsLoading(false));
-		};
+  const [scoreDetails, setScoreDetails] = useState<ScoreDetail[]>([]);
+  useEffect(() => {
+    const fetchData = () => {
+      setIsLoading(true);
+      return fetch("/api/score/imagelist")
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to fetch data");
+          }
+          return response.json();
+        })
+        .then((result) => setScoreDetails(result))
+        .catch((error) => console.error("Error fetching data:", error))
+        .finally(() => setIsLoading(false));
+    };
 
-		fetchData();
-	}, []);
+    fetchData();
+  }, []);
 
-	if (isLoading) {
-		return <LoadingSpinner />;
-	}
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
-	return (
-		<div>
-			<div className="flex justify-end">
-				<button
-					type="button"
-					onClick={() => {
-						setMode(MODE.NOMAL);
-					}}
-					className="bg-transparent text-[#333333] rounded-md py-6 right-0"
-				>
-					<div className="flex flex-col justify-center items-center w-20">
-						<VscListOrdered size={"30"} />
-						<p>ランキング</p>
-					</div>
-				</button>
-			</div>
-			<div className="grid grid-cols-3 md:grid-cols-6">
-				{scoreDetails.map((score) => (
-					<div key={score.id}>
-						<ImageBox score={score} />
-					</div>
-				))}
-			</div>
-		</div>
-	);
+  return (
+    <div>
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={() => {
+            setMode(MODE.NOMAL);
+          }}
+          className="bg-transparent text-[#333333] rounded-md py-6 right-0"
+        >
+          <div className="flex flex-col justify-center items-center w-20">
+            <VscListOrdered size={"30"} />
+            <p>ランキング</p>
+          </div>
+        </button>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        {scoreDetails.map((score) => (
+          <div key={score.id}>
+            <ImageBox score={score} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 const ImageBox = ({ score }: { score: ScoreDetail }) => {
-	return (
-		<Card key={score.id} className="p-1 min-h-44 min-w-32">
-			<img
-				src={score.imageUrl}
-				alt="画像"
-				className="w-full object-cover rounded-md relative"
-			/>
-			<p className="text-gray-500 relative bg-slate-200 rounded-md p-1">
-				{score.assignment}
-			</p>
-		</Card>
-	);
+  return (
+    <Card key={score.id} className="p-1 w-full">
+      <img
+        src={score.imageUrl}
+        alt="画像"
+        className="w-full object-cover rounded-md relative"
+      />
+      <p className="text-gray-500 relative bg-slate-200 rounded-md p-1">
+        {score.assignment}
+      </p>
+    </Card>
+  );
 };
