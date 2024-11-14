@@ -3,6 +3,9 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import StatusChangeDialog from "@/components/view/user/StatusChangeDialog";
+import StatusList from "@/components/view/user/StatusList";
+import { useStatusChangeDialog } from "@/lib/atom";
 import type { MyScoreDetail, User } from "@/types";
 import { useEffect, useState } from "react";
 import { FiEdit2 } from "react-icons/fi";
@@ -13,6 +16,8 @@ const UserPage = () => {
 	const [userData, setUserData] = useState<User>();
 	const [myScore, setMyScore] = useState<MyScoreDetail[]>([]);
 	const [isEditing, setIsEditing] = useState(false);
+	const [isOpen, setIsOpen] = useStatusChangeDialog();
+	const handleOpenDialog = () => setIsOpen(true);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -44,6 +49,7 @@ const UserPage = () => {
 	if (!userData) return null;
 	return (
 		<div className="w-screen min-h-screen flex flex-col gap-4 items-center p-4 pt-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
+			{isOpen && <StatusChangeDialog />}
 			<div className="flex items-center mb-4">
 				{userData.photoURL ? (
 					<img
@@ -106,6 +112,9 @@ const UserPage = () => {
 					<p className="text-xs text-muted-foreground">最高点</p>
 				</Card>
 			</div>
+			<button type="button" onClick={() => handleOpenDialog()}>
+				<StatusList speedPoint={10} similarityPoint={40} />
+			</button>
 			<Card className="flex flex-col items-center border-none p-8">
 				<h2 className="text-2xl font-bold mb-4">過去のチャレンジ</h2>
 				{myScore.length === 0 ? (
