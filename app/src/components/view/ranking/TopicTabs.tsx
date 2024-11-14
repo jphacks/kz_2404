@@ -11,10 +11,10 @@ interface TopicTabsProps {
 const TopicTabs: React.FC<TopicTabsProps> = ({
 	selectedTopic,
 	setSelectedTopic,
-  topics,
+	topics,
 }) => {
 	return (
-		<div className="flex overflow-x-auto space-x-4 mt-4">
+		<div className="flex overflow-x-auto space-x-4">
 			{topics.map((topic) => (
 				<Button
 					variant={"primary"}

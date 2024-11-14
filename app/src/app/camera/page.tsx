@@ -1,5 +1,7 @@
 "use client";
 
+import { Answered } from "@/components/Answered";
+import { AssignmentBadge } from "@/components/AssignmentBadge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,19 +15,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Toaster } from "@/components/ui/sonner";
 import { shapeCaption } from "@/functions/shapeCaption";
 import { postSimilarity } from "@/functions/simirality";
+import type { todayAssignment } from "@/types";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Camera, type CameraType } from "react-camera-pro";
+import { toast } from "sonner";
 import AddImageIcon from "../../../public/icons/icon-add-image.svg";
 import RotateCameraIcon from "../../../public/icons/icon-rotate-camera.svg";
 import ShutterIcon from "../../../public/icons/icon-shutter.svg";
-import { toast } from "sonner";
-import { Toaster } from "@/components/ui/sonner";
-import { todayAssignment } from "@/types";
-import { Answered } from "@/components/Answered";
-import { AssignmentBadge } from "@/components/AssignmentBadge";
 import imageCompression from "browser-image-compression";
 
 interface ImagePreviewProps {
