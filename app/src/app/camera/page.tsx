@@ -20,7 +20,6 @@ import { PointDialog } from "@/components/view/PointDialog";
 import { shapeCaption } from "@/functions/shapeCaption";
 import { postSimilarity } from "@/functions/simirality";
 import { usePointDialogOpen } from "@/lib/atom";
-import type { todayAssignment } from "@/types";
 import type { ScoreResponse, User, todayAssignment } from "@/types";
 import imageCompression from "browser-image-compression";
 import type React from "react";
