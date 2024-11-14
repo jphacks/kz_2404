@@ -19,6 +19,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { shapeCaption } from "@/functions/shapeCaption";
 import { postSimilarity } from "@/functions/simirality";
 import type { todayAssignment } from "@/types";
+import imageCompression from "browser-image-compression";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Camera, type CameraType } from "react-camera-pro";
@@ -26,7 +27,6 @@ import { toast } from "sonner";
 import AddImageIcon from "../../../public/icons/icon-add-image.svg";
 import RotateCameraIcon from "../../../public/icons/icon-rotate-camera.svg";
 import ShutterIcon from "../../../public/icons/icon-shutter.svg";
-import imageCompression from "browser-image-compression";
 
 interface ImagePreviewProps {
   image: string | null;
@@ -201,8 +201,8 @@ const CameraApp = () => {
       // 日付取得
       const date = new Date();
       const thisMonth = date.getMonth() + 1;
-      const month = thisMonth < 10 ? "0" + thisMonth : thisMonth;
-      const day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+      const month = thisMonth < 10 ? `0${thisMonth}` : thisMonth;
+      const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
       const formattedDate = `${date.getFullYear()}${month}${day}`;
 
       // ランダム文字列を生成する関数
@@ -269,7 +269,7 @@ const CameraApp = () => {
     }
     const userData = JSON.parse(userString);
 
-    const resUserId = await fetch("/api/user?uid=" + userData.uid, {
+    const resUserId = await fetch(`/api/user?uid=${userData.uid}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
