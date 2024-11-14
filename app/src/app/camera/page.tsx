@@ -21,6 +21,8 @@ import { shapeCaption } from "@/functions/shapeCaption";
 import { postSimilarity } from "@/functions/simirality";
 import { usePointDialogOpen } from "@/lib/atom";
 import type { todayAssignment } from "@/types";
+import type { ScoreResponse, User, todayAssignment } from "@/types";
+import imageCompression from "browser-image-compression";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Camera, type CameraType } from "react-camera-pro";
@@ -33,21 +35,6 @@ interface ImagePreviewProps {
 	image: string | null;
 	onClick: () => void;
 }
-
-interface UploadResponse {
-	url: string;
-	success: boolean;
-}
-
-interface ScoreData {
-	similarity: number;
-	answerTime: Date;
-	imageUrl: string;
-	assignmentId: number;
-	userId: number;
-}
-
-const BUCKET_NAME = "kz2404";
 
 const ImagePreview = ({ image, onClick }: ImagePreviewProps) => (
 	<div
@@ -112,6 +99,7 @@ const CameraApp = () => {
 	const [assignments, setAssignments] = useState<todayAssignment[]>([]);
 	const [isActive, setIsActive] = useState<boolean>(true);
 	const [isPointDialogOpen, setIsPointDialogOpen] = usePointDialogOpen();
+	const [loginUser, setLoginUser] = useState<User>();
 
 	useEffect(() => {
 		const getDevices = async () => {
@@ -121,6 +109,7 @@ const CameraApp = () => {
 				return;
 			}
 			const userInfo = JSON.parse(user);
+			setLoginUser(userInfo);
 			const resAssignment = await fetch(
 				`/api/assignment/today?uid=${userInfo?.uid}`,
 			);
@@ -175,22 +164,37 @@ const CameraApp = () => {
 		}
 	};
 
-	const uploadImage = async (
+	const uploadImageAndRegisterScore = async (
 		imageData: string,
-	): Promise<{ imageName: string; data: UploadResponse }> => {
+	): Promise<{ data: ScoreResponse }> => {
 		setIsUploading(true);
 		try {
 			const base64Response = await fetch(imageData);
-			const blob = await base64Response.blob();
+			const originalBlob = await base64Response.blob();
+
+			const compressOptions = {
+				maxSizeMB: 0.01,
+				maxWidthOrHeight: 1920,
+				useWebWorker: true,
+			};
+
+			const originalFile = new File([originalBlob], "tempImage", {
+				type: originalBlob.type,
+			});
+
+			const compressedBlob = await imageCompression(
+				originalFile,
+				compressOptions,
+			);
 
 			// 拡張子取得
-			const Extension = blob.type.split("/")[1];
+			const Extension = compressedBlob.type.split("/")[1];
 
 			// 日付取得
 			const date = new Date();
 			const thisMonth = date.getMonth() + 1;
-			const month = thisMonth < 10 ? "0" + thisMonth : thisMonth;
-			const day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+			const month = thisMonth < 10 ? `0${thisMonth}` : thisMonth;
+			const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
 			const formattedDate = `${date.getFullYear()}${month}${day}`;
 
 			// ランダム文字列を生成する関数
@@ -206,120 +210,45 @@ const CameraApp = () => {
 			const imageName = `${formattedDate}_${randomStr}.${Extension}`;
 
 			const formData = new FormData();
-			formData.append("image", blob, imageName);
+			formData.append("image", compressedBlob, imageName);
 
-			const response = await fetch("/api/minio", {
-				method: "POST",
-				body: formData,
-			});
+			const response = await fetch(
+				`/api/minio?file=${imageName}&&assignment=${todayAssignment?.english}&&uid=${loginUser?.uid}&&assignmentId=${todayAssignment?.assignmentId}`,
+				{
+					method: "POST",
+					body: formData,
+				},
+			);
 
 			const data = await response.json();
 
-			return { imageName, data };
+			return { data };
 		} catch (error) {
 			console.error("画像のアップロードに失敗しました:", error);
 			throw error;
 		}
 	};
 
-	const getCaption = async (
-		imageName: string,
-	): Promise<{ caption: string }> => {
-		try {
-			const response = await fetch(`/api/image?imageName=${imageName}`);
-			if (!response.ok) {
-				throw new Error("キャプションの取得に失敗しました");
-			}
-
-			return await response.json();
-		} catch (error) {
-			console.error("キャプションの取得に失敗しました:", error);
-			throw error;
-		}
-	};
-
-	// スコア計算を行います。
-	const similarityRequest = async (caption: string) => {
-		const words: string[] = shapeCaption(caption);
-		const assignmentWord: string = todayAssignment?.english || "";
-		const resSimilarity = await postSimilarity(assignmentWord, words);
-		return {
-			similarity: resSimilarity.similarity as number,
-			assignmentId: todayAssignment?.assignmentId as number,
-		};
-	};
-
-	// userIdの取得
-	const getUserId = async () => {
-		const userString = localStorage.getItem("userID");
-		if (userString === null) {
-			return null;
-		}
-		const userData = JSON.parse(userString);
-
-		const resUserId = await fetch("/api/user?uid=" + userData.uid, {
-			method: "GET",
-			headers: {
-				"Content-Type": "application/json",
-			},
-		});
-		return await resUserId.json();
-	};
-
-	// scoreの送信
-	const submitScore = async (scoreData: ScoreData) => {
-		const response = await fetch("/api/score", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ scoreData }),
-		});
-
-		if (!response.ok) {
-			console.error("スコアの送信に失敗しました", response.statusText);
-			return;
-		}
-
-		return await response.json();
-	};
-
 	const handleConfirm = async () => {
 		if (tempImage) {
 			try {
-				const { imageName } = await uploadImage(tempImage);
-				const imageURL = `${process.env.NEXT_PUBLIC_MINIO_ENDPOINT}${BUCKET_NAME}/${imageName}`;
-
-				const res = await getCaption(imageName);
-				const caption = res.caption;
+				const { data } = await uploadImageAndRegisterScore(tempImage);
 
 				setShowConfirmDialog(false);
 				setImage(tempImage);
 				setShowImage(true);
 				setTempImage(null);
 
-				const { similarity, assignmentId } = await similarityRequest(caption);
+				const percentSimilarity = Math.floor(data.similarity * 100);
 
-				const user = await getUserId();
-				const userId: number = user.id;
-
-				const scoreData: ScoreData = {
-					similarity: similarity,
-					answerTime: new Date(),
-					imageUrl: imageURL,
-					assignmentId: assignmentId,
-					userId: userId,
-				};
-				const response = await submitScore(scoreData);
-				const score = response.score;
-				const percentSimilarity = Math.floor(similarity * 100);
-				const message = `${caption} 類似度  ${percentSimilarity}% スコア: ${score.point} ランキングから順位を確認しましょう!`;
+				const message = `${data.text} 類似度  ${percentSimilarity}% スコア: ${data.score} ランキングから順位を確認しましょう!`;
 				const newAssignments = assignments.map((assignment) => {
-					if (assignment.assignmentId === assignmentId) {
+					if (assignment.assignmentId === data.assignmentId) {
 						assignment.isAnswered = true;
 					}
 					return assignment;
 				});
+
 				const notAnsweredAssignment = newAssignments.find(
 					(assignment: todayAssignment) => !assignment.isAnswered,
 				);
