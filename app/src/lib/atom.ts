@@ -1,8 +1,9 @@
-import { atom } from "jotai";
+import { atom, useAtom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
 
-export const dialogOpenAtom = atom(false);
+export const pointDialogOpenAtom = atom<boolean>(false);
 
-export const openDialogAtom = atom(
-	(get) => get(dialogOpenAtom),
-	(get, set) => set(dialogOpenAtom, true),
-);
+export const hasShownOnceAtom = atomWithStorage<boolean>("hasShownPointDialog", false);
+
+export const usePointDialogOpen = () => useAtom(pointDialogOpenAtom);
+export const useHasShownOnce = () => useAtom(hasShownOnceAtom);
