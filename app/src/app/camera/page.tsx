@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Toaster } from "@/components/ui/sonner";
 import type { ScoreResponse, User, todayAssignment } from "@/types";
+import imageCompression from "browser-image-compression";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Camera, type CameraType } from "react-camera-pro";
@@ -163,10 +164,24 @@ const CameraApp = () => {
 		setIsUploading(true);
 		try {
 			const base64Response = await fetch(imageData);
-			const blob = await base64Response.blob();
+			const originalBlob = await base64Response.blob();
+
+			const compressOptions = {
+				maxSizeMB: 0.01,
+				maxWidthOrHeight: 1920,
+				useWebWorker: true,
+			};
+
+			const originalFile = new File([originalBlob], "tempImage", {
+				type: originalBlob.type,
+			});
+
+			const compressedBlob = await imageCompression(
+				originalFile,
+				compressOptions,
+			);
 
 			// 拡張子取得
-			const compressedBlob = blob; // Assuming no compression is needed
 			const Extension = compressedBlob.type.split("/")[1];
 
 			// 日付取得
