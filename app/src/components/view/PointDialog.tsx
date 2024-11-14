@@ -10,8 +10,8 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { useAtom } from "jotai";
-import { dialogOpenAtom } from "../../lib/atom";
+import { useState } from "react";
+import { useHasShownOnce } from "../../lib/atom";
 
 interface NotificationDialogProps {
 	type: "login" | "photo" | "ranking";
@@ -26,7 +26,8 @@ export function PointDialog({
 	customMessage,
 	customSubMessage,
 }: NotificationDialogProps) {
-	const [isOpen, setIsOpen] = useAtom(dialogOpenAtom);
+	const [hasShownOnce, _] = useHasShownOnce();
+	const [isOpen, setIsOpen] = useState<boolean>(hasShownOnce);
 
 	const content = {
 		login: {

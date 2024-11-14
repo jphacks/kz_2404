@@ -19,8 +19,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { PointDialog } from "@/components/view/PointDialog";
 import { shapeCaption } from "@/functions/shapeCaption";
 import { postSimilarity } from "@/functions/simirality";
+import { usePointDialogOpen } from "@/lib/atom";
 import type { todayAssignment } from "@/types";
-import { useSetAtom } from "jotai";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Camera, type CameraType } from "react-camera-pro";
@@ -28,7 +28,6 @@ import { toast } from "sonner";
 import AddImageIcon from "../../../public/icons/icon-add-image.svg";
 import RotateCameraIcon from "../../../public/icons/icon-rotate-camera.svg";
 import ShutterIcon from "../../../public/icons/icon-shutter.svg";
-import { openDialogAtom } from "../../lib/atom";
 
 interface ImagePreviewProps {
 	image: string | null;
@@ -112,7 +111,7 @@ const CameraApp = () => {
 	>();
 	const [assignments, setAssignments] = useState<todayAssignment[]>([]);
 	const [isActive, setIsActive] = useState<boolean>(true);
-	const openDialog = useSetAtom(openDialogAtom);
+	const [isPointDialogOpen, setIsPointDialogOpen] = usePointDialogOpen();
 
 	useEffect(() => {
 		const getDevices = async () => {
@@ -334,7 +333,7 @@ const CameraApp = () => {
 				if (newAssignments.every((assignment) => assignment.isAnswered)) {
 					setIsActive(false);
 				}
-				openDialog;
+				setIsPointDialogOpen(true);
 			} catch (error) {
 				setIsUploading(false);
 				console.error("アップロード中にエラーが発生しました:", error);
@@ -361,7 +360,7 @@ const CameraApp = () => {
 		<>
 			{isActive ? (
 				<>
-					<PointDialog type="photo" />
+					{isPointDialogOpen && <PointDialog type="photo" />}
 					<div className="flex items-center justify-center">
 						<Camera
 							ref={camera}
