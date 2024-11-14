@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import Timer from "@/components/view/Timer";
 import type { MyScoreDetail, todayAssignment } from "@/types";
+import { set } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import ClockIcon from "../../public/icons/icon-clock.svg";
@@ -13,9 +14,11 @@ import PhotoCameraIcon from "../../public/icons/icon-photo-camera.svg";
 export default function Home() {
 	const [myScore, setMyScore] = useState<MyScoreDetail[]>([]);
 	const [assignment, setAssignment] = useState<todayAssignment[]>([]);
+	const [todayAssignment, setTodayAssignment] = useState<todayAssignment>();
 	const [isLoading, setIsLoading] = useState(true);
 	const [progressCount, setProgressCount] = useState(0);
 	const router = useRouter();
+	const [isAnsweredAll, setIsAnsweredAll] = useState(false);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -42,7 +45,9 @@ export default function Home() {
 				setProgressCount(66);
 
 				// get api/assignment/today
-				const resAssignment = await fetch("/api/assignment/today");
+				const resAssignment = await fetch(
+					`/api/assignment/today?uid=${userData?.uid}`,
+				);
 				if (!resAssignment.ok) {
 					throw new Error("データの取得に失敗しました");
 				}
@@ -50,6 +55,17 @@ export default function Home() {
 				if (!resData) {
 					throw new Error("無効なデータが返されました");
 				}
+
+				const isNotAnsweredAssignment = resData.find(
+					(assignment) => assignment.isAnswered === false,
+				);
+
+				const isAnsweredAll =
+					resData.filter((assignment) => assignment.isAnswered).length ===
+					resData.length;
+				setIsAnsweredAll(isAnsweredAll);
+
+				setTodayAssignment(isNotAnsweredAssignment);
 
 				const formattedData = resData.map((item) => {
 					const date = item.assignTime ? new Date(item.assignTime) : new Date();
@@ -97,18 +113,23 @@ export default function Home() {
 						<h2 className="text-lg font-semibold mb-2">今日のお題</h2>
 						<p className="text-sm text-gray-600">撮影してスコアを競おう！</p>
 					</div>
-					<h1 className="text-3xl font-bold text-center mb-4">{assignment[0]?.english}</h1>
+					<h1 className="text-3xl font-bold text-center mb-4">
+						{todayAssignment?.english}
+						{isAnsweredAll && "チャレンジ終了！"}
+					</h1>
 					<div className="flex justify-center w-full">
-						<Button
-							variant="default"
-							className="flex items-center justify-center w-3/4 bg-gray-800 hover:bg-gray-700 text-white py-6 space-x-2"
-							onClick={() => router.push("/camera")}
-						>
-							<div className="w-6 h-auto">
-								<PhotoCameraIcon />
-							</div>
-							<span className="text-lg font-semibold">写真を撮る</span>
-						</Button>
+						{todayAssignment && (
+							<Button
+								variant="default"
+								className="flex items-center justify-center w-3/4 bg-gray-800 hover:bg-gray-700 text-white py-6 space-x-2"
+								onClick={() => router.push("/camera")}
+							>
+								<div className="w-6 h-auto">
+									<PhotoCameraIcon />
+								</div>
+								<span className="text-lg font-semibold">写真を撮る</span>
+							</Button>
+						)}
 					</div>
 				</Card>
 				<Card className="flex flex-col items-center aspect-square w-full p-6 bg-white/80 backdrop-blur-sm">
@@ -116,11 +137,16 @@ export default function Home() {
 					{myScore.length === 0 ? (
 						<div className="text-gray-500 text-center py-8">
 							<p>まだチャレンジの記録がありません</p>
-							<p className="text-sm mt-2">新しいチャレンジに挑戦してみましょう！</p>
+							<p className="text-sm mt-2">
+								新しいチャレンジに挑戦してみましょう！
+							</p>
 						</div>
 					) : (
 						myScore.map((score) => (
-							<div key={score.id} className="flex w-full items-center mb-2 border rounded-md">
+							<div
+								key={score.id}
+								className="flex w-full items-center mb-2 border rounded-md"
+							>
 								<img
 									src={score.imageUrl || "https://placehold.jp/150x150.png"}
 									alt="チャレンジ画像"
