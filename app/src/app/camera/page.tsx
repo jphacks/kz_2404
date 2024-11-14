@@ -1,5 +1,7 @@
 "use client";
 
+import { Answered } from "@/components/Answered";
+import { AssignmentBadge } from "@/components/AssignmentBadge";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -13,39 +15,21 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { shapeCaption } from "@/functions/shapeCaption";
-import { postSimilarity } from "@/functions/simirality";
+import { Toaster } from "@/components/ui/sonner";
+import type { ScoreResponse, User, todayAssignment } from "@/types";
+import imageCompression from "browser-image-compression";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Camera, type CameraType } from "react-camera-pro";
+import { toast } from "sonner";
 import AddImageIcon from "../../../public/icons/icon-add-image.svg";
 import RotateCameraIcon from "../../../public/icons/icon-rotate-camera.svg";
 import ShutterIcon from "../../../public/icons/icon-shutter.svg";
-import { toast } from "sonner";
-import { Toaster } from "@/components/ui/sonner";
-import { todayAssignment } from "@/types";
-import { Answered } from "@/components/Answered";
-import { AssignmentBadge } from "@/components/AssignmentBadge";
 
 interface ImagePreviewProps {
 	image: string | null;
 	onClick: () => void;
 }
-
-interface UploadResponse {
-	url: string;
-	success: boolean;
-}
-
-interface ScoreData {
-	similarity: number;
-	answerTime: Date;
-	imageUrl: string;
-	assignmentId: number;
-	userId: number;
-}
-
-const BUCKET_NAME = "kz2404";
 
 const ImagePreview = ({ image, onClick }: ImagePreviewProps) => (
 	<div
@@ -100,11 +84,16 @@ const CameraApp = () => {
 	const [tempImage, setTempImage] = useState<string | null>(null);
 	const camera = useRef<CameraType>(null);
 	const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
-	const [activeDeviceId, setActiveDeviceId] = useState<string | undefined>(undefined);
+	const [activeDeviceId, setActiveDeviceId] = useState<string | undefined>(
+		undefined,
+	);
 	const [currentDeviceIndex, setCurrentDeviceIndex] = useState<number>(0);
-	const [todayAssignment, setTodayAssignment] = useState<todayAssignment | undefined>();
+	const [todayAssignment, setTodayAssignment] = useState<
+		todayAssignment | undefined
+	>();
 	const [assignments, setAssignments] = useState<todayAssignment[]>([]);
 	const [isActive, setIsActive] = useState<boolean>(true);
+	const [loginUser, setLoginUser] = useState<User>();
 
 	useEffect(() => {
 		const getDevices = async () => {
@@ -114,7 +103,10 @@ const CameraApp = () => {
 				return;
 			}
 			const userInfo = JSON.parse(user);
-			const resAssignment = await fetch(`/api/assignment/today?uid=${userInfo?.uid}`);
+			setLoginUser(userInfo);
+			const resAssignment = await fetch(
+				`/api/assignment/today?uid=${userInfo?.uid}`,
+			);
 			const assignmentData = await resAssignment.json();
 
 			if (assignmentData.length === 0) {
@@ -143,7 +135,9 @@ const CameraApp = () => {
 
 			try {
 				const devices = await navigator.mediaDevices.enumerateDevices();
-				const videoDevices = devices.filter((device) => device.kind === "videoinput");
+				const videoDevices = devices.filter(
+					(device) => device.kind === "videoinput",
+				);
 				setDevices(videoDevices);
 				if (videoDevices.length > 0) {
 					setActiveDeviceId(videoDevices[0].deviceId);
@@ -164,28 +158,45 @@ const CameraApp = () => {
 		}
 	};
 
-	const uploadImage = async (
+	const uploadImageAndRegisterScore = async (
 		imageData: string,
-	): Promise<{ imageName: string; data: UploadResponse }> => {
+	): Promise<{ data: ScoreResponse }> => {
 		setIsUploading(true);
 		try {
 			const base64Response = await fetch(imageData);
-			const blob = await base64Response.blob();
+			const originalBlob = await base64Response.blob();
+
+			const compressOptions = {
+				maxSizeMB: 0.01,
+				maxWidthOrHeight: 1920,
+				useWebWorker: true,
+			};
+
+			const originalFile = new File([originalBlob], "tempImage", {
+				type: originalBlob.type,
+			});
+
+			const compressedBlob = await imageCompression(
+				originalFile,
+				compressOptions,
+			);
 
 			// 拡張子取得
-			const Extension = blob.type.split("/")[1];
+			const Extension = compressedBlob.type.split("/")[1];
 
 			// 日付取得
 			const date = new Date();
 			const thisMonth = date.getMonth() + 1;
-			const month = thisMonth < 10 ? "0" + thisMonth : thisMonth;
-			const day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+			const month = thisMonth < 10 ? `0${thisMonth}` : thisMonth;
+			const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
 			const formattedDate = `${date.getFullYear()}${month}${day}`;
 
 			// ランダム文字列を生成する関数
 			const generateRandomString = (charCount = 7): string => {
 				const str = Math.random().toString(36).substring(2).slice(-charCount);
-				return str.length < charCount ? str + "a".repeat(charCount - str.length) : str;
+				return str.length < charCount
+					? str + "a".repeat(charCount - str.length)
+					: str;
 			};
 
 			const randomStr = generateRandomString();
@@ -193,118 +204,45 @@ const CameraApp = () => {
 			const imageName = `${formattedDate}_${randomStr}.${Extension}`;
 
 			const formData = new FormData();
-			formData.append("image", blob, imageName);
+			formData.append("image", compressedBlob, imageName);
 
-			const response = await fetch("/api/minio", {
-				method: "POST",
-				body: formData,
-			});
+			const response = await fetch(
+				`/api/minio?file=${imageName}&&assignment=${todayAssignment?.english}&&uid=${loginUser?.uid}&&assignmentId=${todayAssignment?.assignmentId}`,
+				{
+					method: "POST",
+					body: formData,
+				},
+			);
 
 			const data = await response.json();
 
-			return { imageName, data };
+			return { data };
 		} catch (error) {
 			console.error("画像のアップロードに失敗しました:", error);
 			throw error;
 		}
 	};
 
-	const getCaption = async (imageName: string): Promise<{ caption: string }> => {
-		try {
-			const response = await fetch(`/api/image?imageName=${imageName}`);
-			if (!response.ok) {
-				throw new Error("キャプションの取得に失敗しました");
-			}
-
-			return await response.json();
-		} catch (error) {
-			console.error("キャプションの取得に失敗しました:", error);
-			throw error;
-		}
-	};
-
-	// スコア計算を行います。
-	const similarityRequest = async (caption: string) => {
-		const words: string[] = shapeCaption(caption);
-		const assignmentWord: string = todayAssignment?.english || "";
-		const resSimilarity = await postSimilarity(assignmentWord, words);
-		return {
-			similarity: resSimilarity.similarity as number,
-			assignmentId: todayAssignment?.assignmentId as number,
-		};
-	};
-
-	// userIdの取得
-	const getUserId = async () => {
-		const userString = localStorage.getItem("userID");
-		if (userString === null) {
-			return null;
-		}
-		const userData = JSON.parse(userString);
-
-		const resUserId = await fetch("/api/user?uid=" + userData.uid, {
-			method: "GET",
-			headers: {
-				"Content-Type": "application/json",
-			},
-		});
-		return await resUserId.json();
-	};
-
-	// scoreの送信
-	const submitScore = async (scoreData: ScoreData) => {
-		const response = await fetch("/api/score", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ scoreData }),
-		});
-
-		if (!response.ok) {
-			console.error("スコアの送信に失敗しました", response.statusText);
-			return;
-		}
-
-		return await response.json();
-	};
-
 	const handleConfirm = async () => {
 		if (tempImage) {
 			try {
-				const { imageName } = await uploadImage(tempImage);
-				const imageURL = `${process.env.NEXT_PUBLIC_MINIO_ENDPOINT}${BUCKET_NAME}/${imageName}`;
-
-				const res = await getCaption(imageName);
-				const caption = res.caption;
+				const { data } = await uploadImageAndRegisterScore(tempImage);
 
 				setShowConfirmDialog(false);
 				setImage(tempImage);
 				setShowImage(true);
 				setTempImage(null);
 
-				const { similarity, assignmentId } = await similarityRequest(caption);
+				const percentSimilarity = Math.floor(data.similarity * 100);
 
-				const user = await getUserId();
-				const userId: number = user.id;
-
-				const scoreData: ScoreData = {
-					similarity: similarity,
-					answerTime: new Date(),
-					imageUrl: imageURL,
-					assignmentId: assignmentId,
-					userId: userId,
-				};
-				const response = await submitScore(scoreData);
-				const score = response.score;
-				const percentSimilarity = Math.floor(similarity * 100);
-				const message = `${caption} 類似度  ${percentSimilarity}% スコア: ${score.point} ランキングから順位を確認しましょう!`;
+				const message = `${data.text} 類似度  ${percentSimilarity}% スコア: ${data.score} ランキングから順位を確認しましょう!`;
 				const newAssignments = assignments.map((assignment) => {
-					if (assignment.assignmentId === assignmentId) {
+					if (assignment.assignmentId === data.assignmentId) {
 						assignment.isAnswered = true;
 					}
 					return assignment;
 				});
+
 				const notAnsweredAssignment = newAssignments.find(
 					(assignment: todayAssignment) => !assignment.isAnswered,
 				);
@@ -318,8 +256,6 @@ const CameraApp = () => {
 				if (newAssignments.every((assignment) => assignment.isAnswered)) {
 					setIsActive(false);
 				}
-
-
 			} catch (error) {
 				setIsUploading(false);
 				console.error("アップロード中にエラーが発生しました:", error);
@@ -334,7 +270,9 @@ const CameraApp = () => {
 
 	const handleImageCapture = (capturedImage: string | ImageData) => {
 		const imageStr =
-			capturedImage instanceof ImageData ? imageDataToBase64(capturedImage) : capturedImage;
+			capturedImage instanceof ImageData
+				? imageDataToBase64(capturedImage)
+				: capturedImage;
 
 		setTempImage(imageStr);
 		setShowConfirmDialog(true);
@@ -409,10 +347,15 @@ const CameraApp = () => {
 						</Button>
 					</div>
 
-					<AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+					<AlertDialog
+						open={showConfirmDialog}
+						onOpenChange={setShowConfirmDialog}
+					>
 						<AlertDialogContent className="w-5/6 rounded-lg">
 							<AlertDialogHeader>
-								<AlertDialogTitle className="text-center">画像のアップロード確認</AlertDialogTitle>
+								<AlertDialogTitle className="text-center">
+									画像のアップロード確認
+								</AlertDialogTitle>
 								<AlertDialogDescription className="text-center">
 									この画像をアップロードしてもよろしいですか？
 								</AlertDialogDescription>
@@ -421,8 +364,12 @@ const CameraApp = () => {
 							<DialogImagePreview image={tempImage} />
 
 							<AlertDialogFooter className="sm:space-x-4">
-								<AlertDialogCancel onClick={handleCancel}>いいえ</AlertDialogCancel>
-								<AlertDialogAction onClick={handleConfirm}>はい</AlertDialogAction>
+								<AlertDialogCancel onClick={handleCancel}>
+									いいえ
+								</AlertDialogCancel>
+								<AlertDialogAction onClick={handleConfirm}>
+									はい
+								</AlertDialogAction>
 							</AlertDialogFooter>
 						</AlertDialogContent>
 					</AlertDialog>
@@ -437,7 +384,7 @@ const CameraApp = () => {
 					)}
 				</>
 			) : (
-				<Answered assignments={assignments}/>
+				<Answered assignments={assignments} />
 			)}
 		</>
 	);
