@@ -16,8 +16,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Toaster } from "@/components/ui/sonner";
-import { shapeCaption } from "@/functions/shapeCaption";
-import { postSimilarity } from "@/functions/simirality";
 import type { ScoreResponse, User, todayAssignment } from "@/types";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
@@ -31,21 +29,6 @@ interface ImagePreviewProps {
 	image: string | null;
 	onClick: () => void;
 }
-
-interface UploadResponse {
-	url: string;
-	success: boolean;
-}
-
-interface ScoreData {
-	similarity: number;
-	answerTime: Date;
-	imageUrl: string;
-	assignmentId: number;
-	userId: number;
-}
-
-const BUCKET_NAME = "kz2404";
 
 const ImagePreview = ({ image, onClick }: ImagePreviewProps) => (
 	<div
@@ -174,7 +157,7 @@ const CameraApp = () => {
 		}
 	};
 
-	const uploadImage = async (
+	const uploadImageAndRegisterScore = async (
 		imageData: string,
 	): Promise<{ data: ScoreResponse }> => {
 		setIsUploading(true);
@@ -188,8 +171,8 @@ const CameraApp = () => {
 			// 日付取得
 			const date = new Date();
 			const thisMonth = date.getMonth() + 1;
-			const month = thisMonth < 10 ? "0" + thisMonth : thisMonth;
-			const day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+			const month = thisMonth < 10 ? `0${thisMonth}` : thisMonth;
+			const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
 			const formattedDate = `${date.getFullYear()}${month}${day}`;
 
 			// ランダム文字列を生成する関数
@@ -216,7 +199,6 @@ const CameraApp = () => {
 			);
 
 			const data = await response.json();
-			console.log(data);
 
 			return { data };
 		} catch (error) {
@@ -225,70 +207,10 @@ const CameraApp = () => {
 		}
 	};
 
-	const getCaption = async (
-		imageName: string,
-	): Promise<{ caption: string }> => {
-		try {
-			const response = await fetch(`/api/image?imageName=${imageName}`);
-			if (!response.ok) {
-				throw new Error("キャプションの取得に失敗しました");
-			}
-
-			return await response.json();
-		} catch (error) {
-			console.error("キャプションの取得に失敗しました:", error);
-			throw error;
-		}
-	};
-
-	// スコア計算を行います。
-	const similarityRequest = async (caption: string) => {
-		const words: string[] = shapeCaption(caption);
-		const assignmentWord: string = todayAssignment?.english || "";
-		const resSimilarity = await postSimilarity(assignmentWord, words);
-		return {
-			similarity: resSimilarity.similarity as number,
-			assignmentId: todayAssignment?.assignmentId as number,
-		};
-	};
-
-	// userIdの取得
-	const getUserId = async () => {
-		if (!loginUser) {
-			console.error("ユーザー情報が取得できませんでした。");
-			return;
-		}
-		const resUserId = await fetch("/api/user?uid=" + loginUser.uid, {
-			method: "GET",
-			headers: {
-				"Content-Type": "application/json",
-			},
-		});
-		return await resUserId.json();
-	};
-
-	// scoreの送信
-	const submitScore = async (scoreData: ScoreData) => {
-		const response = await fetch("/api/score", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ scoreData }),
-		});
-
-		if (!response.ok) {
-			console.error("スコアの送信に失敗しました", response.statusText);
-			return;
-		}
-
-		return await response.json();
-	};
-
 	const handleConfirm = async () => {
 		if (tempImage) {
 			try {
-				const { data } = await uploadImage(tempImage);
+				const { data } = await uploadImageAndRegisterScore(tempImage);
 
 				setShowConfirmDialog(false);
 				setImage(tempImage);
