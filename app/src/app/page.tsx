@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import Timer from "@/components/view/Timer";
-import type { MyScoreDetail, todayAssignment } from "@/types";
-import { set } from "date-fns";
+import type { MyScoreDetail, Score, todayAssignment } from "@/types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { LuArrowRight, LuCheckCircle } from "react-icons/lu";
 import ClockIcon from "../../public/icons/icon-clock.svg";
 import PhotoCameraIcon from "../../public/icons/icon-photo-camera.svg";
 
@@ -19,6 +19,7 @@ export default function Home() {
 	const [progressCount, setProgressCount] = useState(0);
 	const router = useRouter();
 	const [isAnsweredAll, setIsAnsweredAll] = useState(false);
+	const [highestScore, setHighestScore] = useState(0);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -42,6 +43,13 @@ export default function Home() {
 				}
 				const data = await response.json();
 				setMyScore(data);
+
+				const maxScore: number = data.reduce(
+					(max: number, score: Score) =>
+						score.point > max ? score.point : max,
+					0,
+				);
+				setHighestScore(maxScore);
 				setProgressCount(66);
 
 				// get api/assignment/today
@@ -85,40 +93,40 @@ export default function Home() {
 	}, []);
 
 	return (
-		<div className="flex flex-col h-full px-10 py-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
+		<div className="flex flex-col min-h-screen px-10 py-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
 			<div className="flex flex-col items-center justify-center space-y-6">
-				{isLoading ? (
-					<Card className="w-full py-3 px-7">
-						<div className="h-[6rem] gap-2 font-bold #333 flex flex-col items-center justify-center">
-							Loading...
-							<Progress value={progressCount} />
+				{!isAnsweredAll &&
+					(isLoading ? (
+						<Card className="w-full py-3 px-7">
+							<div className="h-[6rem] gap-2 font-bold #333 flex flex-col items-center justify-center">
+								Loading...
+								<Progress value={progressCount} />
+							</div>
+						</Card>
+					) : (
+						<div className="text-lg w-full">
+							{assignment[0]?.assignTime && (
+								// fixme [0]番目を参照しているがお題ごとに可変的にする必要あり。
+								<Timer assignTime={assignment[0]?.assignTime} />
+							)}
 						</div>
-					</Card>
-				) : (
-					<div className="text-lg w-full">
-						{assignment[0]?.assignTime && (
-							// fixme [0]番目を参照しているがお題ごとに可変的にする必要あり。
-							<Timer assignTime={assignment[0]?.assignTime} />
-						)}
-					</div>
-				)}
-				<Card
-					className="flex flex-col items-center justify-around aspect-square w-full p-6 backdrop-blur-sm"
-					style={{
-						background:
-							"linear-gradient(90deg, rgba(255, 145, 109, 0.56) 0%, rgba(255, 90, 170, 0.44) 51%, rgba(139, 166, 255, 0.61) 100%)",
-					}}
-				>
-					<div className="text-center mb-4">
-						<h2 className="text-lg font-semibold mb-2">今日のお題</h2>
-						<p className="text-sm text-gray-600">撮影してスコアを競おう！</p>
-					</div>
-					<h1 className="text-3xl font-bold text-center mb-4">
-						{todayAssignment?.english}
-						{isAnsweredAll && "チャレンジ終了！"}
-					</h1>
-					<div className="flex justify-center w-full">
-						{todayAssignment && (
+					))}
+				{!isAnsweredAll && todayAssignment && (
+					<Card
+						className="flex flex-col items-center justify-around aspect-square w-full p-6 backdrop-blur-sm"
+						style={{
+							background:
+								"linear-gradient(90deg, rgba(255, 145, 109, 0.56) 0%, rgba(255, 90, 170, 0.44) 51%, rgba(139, 166, 255, 0.61) 100%)",
+						}}
+					>
+						<div className="text-center mb-4">
+							<h2 className="text-lg font-semibold mb-2">今日のお題</h2>
+							<p className="text-sm text-gray-600">撮影してスコアを競おう！</p>
+						</div>
+						<h1 className="text-3xl font-bold text-center mb-4">
+							{todayAssignment?.english}
+						</h1>
+						<div className="flex justify-center w-full">
 							<Button
 								variant="default"
 								className="flex items-center justify-center w-3/4 bg-gray-800 hover:bg-gray-700 text-white py-6 space-x-2"
@@ -129,9 +137,37 @@ export default function Home() {
 								</div>
 								<span className="text-lg font-semibold">写真を撮る</span>
 							</Button>
-						)}
-					</div>
-				</Card>
+						</div>
+					</Card>
+				)}
+				{isAnsweredAll && (
+					<Card className="w-full max-w-md bg-white rounded-3xl overflow-hidden">
+						<div className="p-8 text-center">
+							<LuCheckCircle className="w-20 h-20 text-green-500 mx-auto mb-6" />
+							<h2 className="text-3xl font-bold mb-4 text-gray-800">
+								全課題完了
+							</h2>
+							<p className="text-gray-600 mb-8">
+								おめでとうございます。全ての課題をクリアしました！
+							</p>
+							<div className="bg-gray-100 rounded-2xl p-6 mb-8">
+								<h3 className="text-xl font-semibold text-gray-700 mb-2">
+									最終スコア
+								</h3>
+								<p className="text-4xl font-bold text-purple-600">
+									{highestScore}点
+								</p>
+							</div>
+							<Button
+								onClick={() => router.push("/ranking")}
+								className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-semibold py-3 px-6 rounded-full hover:from-pink-600 hover:to-purple-600 transition duration-300"
+							>
+								結果を確認する
+								<LuArrowRight className="ml-2 w-5 h-5" />
+							</Button>
+						</div>
+					</Card>
+				)}
 				<Card className="flex flex-col items-center aspect-square w-full p-6 bg-white/80 backdrop-blur-sm">
 					<h2 className="text-lg font-semibold mb-4">過去のチャレンジ</h2>
 					{myScore.length === 0 ? (
