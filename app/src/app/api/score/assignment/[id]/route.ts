@@ -26,9 +26,9 @@ export async function GET(req: NextRequest) {
 		include: { user: true, assignment: true },
 	});
 
-	if (!scores[0].assignment){
-		return new Response(JSON.stringify({ message: "Not Found" }), {
-			status: 404,
+	if (!scores[0]?.assignment){
+		return new Response(JSON.stringify({}), {
+			status: 200,
 			headers: { "Content-Type": "application/json" },
 		});
 	}
@@ -36,8 +36,6 @@ export async function GET(req: NextRequest) {
 	const word: Word | null = await prisma.word.findFirst({
 		where: { id: scores[0].assignment.wordId },
 	});
-
-
 
 	const scoreDetails: ScoreDetail[] = scores.map((score) => {
 		if(!score.assignment){

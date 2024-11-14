@@ -63,11 +63,24 @@ const RankingListToday: React.FC<{ selectedTopic: number }> = ({
 			}
 		};
 
-		fetchData(getDate());
+		if (selectedTopic !== 0) {
+			fetchData(getDate());
+		}
 	}, [selectedTopic, getDate]);
 
 	if (isLoading) {
 		return <LoadingSpinner />;
+	}
+
+	if (!Array.isArray(data) || data.length === 0) {
+		return (
+			<div
+				className="flex items-center justify-center h-40 text-lg text-orange-500"
+			>
+				まだ投稿がありません！<br />
+				1位になれるかも!
+			</div>
+		);
 	}
 
 	return (

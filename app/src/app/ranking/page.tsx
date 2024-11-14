@@ -24,12 +24,13 @@ export default function RankingPage() {
 				const response = await fetch("api/assignment/today");
 				const data: todayAssignment[] = await response.json();
 				setTopics(data);
-				setSelectedTopic(data[0].assignmentId);
+				if (data.length > 0) {
+					setSelectedTopic(data[0].assignmentId); // 初期値を設定
+				}
 			} catch (error) {
 				console.error("Error fetching topics:", error);
 			}
 		};
-
 		fetchTopics();
 	}, []);
 
