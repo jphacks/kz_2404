@@ -129,7 +129,7 @@ export default function Home() {
 					))}
 				{!isAnsweredAll && todayAssignment && (
 					<Card
-						className="flex flex-col items-center justify-around aspect-square w-full p-6 backdrop-blur-sm"
+						className="flex flex-col items-center justify-around aspect-square w-full p-6"
 						style={{
 							background:
 								"linear-gradient(90deg, rgba(255, 145, 109, 0.56) 0%, rgba(255, 90, 170, 0.44) 51%, rgba(139, 166, 255, 0.61) 100%)",
@@ -157,7 +157,7 @@ export default function Home() {
 					</Card>
 				)}
 				{isAnsweredAll && (
-					<Card className="w-full max-w-md bg-white rounded-3xl overflow-hidden">
+					<Card className="w-full max-w-md bg-white overflow-hidden">
 						<div className="p-8 text-center">
 							<LuCheckCircle className="w-20 h-20 text-green-500 mx-auto mb-6" />
 							<h2 className="text-3xl font-bold mb-4 text-gray-800">
