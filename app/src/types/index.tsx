@@ -100,13 +100,13 @@ export type todayAssignment = {
 	assignmentId: number;
 	english: string;
 	assignTime?: Date;
-  	isAnswered: boolean;
+	isAnswered: boolean;
 };
 
 export type latestAssignment = {
-  	assignmentId: number;
-  	english: string;
-  	isAnswered: boolean;
+	assignmentId: number;
+	english: string;
+	isAnswered: boolean;
 };
 
 export type experiencePoint = {
@@ -121,3 +121,18 @@ export type experiencePoint = {
 
 	user?: User;
 };
+
+export interface ScoreData {
+	similarity: number;
+	answerTime: Date;
+	imageUrl: string;
+	assignmentId: number;
+	userId: number;
+}
+
+export interface ScoreResponse {
+	text: string;
+	score: number;
+	similarity: number;
+	assignmentId: number;
+}
