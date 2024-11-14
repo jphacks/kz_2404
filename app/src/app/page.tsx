@@ -21,6 +21,8 @@ export default function Home() {
 	const [_, setIsPointDialogOpen] = usePointDialogOpen();
 	const [hasShownOnce, setHasShownOnce] = useHasShownOnce();
 
+	// TODO:ログインモーダルが表示されるようにする
+
 	useEffect(() => {
 		const fetchData = async () => {
 			const userIdString = localStorage.getItem("userID");
