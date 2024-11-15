@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
 			name: user.displayName,
 			email: user.email,
 			photoUrl: user.photoURL,
+			ratePoint: 0,
 			experiencePoint: {
 				create: {
 					speedPoint: 0,
