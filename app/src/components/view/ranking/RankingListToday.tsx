@@ -1,7 +1,10 @@
+import { Button } from "@/components/ui/button";
 import type { ScoreDetail } from "@/types";
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { LuClock } from "react-icons/lu";
 import { MdOutlineImageSearch } from "react-icons/md";
+import PhotoCameraIcon from "../../../../public/icons/icon-photo-camera.svg";
 
 const LoadingSpinner = () => (
 	<div className="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center z-50">
@@ -15,6 +18,7 @@ const RankingListToday: React.FC<{ selectedTopic: number }> = ({
 }) => {
 	const [data, setData] = useState<ScoreDetail[]>([]);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
+	const router = useRouter();
 
 	// 日付をYYYY-MM-DD形式で取得する関数
 	const getDate = useCallback((daysOffset = 0): string => {
@@ -65,6 +69,8 @@ const RankingListToday: React.FC<{ selectedTopic: number }> = ({
 
 		if (selectedTopic !== 0) {
 			fetchData(getDate());
+		} else {
+			setIsLoading(false);
 		}
 	}, [selectedTopic, getDate]);
 
@@ -74,11 +80,20 @@ const RankingListToday: React.FC<{ selectedTopic: number }> = ({
 
 	if (!Array.isArray(data) || data.length === 0) {
 		return (
-			<div
-				className="flex items-center justify-center h-40 text-lg text-orange-500"
-			>
-				まだ投稿がありません！<br />
-				1位になれるかも!
+			<div className="flex flex-col items-center justify-center h-full text-lg text-gray-700 mt-[20vh]">
+				<p className="text-2xl font-bold mb-4">まだ投稿がありません</p>
+				<p className="mb-4">今すぐ投稿して1位を目指しましょう！</p>
+				<p className="text-gray-800 mb-4">
+					あなたの投稿がトップに表示されるかも！
+				</p>
+				<Button
+					variant="primary"
+					className="flex items-center justify-center w-3/5 bg-gray-800 hover:bg-gray-700 text-white py-6 space-x-2 mt-4"
+					onClick={() => router.push("/camera")}
+				>
+					<PhotoCameraIcon className="w-6 h-auto" />
+					<span className="text-lg font-semibold">写真を撮る</span>
+				</Button>
 			</div>
 		);
 	}
