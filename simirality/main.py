@@ -35,19 +35,20 @@ async def similarity(reqWords: Words):
     words = reqWords.words
 
     try:
-        highscore = calcuSimilarity(assignmentWord, words)
+        highscore, highscore_word = calcuSimilarity(assignmentWord, words)
     except:
         # 例外処理
         print("Error: 類似度の計算に失敗しました。課題が存在しない可能性があります。")
         return {"similarity": 0}
 
-    return {"similarity": highscore}
+    return {"similarity": highscore, "highscoreWord": highscore_word}
 
 # 類似度の計算
 def calcuSimilarity(assignmentWord, words):
     assignmentWord_synset = wn.synset(f"{assignmentWord}.n.01")
 
     highscore = 0
+    highscore_word = ""
 
     for word in words:
         print(f"word: {word}")
@@ -58,6 +59,7 @@ def calcuSimilarity(assignmentWord, words):
 
             if similarity > highscore:
                 highscore = similarity
+                highscore_word = word
         except:
             print(f"Error: '{word}' はWordNetに存在しません。")
 
@@ -72,10 +74,12 @@ def calcuSimilarity(assignmentWord, words):
 
                 if highscore < similarityByMorphy:
                     highscore = similarityByMorphy
+                    highscore_word = word
+
             except:
                 print(f"Error: '{word}' はWordNetに存在しません。")
 
-    return highscore
+    return highscore, highscore_word
 
 def calculate(assignmentWord_synset, word, assignmentWord):
     if assignmentWord == word:
