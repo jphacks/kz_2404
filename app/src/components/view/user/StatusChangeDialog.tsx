@@ -8,11 +8,16 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
-import { useStatusChangeDialog } from "@/lib/atom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+interface StatusChangeDialogProps {
+	isOpen: boolean;
+	onClose: () => void;
+	initialSpeed: number;
+	initialSimilarity: number;
+}
 
 interface PlayStyleSettings {
 	speed: number;
@@ -20,27 +25,35 @@ interface PlayStyleSettings {
 	total: number;
 }
 
-export default function StatusChangeDialog() {
+export default function StatusChangeDialog({
+	isOpen,
+	onClose,
+	initialSpeed,
+	initialSimilarity,
+}: StatusChangeDialogProps) {
 	const [settings, setSettings] = useState<PlayStyleSettings>({
-		speed: 12,
-		similarity: 70,
+		speed: initialSpeed,
+		similarity: initialSimilarity,
 		total: 100,
 	});
-	const [isOpen, setIsOpen] = useStatusChangeDialog();
 
-	// TODO APIの繋ぎ込みをおこなう。その際に値のバリデージョンも実装する。
+	useEffect(() => {
+		setSettings({
+			speed: initialSpeed,
+			similarity: initialSimilarity,
+			total: 100,
+		});
+	}, [initialSpeed, initialSimilarity]);
+
 	const handleSave = async () => {
-		setIsOpen(false);
+		onClose();
 	};
 
 	const remainingPoints =
 		settings.total - (settings.speed + settings.similarity);
 
 	return (
-		<Dialog open={isOpen} onOpenChange={setIsOpen}>
-			<DialogTrigger asChild>
-				<Button variant="outline">プレイスタイルの調整</Button>
-			</DialogTrigger>
+		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent className="p-6 rounded-xl max-w-[90vw]">
 				<DialogHeader>
 					<DialogTitle className="text-xl font-semibold">
@@ -112,10 +125,12 @@ export default function StatusChangeDialog() {
 						</div>
 					</div>
 					<DialogFooter className="flex flex-row justify-end space-x-2">
-						<Button variant="outline" onClick={() => setIsOpen(false)}>
+						<Button variant="outline" onClick={onClose}>
 							キャンセル
 						</Button>
-						<Button className="px-9" onClick={handleSave}>保存</Button>
+						<Button className="px-9" onClick={handleSave}>
+							保存
+						</Button>
 					</DialogFooter>
 				</div>
 			</DialogContent>

@@ -48,7 +48,6 @@ const UserPage = () => {
 	if (!userData) return null;
 	return (
 		<div className="w-screen min-h-screen flex flex-col gap-4 items-center p-4 pt-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
-			<StatusChangeDialog />
 			<div className="flex items-center mb-4">
 				{userData.photoURL ? (
 					<img
@@ -112,10 +111,10 @@ const UserPage = () => {
 				</Card>
 			</div>
 			<StatusList
-				speedPoint={10}
-				similarityPoint={40}
-				onClick={() => setIsOpen(true)}
-			/>
+                speedPoint={10}
+                similarityPoint={40}
+                onClick={() => setIsOpen(true)}
+            />
 			<Card className="flex flex-col items-center border-none p-8">
 				<h2 className="text-2xl font-bold mb-4">過去のチャレンジ</h2>
 				{myScore.length === 0 ? (
