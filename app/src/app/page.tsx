@@ -108,6 +108,10 @@ export default function Home() {
 		}
 	});
 
+	const latestAssignment = assignment
+		.filter((item) => item.assignTime)
+		.sort((a, b) => (b.assignTime?.getTime() ?? 0) - (a.assignTime?.getTime() ?? 0))[0];
+
 	return (
 		<div className="flex flex-col min-h-screen px-10 py-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
 			<div className="flex flex-col items-center justify-center space-y-6">
