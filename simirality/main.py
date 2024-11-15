@@ -66,7 +66,7 @@ def calcuSimilarity(assignmentWord, words):
         # WordNet にない形式を検索
         wordByMorphy = wn.morphy(word)
         print(f"wordByMorphy: {wordByMorphy}")
-        if wordByMorphy is not None:
+        if wordByMorphy is not None and wordByMorphy != word:
             try:
                 similarityByMorphy = calculate(assignmentWord_synset, wordByMorphy, assignmentWord)
 
