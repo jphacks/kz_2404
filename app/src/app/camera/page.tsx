@@ -16,6 +16,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Toaster } from "@/components/ui/sonner";
+import { PointDialog } from "@/components/view/PointDialog";
+import { shapeCaption } from "@/functions/shapeCaption";
+import { postSimilarity } from "@/functions/simirality";
+import { usePointDialogOpen } from "@/lib/atom";
 import type { ScoreResponse, User, todayAssignment } from "@/types";
 import imageCompression from "browser-image-compression";
 import type React from "react";
@@ -93,6 +97,7 @@ const CameraApp = () => {
 	>();
 	const [assignments, setAssignments] = useState<todayAssignment[]>([]);
 	const [isActive, setIsActive] = useState<boolean>(true);
+	const [isPointDialogOpen, setIsPointDialogOpen] = usePointDialogOpen();
 	const [loginUser, setLoginUser] = useState<User>();
 
 	useEffect(() => {
@@ -256,6 +261,7 @@ const CameraApp = () => {
 				if (newAssignments.every((assignment) => assignment.isAnswered)) {
 					setIsActive(false);
 				}
+				setIsPointDialogOpen(true);
 			} catch (error) {
 				setIsUploading(false);
 				console.error("アップロード中にエラーが発生しました:", error);
@@ -282,6 +288,7 @@ const CameraApp = () => {
 		<>
 			{isActive ? (
 				<>
+					{isPointDialogOpen && <PointDialog type="photo" />}
 					<div className="flex items-center justify-center">
 						<Camera
 							ref={camera}
