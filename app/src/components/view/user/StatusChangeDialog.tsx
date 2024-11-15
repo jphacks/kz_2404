@@ -4,12 +4,20 @@ import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
+	DialogDescription,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
-import { useStatusChangeDialog } from "@/lib/atom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+interface StatusChangeDialogProps {
+	isOpen: boolean;
+	onClose: () => void;
+	initialSpeed: number;
+	initialSimilarity: number;
+}
 
 interface PlayStyleSettings {
 	speed: number;
@@ -17,42 +25,56 @@ interface PlayStyleSettings {
 	total: number;
 }
 
-export default function StatusChangeDialog() {
+export default function StatusChangeDialog({
+	isOpen,
+	onClose,
+	initialSpeed,
+	initialSimilarity,
+}: StatusChangeDialogProps) {
 	const [settings, setSettings] = useState<PlayStyleSettings>({
-		speed: 12,
-		similarity: 70,
+		speed: initialSpeed,
+		similarity: initialSimilarity,
 		total: 100,
 	});
-	const [isOpen, setIsOpen] = useStatusChangeDialog();
 
-	// TODO APIの繋ぎ込みをおこなう。その際に値のバリデージョンも実装する。
+	useEffect(() => {
+		setSettings({
+			speed: initialSpeed,
+			similarity: initialSimilarity,
+			total: 100,
+		});
+	}, [initialSpeed, initialSimilarity]);
+
 	const handleSave = async () => {
-		setIsOpen(false);
+		onClose();
 	};
 
 	const remainingPoints =
 		settings.total - (settings.speed + settings.similarity);
 
 	return (
-		<Dialog open={isOpen} onOpenChange={setIsOpen}>
-			<DialogContent className="max-w-[90vw] sm:max-w-[425px] flex flex-col items-center px-4">
-				<DialogHeader className="text-center">
-					<DialogTitle className="text-lg sm:text-xl font-semibold">
+		<Dialog open={isOpen} onOpenChange={onClose}>
+			<DialogContent className="p-6 rounded-xl max-w-[90vw]">
+				<DialogHeader>
+					<DialogTitle className="text-xl font-semibold">
 						プレイスタイルの調整
 					</DialogTitle>
-				</DialogHeader>
-				<div className="w-full max-w-[90vw] sm:max-w-[300px] space-y-4 sm:space-y-6 py-4">
-					<p className="text-sm text-left text-muted-foreground">
+					<DialogDescription>
 						指定したポイントを速度と正確性に振り分けてプレイスタイルをカスタマイズできます。
-					</p>
-					<div className="space-y-4 sm:space-y-6 px-10">
-						<div className="space-y-2">
-							<div className="flex justify-between">
-								<label htmlFor="speed" className="text-sm font-medium">
+					</DialogDescription>
+				</DialogHeader>
+				<div className="space-y-4">
+					<div className="flex flex-col items-center">
+						<div className="space-y-2 w-[80%]">
+							<div className="flex justify-between items-center">
+								<label htmlFor="speed" className="font-medium">
 									スピード
 								</label>
-								<span className="text-sm text-muted-foreground">
-									{settings.speed} / {settings.total}
+								<span className="text-gray-500 mt-2">
+									<span className="font-bold text-[#333333]">
+										{settings.speed}
+									</span>{" "}
+									/ {settings.total}
 								</span>
 							</div>
 							<Slider
@@ -64,16 +86,21 @@ export default function StatusChangeDialog() {
 								onValueChange={([value]) =>
 									setSettings({ ...settings, speed: value })
 								}
-								className="[&_[role=slider]]:h-4 [&_[role=slider]]:w-4"
+								className="w-full"
+								trackClassName="h-3"
+								thumbClassName="h-6 w-6"
 							/>
 						</div>
-						<div className="space-y-2">
-							<div className="flex justify-between">
-								<label htmlFor="similarity" className="text-sm font-medium">
+						<div className="space-y-2 w-[80%] mt-8">
+							<div className="flex justify-between items-center">
+								<label htmlFor="similarity" className="font-medium">
 									正確性
 								</label>
-								<span className="text-sm text-muted-foreground">
-									{settings.similarity} / {settings.total}
+								<span className="text-gray-500 mt-2">
+									<span className="font-bold text-[#333333]">
+										{settings.similarity}
+									</span>
+									/ {settings.total}
 								</span>
 							</div>
 							<Slider
@@ -85,20 +112,26 @@ export default function StatusChangeDialog() {
 								onValueChange={([value]) =>
 									setSettings({ ...settings, similarity: value })
 								}
-								className="[&_[role=slider]]:h-4 [&_[role=slider]]:w-4"
+								className="w-full"
+								trackClassName="h-3"
+								thumbClassName="h-6 w-6"
 							/>
 						</div>
-						<div className="flex justify-center items-center text-sm">
-							<span>未割り当てポイント：</span>
-							<span className="font-medium ml-1">{remainingPoints}</span>
+						<div className="flex self-start mt-10">
+							<span className="font-medium">未割り当てポイント：</span>
+							<span className="text-green-500 font-medium">
+								{remainingPoints}
+							</span>
 						</div>
 					</div>
-					<div className="flex justify-center gap-3 pt-4">
-						<Button variant="outline" onClick={() => setIsOpen(false)}>
+					<DialogFooter className="flex flex-row justify-end space-x-2">
+						<Button variant="outline" onClick={onClose}>
 							キャンセル
 						</Button>
-						<Button onClick={handleSave}>保存</Button>
-					</div>
+						<Button className="px-9" onClick={handleSave}>
+							保存
+						</Button>
+					</DialogFooter>
 				</div>
 			</DialogContent>
 		</Dialog>
