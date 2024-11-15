@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
 		userId: user?.id || 0,
 	};
 
-	const score = await scoreRegister(scoreData);
+	const score = await scoreRegister(scoreData, assignmentId);
 
 	const response: ScoreResponse = {
 		text: caption || "",
