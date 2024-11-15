@@ -4,8 +4,11 @@ import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
+	DialogDescription,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
+	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { useStatusChangeDialog } from "@/lib/atom";
@@ -35,24 +38,30 @@ export default function StatusChangeDialog() {
 
 	return (
 		<Dialog open={isOpen} onOpenChange={setIsOpen}>
-			<DialogContent className="max-w-[90vw] sm:max-w-[425px] flex flex-col items-center px-4">
-				<DialogHeader className="text-center">
-					<DialogTitle className="text-lg sm:text-xl font-semibold">
+			<DialogTrigger asChild>
+				<Button variant="outline">プレイスタイルの調整</Button>
+			</DialogTrigger>
+			<DialogContent className="p-6 rounded-xl max-w-[90vw]">
+				<DialogHeader>
+					<DialogTitle className="text-xl font-semibold">
 						プレイスタイルの調整
 					</DialogTitle>
-				</DialogHeader>
-				<div className="w-full max-w-[90vw] sm:max-w-[300px] space-y-4 sm:space-y-6 py-4">
-					<p className="text-sm text-left text-muted-foreground">
+					<DialogDescription>
 						指定したポイントを速度と正確性に振り分けてプレイスタイルをカスタマイズできます。
-					</p>
-					<div className="space-y-4 sm:space-y-6 px-10">
-						<div className="space-y-2">
-							<div className="flex justify-between">
-								<label htmlFor="speed" className="text-sm font-medium">
+					</DialogDescription>
+				</DialogHeader>
+				<div className="space-y-4">
+					<div className="flex flex-col items-center">
+						<div className="space-y-2 w-[80%]">
+							<div className="flex justify-between items-center">
+								<label htmlFor="speed" className="font-medium">
 									スピード
 								</label>
-								<span className="text-sm text-muted-foreground">
-									{settings.speed} / {settings.total}
+								<span className="text-gray-500 mt-2">
+									<span className="font-bold text-[#333333]">
+										{settings.speed}
+									</span>{" "}
+									/ {settings.total}
 								</span>
 							</div>
 							<Slider
@@ -64,16 +73,21 @@ export default function StatusChangeDialog() {
 								onValueChange={([value]) =>
 									setSettings({ ...settings, speed: value })
 								}
-								className="[&_[role=slider]]:h-4 [&_[role=slider]]:w-4"
+								className="w-full"
+								trackClassName="h-3"
+								thumbClassName="h-6 w-6"
 							/>
 						</div>
-						<div className="space-y-2">
-							<div className="flex justify-between">
-								<label htmlFor="similarity" className="text-sm font-medium">
+						<div className="space-y-2 w-[80%] mt-8">
+							<div className="flex justify-between items-center">
+								<label htmlFor="similarity" className="font-medium">
 									正確性
 								</label>
-								<span className="text-sm text-muted-foreground">
-									{settings.similarity} / {settings.total}
+								<span className="text-gray-500 mt-2">
+									<span className="font-bold text-[#333333]">
+										{settings.similarity}
+									</span>
+									/ {settings.total}
 								</span>
 							</div>
 							<Slider
@@ -85,20 +99,24 @@ export default function StatusChangeDialog() {
 								onValueChange={([value]) =>
 									setSettings({ ...settings, similarity: value })
 								}
-								className="[&_[role=slider]]:h-4 [&_[role=slider]]:w-4"
+								className="w-full"
+								trackClassName="h-3"
+								thumbClassName="h-6 w-6"
 							/>
 						</div>
-						<div className="flex justify-center items-center text-sm">
-							<span>未割り当てポイント：</span>
-							<span className="font-medium ml-1">{remainingPoints}</span>
+						<div className="flex self-start mt-10">
+							<span className="font-medium">未割り当てポイント：</span>
+							<span className="text-green-500 font-medium">
+								{remainingPoints}
+							</span>
 						</div>
 					</div>
-					<div className="flex justify-center gap-3 pt-4">
+					<DialogFooter className="flex flex-row justify-end space-x-2">
 						<Button variant="outline" onClick={() => setIsOpen(false)}>
 							キャンセル
 						</Button>
-						<Button onClick={handleSave}>保存</Button>
-					</div>
+						<Button className="px-9" onClick={handleSave}>保存</Button>
+					</DialogFooter>
 				</div>
 			</DialogContent>
 		</Dialog>
