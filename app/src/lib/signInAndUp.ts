@@ -1,7 +1,7 @@
-import type { User } from "@/types";
+import type { DBUser, User } from "@/types";
 import type { User as FirebaseUser } from "@firebase/auth";
 
-const storeStorageUser = (user: User) => {
+const storeStorageUser = (user: DBUser) => {
 	localStorage.setItem("userID", JSON.stringify(user));
 };
 
@@ -14,22 +14,18 @@ export const signInOrUp = async (firebaseUser: FirebaseUser) => {
 			},
 		});
 
-		const user: User = {
-			uid: firebaseUser.uid,
-			displayName: firebaseUser.displayName,
-			email: firebaseUser.email,
-			photoURL: firebaseUser.photoURL,
-		};
+		const userData = await res.json();
 
-		if (res.status === 200) {
+		const user: DBUser = { ...userData };
+
+		if (userData) {
 			storeStorageUser(user);
-			const userData = await res.json();
 			if (!userData.experiencePoint) {
 				await createExp(userData.id);
 			}
 			toRoot();
 		} else {
-			await signUp(user);
+			await signUp(firebaseUser);
 		}
 	} catch (error) {
 		console.error("エラーが発生しました:", error);
@@ -46,8 +42,10 @@ const signUp = async (user: User) => {
 			body: JSON.stringify(user),
 		});
 
-		if (res.status === 200) {
-			storeStorageUser(user);
+		const resUser = await res.json();
+
+		if (resUser) {
+			storeStorageUser(resUser);
 			toRoot();
 		} else {
 			throw new Error("ユーザー登録に失敗");

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import StatusChangeDialog from "@/components/view/user/StatusChangeDialog";
 import StatusList from "@/components/view/user/StatusList";
 import { useStatusChangeDialog } from "@/lib/atom";
-import type { MyScoreDetail, User } from "@/types";
+import type { MyScoreDetail, DBUser as User } from "@/types";
 import { useEffect, useState } from "react";
 import { FiEdit2 } from "react-icons/fi";
 import { LuClock, LuFlame, LuTrophy } from "react-icons/lu";
@@ -51,9 +51,9 @@ const UserPage = () => {
 		<div className="w-screen min-h-screen flex flex-col gap-4 items-center p-4 pt-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
 			{isOpen && <StatusChangeDialog />}
 			<div className="flex items-center mb-4">
-				{userData.photoURL ? (
+				{userData.photoUrl ? (
 					<img
-						src={userData.photoURL}
+						src={userData.photoUrl}
 						alt="User Icon"
 						className="w-16 h-16 rounded-full"
 					/>
@@ -81,7 +81,7 @@ const UserPage = () => {
 						) : (
 							<>
 								<span className="text-xl font-bold text-[#333333]">
-									{userData.displayName || "user@example.com"}
+									{userData.name || "user@example.com"}
 								</span>
 								<Button
 									variant={"primary"}

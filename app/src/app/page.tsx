@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { PointDialog } from "@/components/view/PointDialog";
 import Timer from "@/components/view/Timer";
 import { useHasShownOnce, usePointDialogOpen } from "@/lib/atom";
-import type { MyScoreDetail, todayAssignment } from "@/types";
+import type { MyScoreDetail, DBUser as User, todayAssignment } from "@/types";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import ClockIcon from "../../public/icons/icon-clock.svg";
@@ -32,7 +32,7 @@ export default function Home() {
 
 			try {
 				// get api/score/me
-				const userData = JSON.parse(userIdString);
+				const userData: User = JSON.parse(userIdString);
 				const uid = userData.uid;
 				if (!uid) {
 					throw new Error("User ID not found");
@@ -86,7 +86,9 @@ export default function Home() {
 
 	const latestAssignment = assignment
 		.filter((item) => item.assignTime)
-		.sort((a, b) => (b.assignTime?.getTime() ?? 0) - (a.assignTime?.getTime() ?? 0))[0];
+		.sort(
+			(a, b) => (b.assignTime?.getTime() ?? 0) - (a.assignTime?.getTime() ?? 0),
+		)[0];
 
 	return (
 		<div className="flex flex-col h-full px-10 py-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
