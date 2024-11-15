@@ -40,14 +40,14 @@ async function main() {
 				name: "Alice",
 				email: "alice@example.com",
 				photoUrl: "https://example.com/photos/alice.jpg",
-				ratePoint: 0,
+				ratePoint: 750,
 			},
 			{
 				uid: "user456",
 				name: "Bob",
 				email: "bob@example.com",
 				photoUrl: "https://example.com/photos/bob.jpg",
-				ratePoint: 0,
+				ratePoint: 950,
 			},
 			{
 				uid: "user789",
