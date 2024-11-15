@@ -29,34 +29,67 @@ class Words(BaseModel):
     assignmentWord: str
     words: List[str]
 
-
 @app.post("/similarity")
 async def similarity(reqWords: Words):
     assignmentWord = reqWords.assignmentWord
     words = reqWords.words
 
+    try:
+        highscore = calcuSimilarity(assignmentWord, words)
+    except:
+        # 例外処理
+        print("Error: 類似度の計算に失敗しました。課題が存在しない可能性があります。")
+        return {"similarity": 0}
+
+    return {"similarity": highscore}
+
+# 類似度の計算
+def calcuSimilarity(assignmentWord, words):
     assignmentWord_synset = wn.synset(f"{assignmentWord}.n.01")
 
     highscore = 0
+
     for word in words:
         print(f"word: {word}")
         try:
-            word_synset = wn.synset(f"{word}.n.01")
-            similarity = assignmentWord_synset.wup_similarity(word_synset)
-            print(f"{word}: {similarity}")
+            similarity = calculate(assignmentWord_synset, word, assignmentWord)
 
-            if assignmentWord == word:
-                similarity = 1.0
-
-            if similarity is None:
-                print(f"'{assignmentWord}' と '{word}' の類似度を計算できません。")
+            print(f"similarity: {similarity}")
 
             if similarity > highscore:
                 highscore = similarity
         except:
             print(f"Error: '{word}' はWordNetに存在しません。")
 
-    return {"similarity": highscore}
+        # WordNet にない形式を検索
+        wordByMorphy = wn.morphy(word)
+        print(f"wordByMorphy: {wordByMorphy}")
+        if wordByMorphy is not None:
+            try:
+                similarityByMorphy = calculate(assignmentWord_synset, wordByMorphy, assignmentWord)
+
+                print(f"similarity: {similarityByMorphy}")
+
+                if highscore < similarityByMorphy:
+                    highscore = similarityByMorphy
+            except:
+                print(f"Error: '{word}' はWordNetに存在しません。")
+
+    return highscore
+
+def calculate(assignmentWord_synset, word, assignmentWord):
+    if assignmentWord == word:
+        return 1.0
+
+    word_synset = wn.synset(f"{word}.n.01")
+
+    similarity = assignmentWord_synset.wup_similarity(word_synset)
+
+    if similarity is None:
+        print(f"'{assignmentWord}' と '{word}' の類似度を計算できません。")
+        return 0
+
+    return similarity
 
 
 # MEMO こんな感じでPOSTリクエストを送る
