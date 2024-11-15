@@ -1,7 +1,7 @@
 from typing import List
 
 import nltk
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from nltk.corpus import wordnet as wn
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
@@ -36,10 +36,10 @@ async def similarity(reqWords: Words):
 
     try:
         highscore, highscore_word = calcuSimilarity(assignmentWord, words)
-    except:
+    except Exception as e:
         # 例外処理
-        print("Error: 類似度の計算に失敗しました。課題が存在しない可能性があります。")
-        return {"similarity": 0}
+        print(f"Error: 類似度の計算に失敗しました。課題が存在しない可能性があります。詳細: {str(e)}")
+        raise HTTPException(status_code=400, detail="類似度の計算に失敗しました。")
 
     return {"similarity": highscore, "highscoreWord": highscore_word}
 
@@ -60,8 +60,8 @@ def calcuSimilarity(assignmentWord, words):
             if similarity > highscore:
                 highscore = similarity
                 highscore_word = word
-        except:
-            print(f"Error: '{word}' はWordNetに存在しません。")
+        except Exception as e:
+            print(f"Error: '{e}'")
 
         # WordNet にない形式を検索
         wordByMorphy = wn.morphy(word)
@@ -76,8 +76,8 @@ def calcuSimilarity(assignmentWord, words):
                     highscore = similarityByMorphy
                     highscore_word = word
 
-            except:
-                print(f"Error: '{word}' はWordNetに存在しません。")
+            except Exception as e:
+                print(f"Error: '{e}'")
 
     return highscore, highscore_word
 
@@ -85,7 +85,12 @@ def calculate(assignmentWord_synset, word, assignmentWord):
     if assignmentWord == word:
         return 1.0
 
-    word_synset = wn.synset(f"{word}.n.01")
+    # word_synset = wn.synset(f"{word}.n.01")
+    try:
+        word_synset = wn.synset(f"{word}.n.01")
+    except Exception as e:
+        print(f"Error: WordNetに '{word}' のsynsetが見つかりません。詳細: {str(e)}")
+        return 0
 
     similarity = assignmentWord_synset.wup_similarity(word_synset)
 
