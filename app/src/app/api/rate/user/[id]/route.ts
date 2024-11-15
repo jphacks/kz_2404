@@ -39,13 +39,23 @@ export async function GET(req: NextRequest) {
             );
         }
 
-        const result = {
-            ratePoint: user.ratePoint,
-            rates: user.userRates.map(userRate => ({
+        const rates = await Promise.all(user.userRates.map(async userRate => {
+            const nextRate = await prisma.rate.findUnique({
+                where: { id: userRate.rateId + 1 },
+                select: { name: true },
+            });
+
+            return {
                 name: userRate.rate.name,
                 minRange: userRate.rate.minRange,
                 maxRange: userRate.rate.maxRange,
-            })),
+                nextRateName: nextRate ? nextRate.name : "",
+            };
+        }));
+
+        const result = {
+            ratePoint: user.ratePoint,
+            rates,
         };
 
         return NextResponse.json(result, { status: 200 });
