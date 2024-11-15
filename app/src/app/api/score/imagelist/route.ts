@@ -3,47 +3,7 @@ import { prisma } from "@lib/prisma";
 
 export async function GET() {
 	const allScores = await prisma.score.findMany({
-		select: {
-			id: true,
-			point: true,
-			answerTime: true,
-			similarity: true,
-			assignmentId: true,
-			userId: true,
-			imageUrl: true,
-			createdAt: true,
-			updatedAt: true,
-			user: {
-				select: {
-					id: true,
-					uid: true,
-					name: true,
-					email: true,
-					photoUrl: true,
-					createdAt: true,
-					updatedAt: true,
-				},
-			},
-			assignment: {
-				select: {
-					id: true,
-					wordId: true,
-					date: true,
-					createdAt: true,
-					updatedAt: true,
-					word: {
-						select: {
-							id: true,
-							english: true,
-							japanese: true,
-							difficulty: true,
-							createdAt: true,
-							updatedAt: true,
-						},
-					},
-				},
-			},
-		},
+		include: { assignment: { include: { word: true } }, user: true },
 		orderBy: { createdAt: "desc" },
 	});
 
