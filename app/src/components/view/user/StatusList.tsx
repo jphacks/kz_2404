@@ -5,48 +5,51 @@ import { ChevronRight } from "lucide-react";
 type StatusListProps = {
 	speedPoint: number;
 	similarityPoint: number;
+	onClick: () => void;
 };
 
 export default function StatusList({
 	speedPoint,
 	similarityPoint,
+	onClick,
 }: StatusListProps) {
 	return (
-		<Card className="flex flex-col items-center border-none p-8 cursor-pointer">
-			<CardHeader className="flex flex-row items-center justify-between w-full space-y-0 pb-2">
-				<CardTitle className="text-xl font-medium">
+		<Card
+			className="flex flex-col w-[21rem] items-center border-none cursor-pointer"
+			onClick={onClick}
+		>
+			<CardHeader className="flex flex-row items-start justify-between w-full pb-1">
+				<CardTitle className="text-xl font-bold text-[#333333]">
 					プレイスタイル設定
 				</CardTitle>
 				<ChevronRight className="h-5 w-5 text-muted-foreground" />
 			</CardHeader>
 			<CardContent className="w-full pb-6">
-				<p className="text-sm text-muted-foreground mb-6">
+				<p className="text-start text-sm text-muted-foreground mb-4">
 					スピードと類似度のバランスを調整
 				</p>
-				<div className="flex flex-wrap gap-4">
-					<div className="flex-1 min-w-[200px] space-y-2">
-						<div className="flex justify-between text-sm">
+				<div className="flex gap-4">
+					<div className="w-1/2 space-y-2">
+						<div className="flex justify-between text-xs">
 							<span>スピード</span>
-							<span>{speedPoint}ポイント</span>
+							<span className="font-bold">{speedPoint}ポイント</span>
 						</div>
-						<Progress value={speedPoint} className="h-2 bg-blue-100">
-							<div
-								className="h-full bg-blue-500"
-								style={{ width: `${speedPoint}%` }}
-							/>
-						</Progress>
+						<Progress
+							value={speedPoint}
+							className="bg-blue-100"
+							indicatorClassName="bg-blue-500"
+						/>
 					</div>
-					<div className="flex-1 min-w-[200px] space-y-2">
-						<div className="flex justify-between text-sm">
+					<div className="w-1/2 space-y-2">
+						<div className="flex justify-between text-xs">
 							<span>類似度</span>
-							<span>{similarityPoint}ポイント</span>
+							<span className="font-bold">{similarityPoint}ポイント</span>
 						</div>
-						<Progress value={similarityPoint} className="h-2 bg-green-100">
-							<div
-								className="h-full bg-green-500"
-								style={{ width: `${similarityPoint}%` }}
-							/>
-						</Progress>
+						<Progress
+							value={similarityPoint}
+							className="bg-green-100"
+							indicatorClassName="bg-green-500"
+						/>
 					</div>
 				</div>
 			</CardContent>
