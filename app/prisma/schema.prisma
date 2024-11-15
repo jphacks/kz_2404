@@ -21,6 +21,8 @@ model User {
   photoUrl String
   scores Score[]
   experiencePoint ExperiencePoint? @relation()
+  userRates UserRate[]
+  ratePoint Int
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
@@ -75,4 +77,26 @@ model ExperiencePoint {
   updatedAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
+}
+
+model UserRate {
+  id Int @id @default(autoincrement())
+  userId Int
+  rateId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+  rate Rate @relation(fields: [rateId], references: [id])
+}
+
+model Rate {
+  id Int @id @default(autoincrement())
+  name String
+  minRange Int
+  maxRange Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  userRates UserRate[]
 }
