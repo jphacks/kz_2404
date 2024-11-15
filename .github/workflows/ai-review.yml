@@ -36,4 +36,4 @@ jobs:
           PR_DESCRIPTION.EXTRA_INSTRUCTIONS:      'Please use Japanese.'
           PR_REVIEWER.EXTRA_INSTRUCTIONS:         'Please use Japanese.'
           PR_CODE_SUGGESTIONS.EXTRA_INSTRUCTIONS: 'Please use Japanese.'
-          CONFIG.MODEL: gpt-3.5-turbo-0613
+          CONFIG.MODEL: gpt-4o-mini
