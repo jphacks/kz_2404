@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import PlayerRankCard from "@/components/view/user/PlayerRankCard";
 import StatusChangeDialog from "@/components/view/user/StatusChangeDialog";
 import StatusList from "@/components/view/user/StatusList";
 import { useStatusChangeDialog } from "@/lib/atom";
@@ -112,6 +113,7 @@ const UserPage = () => {
 					<p className="text-xs text-muted-foreground">最高点</p>
 				</Card>
 			</div>
+			<PlayerRankCard rankPoint={2800} />
 			<button type="button" onClick={() => handleOpenDialog()}>
 				<StatusList speedPoint={10} similarityPoint={40} />
 			</button>
