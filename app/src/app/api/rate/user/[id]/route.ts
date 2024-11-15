@@ -40,8 +40,9 @@ export async function GET(req: NextRequest) {
         }
 
         const rates = await Promise.all(user.userRates.map(async userRate => {
-            const nextRate = await prisma.rate.findUnique({
-                where: { id: userRate.rateId + 1 },
+            const nextRate = await prisma.rate.findFirst({
+                where: { minRange: { gt: userRate.rate.maxRange } },
+                orderBy: { minRange: 'asc' },
                 select: { name: true, minRange: true },
             });
 
