@@ -7,6 +7,7 @@ import { PointDialog } from "@/components/view/PointDialog";
 import Timer from "@/components/view/Timer";
 import { useHasShownOnce, usePointDialogOpen } from "@/lib/atom";
 import type { MyScoreDetail, Score, todayAssignment } from "@/types";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LuArrowRight, LuCheckCircle } from "react-icons/lu";
@@ -150,12 +151,14 @@ export default function Home() {
 							<Button
 								variant="default"
 								className="flex items-center justify-center w-3/4 bg-gray-800 hover:bg-gray-700 text-white py-6 space-x-2"
-								onClick={() => router.push("/camera")}
+								asChild
 							>
-								<div className="w-6 h-auto">
-									<PhotoCameraIcon />
-								</div>
-								<span className="text-lg font-semibold">写真を撮る</span>
+								<Link href="camera">
+									<div className="w-6 h-auto">
+										<PhotoCameraIcon />
+									</div>
+									<span className="text-lg font-semibold">写真を撮る</span>
+								</Link>
 							</Button>
 						</div>
 					</Card>
@@ -179,11 +182,13 @@ export default function Home() {
 								</p>
 							</div>
 							<Button
-								onClick={() => router.push("/ranking")}
 								className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-semibold py-3 px-6 rounded-full hover:from-pink-600 hover:to-purple-600 transition duration-300"
+								asChild
 							>
-								結果を確認する
-								<LuArrowRight className="ml-2 w-5 h-5" />
+								<Link href="ranking">
+									結果を確認する
+									<LuArrowRight className="ml-2 w-5 h-5" />
+								</Link>
 							</Button>
 						</div>
 					</Card>
