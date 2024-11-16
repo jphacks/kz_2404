@@ -144,3 +144,16 @@ export interface ChangeStatus {
 	totalPoint: number;
 	id: number;
 }
+
+export interface UserRate {
+	ratePoint: number;
+	rate: {
+		name: string;
+		minRange: number;
+		maxRange: number;
+	};
+	nextRate: {
+		name: string;
+		pointsToNextRate: number;
+	};
+}
