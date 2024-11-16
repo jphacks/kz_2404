@@ -26,10 +26,10 @@ export const AssignmentBadge = ({
 		setAssignment(selectAssignment);
 	};
 	return (
-		<div className="flex flex-col items-center justify-center text-center fixed top-0 left-0 w-full h-1/4">
-			<div className="py-2 px-4 bg-orange-500 text-white rounded-full">
+		<div className="flex flex-col items-center justify-center text-center fixed top-0 left-0 w-full h-1/6">
+			<div className="py-2 bg-orange-500 text-white rounded-xl">
 				<Select value={assignment.english} onValueChange={handleSelect}>
-					<SelectTrigger className="w-[180px]">
+					<SelectTrigger className="w-[180px] border-none focus:ring-0 focus:outline-none">
 						<SelectValue />
 					</SelectTrigger>
 					<SelectContent>
