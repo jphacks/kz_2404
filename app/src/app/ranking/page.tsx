@@ -15,7 +15,7 @@ export default function RankingPage() {
 	const [selectedTab, setSelectedTab] = useState<
 		"today" | "weekly" | "allTime"
 	>("today");
-	const [rankingType, setRankingType] = useState<"nomal" | "image">("nomal");
+	const [rankingType, setRankingType] = useState<"normal" | "image">("normal");
 	const [selectedTopic, setSelectedTopic] = useState(0);
 	const [topics, setTopics] = useState<todayAssignment[]>([]);
 	const [isPointDialogOpen, _] = usePointDialog();
@@ -51,7 +51,7 @@ export default function RankingPage() {
 	}
 	return (
 		<div className="min-h-screen bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50 px-4">
-			{rankingType === "nomal" && (
+			{rankingType === "normal" && (
 				<>
 					<div className="w-full flex flex-col items-center justify-center sticky top-0 z-10 pt-4">
 						<TabNavigation
@@ -59,7 +59,7 @@ export default function RankingPage() {
 							setSelectedTab={setSelectedTab}
 						/>
 						{selectedTab === "today" && (
-							<div className="flex w-screen content-between p-4 justify-between">
+							<div className="flex gap-3 w-full content-between p-4 justify-between">
 								<TopicTabs
 									selectedTopic={selectedTopic}
 									setSelectedTopic={setSelectedTopic}
@@ -70,11 +70,13 @@ export default function RankingPage() {
 									onClick={() => {
 										setRankingType("image");
 									}}
-									className="bg-transparent text-[#333333] rounded-md right-0"
+									className="bg-transparent text-[#333333] rounded-lg py-2 px-4 shadow-md"
 								>
 									<div className="flex flex-col justify-center items-center">
 										<BsGrid1X2 size={"24"} />
-										<p>みんなの写真</p>
+										<p className="text-xs text-nowrap font-bold text-[#333333] mt-1">
+											みんなの写真
+										</p>
 									</div>
 								</button>
 							</div>
