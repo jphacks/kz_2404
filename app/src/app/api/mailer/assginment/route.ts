@@ -124,6 +124,7 @@ export async function POST(req: NextRequest) {
 
 		const usersEmails = (
 			await prisma.user.findMany({
+				where: { isReceivedMail: true },
 				select: {
 					email: true,
 				},
