@@ -1,29 +1,15 @@
 import { Card } from "@/components/ui/card";
+import { fetcher } from "@/functions/fetcher";
 import type { RankingScores } from "@/types";
-import { useEffect, useState } from "react";
+import useSWR from "swr";
 import { LoadingSpinner } from "../LoadingSpinner";
 
 export default function RankingListWeekly() {
-	const [data, setData] = useState<RankingScores[]>([]);
-	const [isLoading, setIsLoading] = useState<boolean>(true);
+	const { data, error, isLoading } = useSWR("/api/score/week", fetcher);
 
-	useEffect(() => {
-		const fetchData = () => {
-			setIsLoading(true);
-			return fetch("/api/score/week")
-				.then((response) => {
-					if (!response.ok) {
-						throw new Error("Failed to fetch data");
-					}
-					return response.json();
-				})
-				.then((result) => setData(result))
-				.catch((error) => console.error("Error fetching data:", error))
-				.finally(() => setIsLoading(false));
-		};
-
-		fetchData();
-	}, []);
+	if (error) {
+		console.error("Failed to fetch data");
+	}
 
 	const getEmoji = (rank: number) => {
 		switch (rank) {

@@ -1,8 +1,8 @@
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { fetcher } from "@/functions/fetcher";
 import type { ScoreDetail } from "@/types";
-import { useEffect, useState } from "react";
 import { VscListOrdered } from "react-icons/vsc";
+import useSWR from "swr";
 import { LoadingSpinner } from "../LoadingSpinner";
 
 type ImageListProps = {
@@ -15,29 +15,17 @@ const MODE = {
 } as const;
 
 export const ImageList = ({ setMode }: ImageListProps) => {
-	const [isLoading, setIsLoading] = useState<boolean>(true);
+	const { data, error, isLoading } = useSWR("/api/score/imagelist", fetcher);
 
-	const [scoreDetails, setScoreDetails] = useState<ScoreDetail[]>([]);
-	useEffect(() => {
-		const fetchData = () => {
-			setIsLoading(true);
-			return fetch("/api/score/imagelist")
-				.then((response) => {
-					if (!response.ok) {
-						throw new Error("Failed to fetch data");
-					}
-					return response.json();
-				})
-				.then((result) => setScoreDetails(result))
-				.catch((error) => console.error("Error fetching data:", error))
-				.finally(() => setIsLoading(false));
-		};
-
-		fetchData();
-	}, []);
+	// アサーションすみません
+	const scoreDetails = data as ScoreDetail[];
 
 	if (isLoading) {
 		return <LoadingSpinner />;
+	}
+
+	if (error) {
+		console.error("Failed to fetch data");
 	}
 
 	return (
