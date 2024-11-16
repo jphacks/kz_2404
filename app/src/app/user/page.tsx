@@ -8,6 +8,7 @@ import PlayerRankCard from "@/components/view/user/PlayerRankCard";
 import { StatusChangeDialog } from "@/components/view/user/StatusChangeDialog";
 import { StatusList } from "@/components/view/user/StatusList";
 import { useStatusChangeDialog } from "@/lib/atom";
+import { signOut } from "@/lib/signOut";
 import type {
 	ChangeStatus,
 	MyScoreDetail,
@@ -20,32 +21,43 @@ import { LuClock, LuFlame, LuTrophy } from "react-icons/lu";
 import { VscAccount } from "react-icons/vsc";
 
 const UserPage = () => {
-	const [userData, setUserData] = useState<User>();
+	const [userData, setUserData] = useState<User | null>(null);
 	const [myScore, setMyScore] = useState<MyScoreDetail[]>([]);
 	const [userStatus, setUserStatus] = useState<experiencePoint>();
 	const [point, setPoint] = useState<ChangeStatus>();
 	const [isEditing, setIsEditing] = useState(false);
+	const [isSubscribed, setIsSubscribed] = useState<boolean>(true);
 	const [isOpen, setIsOpen] = useStatusChangeDialog();
 	const handleOpenDialog = () => setIsOpen(true);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 
 	useEffect(() => {
-		const fetchData = async () => {
-			const userIdString = localStorage.getItem("userID");
-			if (!userIdString) {
-				window.location.href = "/login";
-				return;
-			}
+		const userIdString = localStorage.getItem("userID");
+		if (!userIdString) {
+			window.location.href = "/login";
+			return;
+		}
 
-			const userData = JSON.parse(userIdString);
-			setUserData(userData);
+		const userData: User = JSON.parse(userIdString);
+		setUserData(userData);
+
+		const fetchUserData = async () => {
 			try {
-				const response = await fetch(`/api/score/me/${userData.uid}?all=true`);
-				if (!response.ok) {
+				const [userResponse, scoreResponse] = await Promise.all([
+					fetch(`/api/user?uid=${userData.uid}`),
+					fetch(`/api/score/me/${userData.uid}?all=true`),
+				]);
+
+				if (!userResponse.ok) {
+					throw new Error("ユーザー情報の取得に失敗しました");
+				}
+				const userDetails = await userResponse.json();
+				setIsSubscribed(userDetails.isReceivedMail);
+
+				if (!scoreResponse.ok) {
 					throw new Error("データの取得に失敗しました");
 				}
-
-				const data = await response.json();
+				const data = await scoreResponse.json();
 				setMyScore(data);
 			} catch (error) {
 				console.error("エラーが発生しました:", error);
@@ -70,8 +82,34 @@ const UserPage = () => {
 			}
 			setIsLoading(false);
 		};
-		fetchData();
+
+		fetchUserData();
 	}, []);
+
+	const handleToggleEmailSubscription = async () => {
+		if (!userData) return;
+	
+		try {
+			const response = await fetch("/api/user/updateReceivedMail", {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					uid: userData.uid,
+					isReceivedMail: !isSubscribed,
+				}),
+			});
+	
+			if (!response.ok) {
+				throw new Error("設定の更新に失敗しました");
+			}
+	
+			setIsSubscribed((prev) => !prev);
+		} catch (error) {
+			console.error("エラーが発生しました:", error);
+		}
+	}
 
 	if (!userData) return null;
 	if (isLoading) {
@@ -95,15 +133,11 @@ const UserPage = () => {
 						{isEditing ? (
 							<div className="flex flex-col gap-2">
 								<Input type="text" placeholder="新しいユーザー名を入力" />
-								<div>
-									<Button variant={"default"} className="bg-[#333333]">
+								<div className="flex gap-2">
+									<Button variant="default" className="bg-[#333333]">
 										保存
 									</Button>
-									<Button
-										variant={"outline"}
-										className="ml-2"
-										onClick={() => setIsEditing(false)}
-									>
+									<Button variant="outline" onClick={() => setIsEditing(false)}>
 										キャンセル
 									</Button>
 								</div>
@@ -114,7 +148,7 @@ const UserPage = () => {
 									{userData.name || "user@example.com"}
 								</span>
 								<Button
-									variant={"primary"}
+									variant="primary"
 									className="ml-2"
 									onClick={() => setIsEditing(true)}
 								>
@@ -151,37 +185,51 @@ const UserPage = () => {
 			</button>
 			<Card className="flex flex-col items-center border-none p-8">
 				<h2 className="text-2xl font-bold mb-4">過去のチャレンジ</h2>
-				{myScore.length === 0 ? (
-					<div className="text-gray-500 text-center py-8">
-						<p>まだチャレンジの記録がありません</p>
-						<p className="text-sm mt-2">
-							新しいチャレンジに挑戦してみましょう！
-						</p>
-					</div>
-				) : (
-					myScore.map((score) => (
-						<div
-							key={score.id}
-							className="flex w-full items-center mb-2 border rounded-md"
-						>
-							<img
-								src={score.imageUrl || "https://placehold.jp/150x150.png"}
-								alt="チャレンジ画像"
-								className="w-1/4 h-auto rounded-l-md"
-							/>
-							<div className="flex flex-col items-start justify-center w-1/2 text-xs">
-								<div className="pl-4 flex flex-col gap-1">
-									<p className="font-bold">{score.assignment}</p>
-									<div className="flex items-center gap-1">
-										<LuClock />
-										<p className="pb-0.5">{score.answerTime}</p>
+				<div className="w-full overflow-y-auto">
+					{myScore.length === 0 ? (
+						<div className="text-gray-500 text-center py-8">
+							<p>まだチャレンジの記録がありません</p>
+							<p className="text-sm mt-2">
+								新しいチャレンジに挑戦してみましょう！
+							</p>
+						</div>
+					) : (
+						myScore.map((score) => (
+							<div
+								key={score.id}
+								className="flex w-full items-center mb-2 border rounded-md"
+							>
+								<img
+									src={score.imageUrl || "https://placehold.jp/150x150.png"}
+									alt="チャレンジ画像"
+									className="w-1/4 h-auto rounded-l-md"
+								/>
+								<div className="flex flex-col items-start justify-center w-1/2 text-xs">
+									<div className="pl-4 flex flex-col gap-1">
+										<p className="font-bold">{score.assignment}</p>
+										<div className="flex items-center gap-1">
+											<LuClock />
+											<p className="pb-0.5">{score.answerTime}</p>
+										</div>
 									</div>
 								</div>
+								<p className="w-1/4 text-lg font-bold">{score.point}点</p>
 							</div>
-							<p className="w-1/4 text-lg font-bold">{score.point}点</p>
-						</div>
-					))
-				)}
+						))
+					)}
+				</div>
+			</Card>
+			<Card className="flex justify-center gap-2 w-[21rem] p-8">
+				<Button
+					variant="default"
+					onClick={signOut}
+					className="px-6 bg-[#333333]"
+				>
+					ログアウト
+				</Button>
+				<Button variant="outline" onClick={handleToggleEmailSubscription}>
+					{isSubscribed ? "メール通知を停止" : "メール通知を再開"}
+				</Button>
 			</Card>
 		</div>
 	);

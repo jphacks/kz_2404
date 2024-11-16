@@ -22,7 +22,6 @@ model User {
   experiencePoint ExperiencePoint? @relation()
   rateId Int @default(1)
   ratePoint Int
-  // todo メール受信のフラグを追記。APIは別で作成する
   isReceivedMail Boolean @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
