@@ -3,13 +3,14 @@ import type { NextRequest } from "next/server";
 
 // GETメソッドのハンドラ関数
 export async function GET(req: NextRequest) {
-    const { searchParams } = new URL(req.url || "");
-	const id = searchParams.get("id") || "";
-    const numId = Number(id)
+	const { pathname } = new URL(req.url || "");
+	const id = pathname.split("/").pop() || "";
 
 	// prismaでユーザを取得
 	const exp = await prisma.experiencePoint.findFirst({
-		where: { userId: numId },
+		where: {
+			userId: Number(id),
+		},
 	});
 
 	if (!exp) {

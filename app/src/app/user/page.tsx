@@ -3,11 +3,17 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { LoadingSpinner } from "@/components/view/LoadingSpinner";
 import PlayerRankCard from "@/components/view/user/PlayerRankCard";
-import StatusChangeDialog from "@/components/view/user/StatusChangeDialog";
-import StatusList from "@/components/view/user/StatusList";
+import { StatusChangeDialog } from "@/components/view/user/StatusChangeDialog";
+import { StatusList } from "@/components/view/user/StatusList";
 import { useStatusChangeDialog } from "@/lib/atom";
-import type { MyScoreDetail, DBUser as User } from "@/types";
+import type {
+	ChangeStatus,
+	MyScoreDetail,
+	DBUser as User,
+	experiencePoint,
+} from "@/types";
 import { useEffect, useState } from "react";
 import { FiEdit2 } from "react-icons/fi";
 import { LuClock, LuFlame, LuTrophy } from "react-icons/lu";
@@ -16,8 +22,12 @@ import { VscAccount } from "react-icons/vsc";
 const UserPage = () => {
 	const [userData, setUserData] = useState<User>();
 	const [myScore, setMyScore] = useState<MyScoreDetail[]>([]);
+	const [userStatus, setUserStatus] = useState<experiencePoint>();
+	const [point, setPoint] = useState<ChangeStatus>();
 	const [isEditing, setIsEditing] = useState(false);
 	const [isOpen, setIsOpen] = useStatusChangeDialog();
+	const handleOpenDialog = () => setIsOpen(true);
+	const [isLoading, setIsLoading] = useState<boolean>(true);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -27,10 +37,9 @@ const UserPage = () => {
 				return;
 			}
 
+			const userData = JSON.parse(userIdString);
+			setUserData(userData);
 			try {
-				const userData = JSON.parse(userIdString);
-				setUserData(userData); // LocalStorageのユーザー情報を状態として保存
-
 				const response = await fetch(`/api/score/me/${userData.uid}?all=true`);
 				if (!response.ok) {
 					throw new Error("データの取得に失敗しました");
@@ -41,14 +50,36 @@ const UserPage = () => {
 			} catch (error) {
 				console.error("エラーが発生しました:", error);
 			}
-		};
 
+			try {
+				const response = await fetch(`/api/experiencePoint/me/${userData.id}`);
+				if (!response.ok) {
+					throw new Error("データの取得に失敗しました");
+				}
+
+				const data = await response.json();
+				setUserStatus(data);
+				setPoint({
+					speedPoint: data.speedPoint,
+					similarityPoint: data.similarityPoint,
+					totalPoint: data.totalPoint,
+					id: Number(userData.id),
+				});
+			} catch (error) {
+				console.error("エラーが発生しました", error);
+			}
+			setIsLoading(false);
+		};
 		fetchData();
 	}, []);
 
 	if (!userData) return null;
+	if (isLoading) {
+		return <LoadingSpinner />;
+	}
 	return (
 		<div className="w-screen min-h-screen flex flex-col gap-4 items-center p-4 pt-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
+			{isOpen && point && <StatusChangeDialog data={point} />}
 			<div className="flex items-center mb-4">
 				{userData.photoUrl ? (
 					<img
@@ -112,6 +143,12 @@ const UserPage = () => {
 				</Card>
 			</div>
 			<PlayerRankCard rankPoint={2800} />
+			<button type="button" onClick={() => handleOpenDialog()}>
+				<StatusList
+					speedPoint={userStatus?.speedPoint || 0}
+					similarityPoint={userStatus?.similarityPoint || 0}
+				/>
+			</button>
 			<Card className="flex flex-col items-center border-none p-8">
 				<h2 className="text-2xl font-bold mb-4">過去のチャレンジ</h2>
 				{myScore.length === 0 ? (

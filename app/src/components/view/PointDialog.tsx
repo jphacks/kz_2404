@@ -10,8 +10,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { useState } from "react";
-import { useHasShownOnce } from "../../lib/atom";
+import { useClosePointDialog, usePointDialog } from "../../lib/atom";
 
 interface NotificationDialogProps {
 	type: "login" | "photo" | "ranking";
@@ -26,8 +25,8 @@ export function PointDialog({
 	customMessage,
 	customSubMessage,
 }: NotificationDialogProps) {
-	const [hasShownOnce, _] = useHasShownOnce();
-	const [isOpen, setIsOpen] = useState<boolean>(hasShownOnce);
+	const [isOpen, setIsOpen] = usePointDialog();
+	const closeDialog = useClosePointDialog();
 
 	const content = {
 		login: {
@@ -68,7 +67,9 @@ export function PointDialog({
 					<Button
 						variant="ghost"
 						className="absolute right-4 top-4 h-4 w-4 p-0"
-						onClick={() => setIsOpen(false)}
+						onClick={() => {
+							closeDialog();
+						}}
 					>
 						<X className="h-4 w-4" />
 					</Button>
@@ -88,7 +89,7 @@ export function PointDialog({
 					</div>
 					<Button
 						className="mt-4 w-full max-w-[200px] rounded-full"
-						onClick={() => setIsOpen(false)}
+						onClick={() => closeDialog()}
 					>
 						閉じる
 					</Button>
