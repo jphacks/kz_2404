@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { LoadingSpinner } from "@/components/view/LoadingSpinner";
 import PlayerRankCard from "@/components/view/user/PlayerRankCard";
+import { StatusChangeDialog } from "@/components/view/user/StatusChangeDialog";
+import { StatusList } from "@/components/view/user/StatusList";
 import { useStatusChangeDialog } from "@/lib/atom";
 import { signOut } from "@/lib/signOut";
 import type {
