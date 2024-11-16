@@ -173,7 +173,7 @@ const UserPage = () => {
 					similarityPoint={userStatus?.similarityPoint || 0}
 				/>
 			</button>
-			<Card className="flex flex-col items-center border-none p-8">
+			<Card className="w-[21rem] flex flex-col items-center border-none p-8">
 				<h2 className="text-2xl font-bold mb-4">過去のチャレンジ</h2>
 				<div className="w-full overflow-y-auto">
 					{myScore.length === 0 ? (

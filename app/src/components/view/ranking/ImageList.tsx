@@ -6,11 +6,11 @@ import { VscListOrdered } from "react-icons/vsc";
 import { LoadingSpinner } from "../LoadingSpinner";
 
 type ImageListProps = {
-	setMode: (mode: "nomal" | "image") => void;
+	setMode: (mode: "normal" | "image") => void;
 };
 
 const MODE = {
-	NOMAL: "nomal",
+	NORMAL: "normal",
 	IMAGE: "image",
 } as const;
 
@@ -41,18 +41,18 @@ export const ImageList = ({ setMode }: ImageListProps) => {
 	}
 
 	return (
-		<div>
-			<div className="flex justify-end">
+		<div className="p-4">
+			<div className="flex justify-end mb-4">
 				<button
 					type="button"
 					onClick={() => {
-						setMode(MODE.NOMAL);
+						setMode(MODE.NORMAL);
 					}}
-					className="bg-transparent text-[#333333] rounded-md py-6 right-0"
+					className="bg-transparent text-[#333333] rounded-md py-2 px-4 shadow-md"
 				>
-					<div className="flex flex-col justify-center items-center w-20">
+					<div className="flex flex-col justify-center items-center">
 						<VscListOrdered size={"30"} />
-						<p>ランキング</p>
+						<p className="text-[#333333] text-sm font-bold">ランキング</p>
 					</div>
 				</button>
 			</div>
@@ -68,14 +68,21 @@ export const ImageList = ({ setMode }: ImageListProps) => {
 };
 
 const ImageBox = ({ score }: { score: ScoreDetail }) => {
+	const [imageUrl, setImageUrl] = useState(score.imageUrl);
+
+	const handleImageError = () => {
+		setImageUrl("https://placehold.jp/150x150.png");
+	};
+
 	return (
-		<Card key={score.id} className="p-1 w-full">
+		<Card key={score.id} className="p-1 w-full shadow-md">
 			<img
-				src={score.imageUrl}
+				src={imageUrl}
 				alt="画像"
-				className="w-full object-cover rounded-md relative"
+				className="w-full object-cover rounded-md"
+				onError={handleImageError}
 			/>
-			<p className="text-gray-500 relative bg-slate-200 rounded-md p-1">
+			<p className="text-gray-500 bg-slate-200 rounded-md p-1 mt-2">
 				{score.assignment}
 			</p>
 		</Card>

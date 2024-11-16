@@ -3,14 +3,14 @@ import type { RankingScores } from "@/types";
 import { useEffect, useState } from "react";
 import { LoadingSpinner } from "../LoadingSpinner";
 
-export default function RankingListWeekly() {
+export default function RankingListAll() {
 	const [data, setData] = useState<RankingScores[]>([]);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 
 	useEffect(() => {
 		const fetchData = () => {
 			setIsLoading(true);
-			return fetch("/api/score/week")
+			return fetch("/api/score/all")
 				.then((response) => {
 					if (!response.ok) {
 						throw new Error("Failed to fetch data");
