@@ -9,7 +9,7 @@ services:
       - "5555:5555"
     volumes:
       - ./app:/app
-    command: sh -c "npm i && npx prisma db push && npx prisma generate && npm run dev"
+    command: sh -c "npm i && npx prisma db push && npx prisma generate && npx prisma db seed && npm run dev"
     tty: true
 
   db:
