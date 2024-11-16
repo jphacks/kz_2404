@@ -5,7 +5,11 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { PointDialog } from "@/components/view/PointDialog";
 import Timer from "@/components/view/Timer";
-import { useHasShownOnce, usePointDialogOpen } from "@/lib/atom";
+import {
+	useHasShownOnce,
+	useOpenPointDialog,
+	usePointDialog,
+} from "@/lib/atom";
 import type {
 	MyScoreDetail,
 	Score,
@@ -13,7 +17,6 @@ import type {
 	todayAssignment,
 } from "@/types";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LuArrowRight, LuCheckCircle } from "react-icons/lu";
 import ClockIcon from "../../public/icons/icon-clock.svg";
@@ -25,13 +28,11 @@ export default function Home() {
 	const [todayAssignment, setTodayAssignment] = useState<todayAssignment>();
 	const [isLoading, setIsLoading] = useState(true);
 	const [progressCount, setProgressCount] = useState(0);
-	const router = useRouter();
 	const [isAnsweredAll, setIsAnsweredAll] = useState(false);
 	const [highestScore, setHighestScore] = useState(0);
-	const [_, setIsPointDialogOpen] = usePointDialogOpen();
 	const [hasShownOnce, setHasShownOnce] = useHasShownOnce();
-
-	// TODO:ログインモーダルが表示されるようにする
+	const [isPointDialog, _] = usePointDialog();
+	const openDialog = useOpenPointDialog();
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -108,8 +109,9 @@ export default function Home() {
 	// todo 最初のログイン時で開閉を行う。例：firebaseでログイン日を取得できるため今日と一致しているかを比較する.updatedATにログイン日を入れてもいいかも
 	// todo ポイント付与api繋ぎ込み
 	useEffect(() => {
-		if (!hasShownOnce) {
-			setIsPointDialogOpen(true);
+		const hasShown = localStorage.getItem("hasShownPointDialog");
+		if (hasShown === "false") {
+			openDialog();
 			setHasShownOnce(true);
 		}
 	});
@@ -120,6 +122,9 @@ export default function Home() {
 			(a, b) => (b.assignTime?.getTime() ?? 0) - (a.assignTime?.getTime() ?? 0),
 		)[0];
 
+	if (isPointDialog) {
+		return <PointDialog type="login" />;
+	}
 	return (
 		<div className="flex flex-col min-h-screen px-10 py-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
 			<div className="flex flex-col items-center justify-center space-y-6">
@@ -133,9 +138,8 @@ export default function Home() {
 						</Card>
 					) : (
 						<div className="text-lg w-full">
-							{assignment[0]?.assignTime && (
-								// fixme [0]番目を参照しているがお題ごとに可変的にする必要あり。
-								<Timer assignTime={assignment[0]?.assignTime} />
+							{latestAssignment.assignTime && (
+								<Timer assignTime={latestAssignment?.assignTime} />
 							)}
 						</div>
 					))}
@@ -160,7 +164,7 @@ export default function Home() {
 								className="flex items-center justify-center w-3/4 bg-gray-800 hover:bg-gray-700 text-white py-6 space-x-2"
 								asChild
 							>
-								<Link href="camera">
+								<Link href="/camera">
 									<div className="w-6 h-auto">
 										<PhotoCameraIcon />
 									</div>

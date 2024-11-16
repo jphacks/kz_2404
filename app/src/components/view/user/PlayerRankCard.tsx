@@ -122,7 +122,8 @@ export default function PlayerRankCard({ rankPoint }: PlayerRankCardProps) {
 							(ranks[currentRank].max - ranks[currentRank].min)) *
 						100
 					}
-					className="h-2"
+					className="h-2 bg-gray-200"
+					indicatorClassName="bg-[#333333]"
 				/>
 				<div className="grid grid-cols-2 gap-4 text-sm">
 					<div>

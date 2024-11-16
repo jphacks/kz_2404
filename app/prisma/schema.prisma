@@ -12,7 +12,6 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
 model User {
   id  Int  @id @default(autoincrement())
   uid String @unique
@@ -21,10 +20,14 @@ model User {
   photoUrl String
   scores Score[]
   experiencePoint ExperiencePoint? @relation()
+  rateId Int @default(1)
+  ratePoint Int
+  isReceivedMail Boolean @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
   @@index([uid])
+  rate Rate @relation(fields: [rateId], references: [id])
 }
 
 model Score {
@@ -75,4 +78,15 @@ model ExperiencePoint {
   updatedAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
+}
+
+model Rate {
+  id Int @id @default(autoincrement())
+  name String
+  minRange Int
+  maxRange Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  user User[]
 }
