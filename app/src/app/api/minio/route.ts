@@ -1,3 +1,5 @@
+"use server";
+
 import type { IncomingMessage } from "node:http";
 import { Readable } from "node:stream";
 import { generateCaption } from "@/functions/gpt";
@@ -7,6 +9,7 @@ import { postSimilarity } from "@/functions/simirality";
 import { prisma } from "@/lib/prisma";
 import type { ScoreData, ScoreResponse } from "@/types";
 import { Client } from "minio";
+import { revalidatePath } from "next/cache";
 import type { NextRequest } from "next/server";
 
 const minioClient = new Client({
@@ -121,6 +124,9 @@ export async function POST(req: NextRequest) {
 		similarity: resSimilarity.similarity,
 		assignmentId: assignmentId,
 	};
+
+	revalidatePath("/api/score/week");
+	revalidatePath("/api/score/month");
 
 	return new Response(JSON.stringify(response), {
 		status: 200,
