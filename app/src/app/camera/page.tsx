@@ -96,7 +96,7 @@ const CameraApp = () => {
 		todayAssignment | undefined
 	>();
 	const [assignments, setAssignments] = useState<todayAssignment[]>([]);
-	const [isActive, setIsActive] = useState<boolean>(true);
+	const [isActive, setIsActive] = useState<boolean>(false);
 	const [isPointDialogOpen, setIsPointDialogOpen] = usePointDialogOpen();
 	const [loginUser, setLoginUser] = useState<User>();
 
@@ -114,17 +114,16 @@ const CameraApp = () => {
 			);
 			const assignmentData = await resAssignment.json();
 
-			if (assignmentData.length === 0) {
-				setIsActive(false);
-				return;
-			}
-
 			const isAnsweredAll = assignmentData.every(
 				(assignment: todayAssignment) => assignment.isAnswered,
 			);
-			if (isAnsweredAll) {
-				setIsActive(false);
+
+			if (assignmentData.length === 0) {
 				return;
+			}
+
+			if (!isAnsweredAll) {
+				setIsActive(true);
 			}
 
 			const notAnsweredAssignment = assignmentData.find(
