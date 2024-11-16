@@ -12,6 +12,18 @@ export function RenameDialog(
     const [name, setName] = useState("");
     const [error, setError] = useState("");
 
+
+    const handleInputChange = (input: string) => {
+        // ひらがな、カタカナ、漢字、英数字、スペースのみ許可
+        const isValid = /^[\u3040-\u30FF\u4E00-\u9FFFa-zA-Z0-9\s]*$/.test(input);
+        if (isValid) {
+            setName(input); // 許可された入力のみstateに反映
+            setError(""); // エラーをクリア
+        } else {
+            setError("日本語または英数字以外の文字は入力できません。");
+        }
+    };
+
     const handleNameChange = async (newName: string) => {
 		const userIdString = localStorage.getItem("userID");
 		if (!userIdString) {
@@ -56,7 +68,7 @@ export function RenameDialog(
 				type="text"
 				placeholder="新しいユーザー名を入力"
 				value={name}
-				onChange={(e) => setName(e.target.value)}
+				onChange={(e) => handleInputChange(e.target.value)}
 				aria-label="ユーザー名入力"
 			/>
 			{error && <p className="text-red-500 text-sm">{error}</p>}
