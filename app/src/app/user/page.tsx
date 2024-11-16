@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import PlayerRankCard from "@/components/view/user/PlayerRankCard";
 import StatusChangeDialog from "@/components/view/user/StatusChangeDialog";
 import StatusList from "@/components/view/user/StatusList";
+import { RenameDialog } from "@/components/view/user/renameDialog";
 import { useStatusChangeDialog } from "@/lib/atom";
 import type { MyScoreDetail, DBUser as User } from "@/types";
 import { useEffect, useState } from "react";
@@ -62,21 +63,7 @@ const UserPage = () => {
 				<div className="ml-4 flex flex-col gap-1">
 					<div className="flex items-center">
 						{isEditing ? (
-							<div className="flex flex-col gap-2">
-								<Input type="text" placeholder="新しいユーザー名を入力" />
-								<div>
-									<Button variant={"default"} className="bg-[#333333]">
-										保存
-									</Button>
-									<Button
-										variant={"outline"}
-										className="ml-2"
-										onClick={() => setIsEditing(false)}
-									>
-										キャンセル
-									</Button>
-								</div>
-							</div>
+							<RenameDialog setIsEditing={setIsEditing} setUserData={setUserData} />
 						) : (
 							<>
 								<span className="text-xl font-bold text-[#333333]">
