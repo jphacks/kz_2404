@@ -88,7 +88,7 @@ const CameraApp = () => {
 		todayAssignment | undefined
 	>();
 	const [assignments, setAssignments] = useState<todayAssignment[]>([]);
-	const [isActive, setIsActive] = useState<boolean>(true);
+	const [isActive, setIsActive] = useState<boolean>(false);
 	const [isPointDialogOpen, _] = usePointDialog();
 	const openDialog = useOpenPointDialog();
 	const [loginUser, setLoginUser] = useState<User>();
