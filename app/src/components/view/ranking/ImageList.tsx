@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { fetcher } from "@/functions/fetcher";
 import type { ScoreDetail } from "@/types";
+import { useState } from "react";
 import { VscListOrdered } from "react-icons/vsc";
 import useSWR from "swr";
 import { LoadingSpinner } from "../LoadingSpinner";
