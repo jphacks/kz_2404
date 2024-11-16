@@ -14,18 +14,22 @@ export const signInOrUp = async (firebaseUser: FirebaseUser) => {
 			},
 		});
 
-		const userData = await res.json();
+		if (res.status === 200) {
+			const userData = await res.json();
 
-		const user: DBUser = { ...userData };
+			const user: DBUser = { ...userData };
 
-		if (userData) {
-			storeStorageUser(user);
-			if (!userData.experiencePoint) {
-				await createExp(userData.id);
+			if (userData) {
+				storeStorageUser(user);
+				if (!userData.experiencePoint) {
+					await createExp(userData.id);
+				}
+				toRoot();
 			}
-			toRoot();
-		} else {
+		} else if (res.status === 404) {
 			await signUp(firebaseUser);
+		} else {
+			console.error(`Unexpected status code: ${res.status}`);
 		}
 	} catch (error) {
 		console.error("エラーが発生しました:", error);
