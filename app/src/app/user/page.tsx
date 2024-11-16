@@ -7,6 +7,7 @@ import PlayerRankCard from "@/components/view/user/PlayerRankCard";
 import StatusChangeDialog from "@/components/view/user/StatusChangeDialog";
 import StatusList from "@/components/view/user/StatusList";
 import { useStatusChangeDialog } from "@/lib/atom";
+import { signOut } from "@/lib/signOut";
 import type { MyScoreDetail, DBUser as User } from "@/types";
 import { useEffect, useState } from "react";
 import { FiEdit2 } from "react-icons/fi";
@@ -17,6 +18,7 @@ const UserPage = () => {
 	const [userData, setUserData] = useState<User>();
 	const [myScore, setMyScore] = useState<MyScoreDetail[]>([]);
 	const [isEditing, setIsEditing] = useState(false);
+	const [isSubscribed, setIsSubscribed] = useState(true);
 	const [isOpen, setIsOpen] = useStatusChangeDialog();
 
 	useEffect(() => {
@@ -46,10 +48,14 @@ const UserPage = () => {
 		fetchData();
 	}, []);
 
+	const handleUnsubscribe = async () => {};
+
+	const handleResubscribe = async () => {};
+
 	if (!userData) return null;
 	return (
 		<div className="w-screen min-h-screen flex flex-col gap-4 items-center p-4 pt-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
-			<div className="flex items-center mb-4">
+			<div className="flex items-center">
 				{userData.photoUrl ? (
 					<img
 						src={userData.photoUrl}
@@ -64,13 +70,12 @@ const UserPage = () => {
 						{isEditing ? (
 							<div className="flex flex-col gap-2">
 								<Input type="text" placeholder="新しいユーザー名を入力" />
-								<div>
+								<div className="flex gap-2">
 									<Button variant={"default"} className="bg-[#333333]">
 										保存
 									</Button>
 									<Button
 										variant={"outline"}
-										className="ml-2"
 										onClick={() => setIsEditing(false)}
 									>
 										キャンセル
@@ -112,38 +117,58 @@ const UserPage = () => {
 				</Card>
 			</div>
 			<PlayerRankCard rankPoint={2800} />
-			<Card className="flex flex-col items-center border-none p-8">
+			<Card className="flex flex-col items-center border-none p-8 h-96">
 				<h2 className="text-2xl font-bold mb-4">過去のチャレンジ</h2>
-				{myScore.length === 0 ? (
-					<div className="text-gray-500 text-center py-8">
-						<p>まだチャレンジの記録がありません</p>
-						<p className="text-sm mt-2">
-							新しいチャレンジに挑戦してみましょう！
-						</p>
-					</div>
-				) : (
-					myScore.map((score) => (
-						<div
-							key={score.id}
-							className="flex w-full items-center mb-2 border rounded-md"
-						>
-							<img
-								src={score.imageUrl || "https://placehold.jp/150x150.png"}
-								alt="チャレンジ画像"
-								className="w-1/4 h-auto rounded-l-md"
-							/>
-							<div className="flex flex-col items-start justify-center w-1/2 text-xs">
-								<div className="pl-4 flex flex-col gap-1">
-									<p className="font-bold">{score.assignment}</p>
-									<div className="flex items-center gap-1">
-										<LuClock />
-										<p className="pb-0.5">{score.answerTime}</p>
+				<div className="w-full overflow-y-auto">
+					{myScore.length === 0 ? (
+						<div className="text-gray-500 text-center py-8">
+							<p>まだチャレンジの記録がありません</p>
+							<p className="text-sm mt-2">
+								新しいチャレンジに挑戦してみましょう！
+							</p>
+						</div>
+					) : (
+						myScore.map((score) => (
+							<div
+								key={score.id}
+								className="flex w-full items-center mb-2 border rounded-md"
+							>
+								<img
+									src={score.imageUrl || "https://placehold.jp/150x150.png"}
+									alt="チャレンジ画像"
+									className="w-1/4 h-auto rounded-l-md"
+								/>
+								<div className="flex flex-col items-start justify-center w-1/2 text-xs">
+									<div className="pl-4 flex flex-col gap-1">
+										<p className="font-bold">{score.assignment}</p>
+										<div className="flex items-center gap-1">
+											<LuClock />
+											<p className="pb-0.5">{score.answerTime}</p>
+										</div>
 									</div>
 								</div>
+								<p className="w-1/4 text-lg font-bold">{score.point}点</p>
 							</div>
-							<p className="w-1/4 text-lg font-bold">{score.point}点</p>
-						</div>
-					))
+						))
+					)}
+				</div>
+			</Card>
+			<Card className="flex justify-center gap-2 w-[21rem] p-8">
+				<Button
+					variant={"default"}
+					onClick={signOut}
+					className="px-6 bg-[#333333]"
+				>
+					ログアウト
+				</Button>
+				{isSubscribed ? (
+					<Button variant={"outline"} onClick={handleUnsubscribe}>
+						メール通知を停止
+					</Button>
+				) : (
+					<Button variant={"outline"} onClick={handleResubscribe}>
+						メール通知を再開
+					</Button>
 				)}
 			</Card>
 		</div>
