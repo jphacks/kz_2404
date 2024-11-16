@@ -1,5 +1,4 @@
 import { prisma } from "@lib/prisma";
-import type { Assignment } from "@prisma/client";
 import type { NextRequest } from "next/server";
 import nodemailer from "nodemailer";
 
@@ -133,8 +132,8 @@ export async function POST(req: NextRequest) {
 
 		// メールの内容
 		const mailOptions = {
-			from: `Let'sPics運営`, // 送信元メールアドレス
-			to: usersEmails, // 送信先メールアドレス
+			from: `Let'sPics `, // 送信元メールアドレス
+			bcc: usersEmails, // 送信先メールアドレス
 			subject: "新しいお題が出ました！",
 			html: mailContent(word), // HTMLコンテンツとして送信
 		};
