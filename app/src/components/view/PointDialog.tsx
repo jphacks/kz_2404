@@ -40,7 +40,7 @@ export function PointDialog({
 			title: customTitle || "撮影に成功しました！",
 			icon: Camera,
 			iconColor: "text-green-500",
-			message: customMessage || "素晴らしい写真です！",
+			message: customMessage || "ポイントを獲得しました！",
 			subMessage: customSubMessage || "ポイントを獲得しました！",
 		},
 		ranking: {
@@ -85,7 +85,13 @@ export function PointDialog({
 					</div>
 					<div className="space-y-2 text-center">
 						<p className="text-sm text-muted-foreground">{message}</p>
-						<p className="text-sm text-muted-foreground">{subMessage}</p>
+						<div
+							className="text-xs text-muted-foreground"
+							// biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+							dangerouslySetInnerHTML={{
+								__html: subMessage.replace(/\n/g, "<br>"),
+							}}
+						/>
 					</div>
 					<Button
 						className="mt-4 w-full max-w-[200px] rounded-full"

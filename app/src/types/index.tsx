@@ -135,6 +135,7 @@ export interface ScoreResponse {
 	score: number;
 	similarity: number;
 	assignmentId: number;
+	japaneseText: string;
 }
 
 export interface ChangeStatus {

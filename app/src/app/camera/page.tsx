@@ -15,7 +15,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Toaster } from "@/components/ui/sonner";
 import { LoadingSpinner } from "@/components/view/LoadingSpinner";
 import { PointDialog } from "@/components/view/PointDialog";
 import { useOpenPointDialog, usePointDialog } from "@/lib/atom";
@@ -24,7 +23,6 @@ import imageCompression from "browser-image-compression";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Camera, type CameraType } from "react-camera-pro";
-import { toast } from "sonner";
 import AddImageIcon from "../../../public/icons/icon-add-image.svg";
 import RotateCameraIcon from "../../../public/icons/icon-rotate-camera.svg";
 import ShutterIcon from "../../../public/icons/icon-shutter.svg";
@@ -92,6 +90,7 @@ const CameraApp = () => {
 	const [isPointDialogOpen, _] = usePointDialog();
 	const openDialog = useOpenPointDialog();
 	const [loginUser, setLoginUser] = useState<User>();
+	const [message, setMessage] = useState<string>("");
 
 	useEffect(() => {
 		const getDevices = async () => {
@@ -232,7 +231,9 @@ const CameraApp = () => {
 
 				const percentSimilarity = Math.floor(data.similarity * 100);
 
-				const message = `${data.text} 類似度  ${percentSimilarity}% スコア: ${data.score} ランキングから順位を確認しましょう!`;
+				setMessage(
+					`生成文章: ${data.text} \n日本語: ${data.japaneseText} \n類似度: ${percentSimilarity}% スコア: ${data.score} \nランキングから順位を確認しましょう!`,
+				);
 				const newAssignments = assignments.map((assignment) => {
 					if (assignment.assignmentId === data.assignmentId) {
 						assignment.isAnswered = true;
@@ -250,7 +251,6 @@ const CameraApp = () => {
 					openDialog();
 				}
 				setIsUploading(false);
-				toast(message);
 				setAssignments(newAssignments);
 
 				if (newAssignments.every((assignment) => assignment.isAnswered)) {
@@ -280,7 +280,9 @@ const CameraApp = () => {
 
 	return (
 		<>
-			{isPointDialogOpen && <PointDialog type="photo" />}
+			{isPointDialogOpen && (
+				<PointDialog type="photo" customSubMessage={message} />
+			)}
 			{isActive ? (
 				<>
 					<div className="flex items-center justify-center">
@@ -386,7 +388,6 @@ const CameraApp = () => {
 			) : (
 				<Answered assignments={assignments} />
 			)}
-			<Toaster />
 		</>
 	);
 };
