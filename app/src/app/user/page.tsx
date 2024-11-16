@@ -4,8 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import PlayerRankCard from "@/components/view/user/PlayerRankCard";
-import StatusChangeDialog from "@/components/view/user/StatusChangeDialog";
-import StatusList from "@/components/view/user/StatusList";
 import { useStatusChangeDialog } from "@/lib/atom";
 import { signOut } from "@/lib/signOut";
 import type { MyScoreDetail, DBUser as User } from "@/types";
@@ -15,44 +13,75 @@ import { LuClock, LuFlame, LuTrophy } from "react-icons/lu";
 import { VscAccount } from "react-icons/vsc";
 
 const UserPage = () => {
-	const [userData, setUserData] = useState<User>();
+	const [userData, setUserData] = useState<User | null>(null);
 	const [myScore, setMyScore] = useState<MyScoreDetail[]>([]);
 	const [isEditing, setIsEditing] = useState(false);
-	const [isSubscribed, setIsSubscribed] = useState(true);
+	const [isSubscribed, setIsSubscribed] = useState<boolean>(true);
 	const [isOpen, setIsOpen] = useStatusChangeDialog();
 
 	useEffect(() => {
-		const fetchData = async () => {
-			const userIdString = localStorage.getItem("userID");
-			if (!userIdString) {
-				window.location.href = "/login";
-				return;
-			}
+		const userIdString = localStorage.getItem("userID");
+		if (!userIdString) {
+			window.location.href = "/login";
+			return;
+		}
 
+		const userData: User = JSON.parse(userIdString);
+		setUserData(userData);
+
+		const fetchUserData = async () => {
 			try {
-				const userData = JSON.parse(userIdString);
-				setUserData(userData); // LocalStorageのユーザー情報を状態として保存
+				const [userResponse, scoreResponse] = await Promise.all([
+					fetch(`/api/user?uid=${userData.uid}`),
+					fetch(`/api/score/me/${userData.uid}?all=true`),
+				]);
 
-				const response = await fetch(`/api/score/me/${userData.uid}?all=true`);
-				if (!response.ok) {
+				if (!userResponse.ok) {
+					throw new Error("ユーザー情報の取得に失敗しました");
+				}
+				const userDetails = await userResponse.json();
+				setIsSubscribed(userDetails.isReceivedMail);
+
+				if (!scoreResponse.ok) {
 					throw new Error("データの取得に失敗しました");
 				}
-
-				const data = await response.json();
+				const data = await scoreResponse.json();
 				setMyScore(data);
 			} catch (error) {
 				console.error("エラーが発生しました:", error);
 			}
 		};
 
-		fetchData();
+		fetchUserData();
 	}, []);
 
-	const handleUnsubscribe = async () => {};
+	const handleToggleEmailSubscription = async () => {
+		if (!userData) return;
 
-	const handleResubscribe = async () => {};
+		try {
+			const response = await fetch("/api/user/updateEmailPreference", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					uid: userData.uid,
+					isReceivedMail: !isSubscribed,
+				}),
+			});
+
+			if (!response.ok) {
+				throw new Error("設定の更新に失敗しました");
+			}
+
+			setIsSubscribed((prev) => !prev);
+		} catch (error) {
+			console.error("エラーが発生しました:", error);
+		}
+	};
 
 	if (!userData) return null;
+
 	return (
 		<div className="w-screen min-h-screen flex flex-col gap-4 items-center p-4 pt-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
 			<div className="flex items-center">
@@ -71,13 +100,10 @@ const UserPage = () => {
 							<div className="flex flex-col gap-2">
 								<Input type="text" placeholder="新しいユーザー名を入力" />
 								<div className="flex gap-2">
-									<Button variant={"default"} className="bg-[#333333]">
+									<Button variant="default" className="bg-[#333333]">
 										保存
 									</Button>
-									<Button
-										variant={"outline"}
-										onClick={() => setIsEditing(false)}
-									>
+									<Button variant="outline" onClick={() => setIsEditing(false)}>
 										キャンセル
 									</Button>
 								</div>
@@ -88,7 +114,7 @@ const UserPage = () => {
 									{userData.name || "user@example.com"}
 								</span>
 								<Button
-									variant={"primary"}
+									variant="primary"
 									className="ml-2"
 									onClick={() => setIsEditing(true)}
 								>
@@ -155,21 +181,15 @@ const UserPage = () => {
 			</Card>
 			<Card className="flex justify-center gap-2 w-[21rem] p-8">
 				<Button
-					variant={"default"}
+					variant="default"
 					onClick={signOut}
 					className="px-6 bg-[#333333]"
 				>
 					ログアウト
 				</Button>
-				{isSubscribed ? (
-					<Button variant={"outline"} onClick={handleUnsubscribe}>
-						メール通知を停止
-					</Button>
-				) : (
-					<Button variant={"outline"} onClick={handleResubscribe}>
-						メール通知を再開
-					</Button>
-				)}
+				<Button variant="outline" onClick={handleToggleEmailSubscription}>
+					{isSubscribed ? "メール通知を停止" : "メール通知を再開"}
+				</Button>
 			</Card>
 		</div>
 	);
