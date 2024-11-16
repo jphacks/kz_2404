@@ -105,7 +105,7 @@ export default function PlayerRankCard({ rate }: RateProps) {
 							<div>
 								<p className="text-muted-foreground">次のランクまで</p>
 								<p className="font-semibold">
-									{rate.rate.maxRange - rate.ratePoint} LP
+									{rate.rate.maxRange - rate.ratePoint + 1} LP
 								</p>
 							</div>
 						</>
