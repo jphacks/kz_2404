@@ -14,18 +14,23 @@ export const signInOrUp = async (firebaseUser: FirebaseUser) => {
 			},
 		});
 
-		const userData = await res.json();
+		if (res.status === 200) {
+			const userData = await res.json();
+			const user: DBUser = { ...userData };
 
-		const user: DBUser = { ...userData };
-
-		if (userData) {
-			storeStorageUser(user);
-			if (!userData.experiencePoint) {
-				await createExp(userData.id);
+			if (userData) {
+				storeStorageUser(user);
+				if (!userData.experiencePoint) {
+					await createExp(userData.id);
+				}
+				toRoot();
 			}
-			toRoot();
-		} else {
+		} else if (res.status === 404) {
 			await signUp(firebaseUser);
+			// サインアップ後にユーザー情報を取得してログイン処理を行う
+			await signInOrUp(firebaseUser);
+		} else {
+			console.error(`Unexpected status code: ${res.status}`);
 		}
 	} catch (error) {
 		console.error("エラーが発生しました:", error);
@@ -42,14 +47,11 @@ const signUp = async (user: User) => {
 			body: JSON.stringify(user),
 		});
 
-		const resUser = await res.json();
-
-		if (resUser) {
-			storeStorageUser(resUser);
-			toRoot();
-		} else {
-			throw new Error("ユーザー登録に失敗");
+		if (res.status === 200) {
+			// ユーザー登録が成功した場合は何もせず戻る
+			return;
 		}
+		throw new Error("ユーザー登録に失敗");
 	} catch (error) {
 		console.error("エラーが発生しました:", error);
 	}
