@@ -2,9 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { LoadingSpinner } from "@/components/view/LoadingSpinner";
 import PlayerRankCard from "@/components/view/user/PlayerRankCard";
+import { RenameDialog } from "@/components/view/user/RenameDialog";
 import { StatusChangeDialog } from "@/components/view/user/StatusChangeDialog";
 import { StatusList } from "@/components/view/user/StatusList";
 import { useStatusChangeDialog } from "@/lib/atom";
@@ -88,7 +88,7 @@ const UserPage = () => {
 
 	const handleToggleEmailSubscription = async () => {
 		if (!userData) return;
-	
+
 		try {
 			const response = await fetch("/api/user/updateReceivedMail", {
 				method: "PUT",
@@ -100,16 +100,16 @@ const UserPage = () => {
 					isReceivedMail: !isSubscribed,
 				}),
 			});
-	
+
 			if (!response.ok) {
 				throw new Error("設定の更新に失敗しました");
 			}
-	
+
 			setIsSubscribed((prev) => !prev);
 		} catch (error) {
 			console.error("エラーが発生しました:", error);
 		}
-	}
+	};
 
 	if (!userData) return null;
 	if (isLoading) {
@@ -131,17 +131,7 @@ const UserPage = () => {
 				<div className="ml-4 flex flex-col gap-1">
 					<div className="flex items-center">
 						{isEditing ? (
-							<div className="flex flex-col gap-2">
-								<Input type="text" placeholder="新しいユーザー名を入力" />
-								<div className="flex gap-2">
-									<Button variant="default" className="bg-[#333333]">
-										保存
-									</Button>
-									<Button variant="outline" onClick={() => setIsEditing(false)}>
-										キャンセル
-									</Button>
-								</div>
-							</div>
+							<RenameDialog setIsEditing={setIsEditing} setUserData={setUserData} />
 						) : (
 							<>
 								<span className="text-xl font-bold text-[#333333]">
