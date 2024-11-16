@@ -3,7 +3,7 @@ import type { RankingScores } from "@/types";
 import { useEffect, useState } from "react";
 import { LoadingSpinner } from "../LoadingSpinner";
 
-export default function RankingListWeekly() {
+export default function RankingListAll() {
 	const [data, setData] = useState<RankingScores[]>([]);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 
