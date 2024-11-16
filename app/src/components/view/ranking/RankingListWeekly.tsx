@@ -10,7 +10,7 @@ export default function RankingListWeekly() {
 	useEffect(() => {
 		const fetchData = () => {
 			setIsLoading(true);
-			return fetch("/api/score/week")
+			return fetch("/api/score/week",{cache: "no-store"})
 				.then((response) => {
 					if (!response.ok) {
 						throw new Error("Failed to fetch data");
