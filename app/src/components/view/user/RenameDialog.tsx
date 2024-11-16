@@ -3,37 +3,57 @@ import { Input } from "@/components/ui/input";
 import type { DBUser as User } from "@/types";
 import { useState } from "react";
 
-export function RenameDialog(
-    { setIsEditing,setUserData }: {
-        setIsEditing: (value: boolean) => void;
-        setUserData: (data: User) => void;
-    }
-) {
-    const [name, setName] = useState("");
-    const [error, setError] = useState("");
+export function RenameDialog({
+	setIsEditing,
+	setUserData,
+}: {
+	setIsEditing: (value: boolean) => void;
+	setUserData: (data: User) => void;
+}) {
+	const [name, setName] = useState("");
+	const [error, setError] = useState("");
+	const [isComposing, setIsComposing] = useState(false);
 
+	const handleInputChange = (input: string) => {
+		setName(input);
+		if (!isComposing) {
+			validateInput(input);
+		}
+	};
 
-    const handleInputChange = (input: string) => {
-        // ひらがな、カタカナ、漢字、英数字、スペースのみ許可
-        const isValid = /^[\u3040-\u30FF\u4E00-\u9FFFa-zA-Z0-9\s]*$/.test(input);
-        if (isValid) {
-            setName(input); // 許可された入力のみstateに反映
-            setError(""); // エラーをクリア
-        } else {
-            setError("日本語または英数字以外の文字は入力できません。");
-        }
-    };
+	const handleCompositionStart = () => {
+		setIsComposing(true);
+	};
 
-    const handleNameChange = async (newName: string) => {
+	const handleCompositionEnd = (
+		e: React.CompositionEvent<HTMLInputElement>,
+	) => {
+		setIsComposing(false);
+		const inputValue = e.currentTarget.value;
+		setName(inputValue);
+		validateInput(inputValue);
+	};
+
+	const validateInput = (input: string) => {
+		// ひらがな、カタカナ、漢字、英数字、スペースのみ許可
+		const isValid = /^[\u3040-\u30FF\u4E00-\u9FFFa-zA-Z0-9\s]*$/.test(input);
+		if (isValid) {
+			setError(""); // エラーをクリア
+		} else {
+			setError("日本語または英数字以外の文字は入力できません。");
+		}
+	};
+
+	const handleNameChange = async (newName: string) => {
 		const userIdString = localStorage.getItem("userID");
 		if (!userIdString) {
 			window.location.href = "/login";
 			return;
 		}
 		try {
-            // ユーザー情報の取得
+			// ユーザー情報の取得
 			const userData = JSON.parse(userIdString);
-            // POSTリクエスト
+			// POSTリクエスト
 			const response = await fetch(`/api/user/rename/${userData.id}`, {
 				method: "PUT",
 				headers: {
@@ -41,34 +61,36 @@ export function RenameDialog(
 				},
 				body: JSON.stringify({ name: newName }),
 			});
-            // エラーハンドリング
+			// エラーハンドリング
 			if (!response.ok) {
-                setError("ユーザー名の更新に失敗しました。再度お試しください。");
+				setError("ユーザー名の更新に失敗しました。再度お試しください。");
 				throw new Error("データの取得に失敗しました");
 			}
 
-            // 表示データの修正
+			// 表示データの修正
 			const data = await response.json();
 			setUserData(data.putName);
 
-            // localsotrageのデータも更新
-            const user: User = { ...userData, name: newName };
-            localStorage.setItem("userID", JSON.stringify(user));
+			// localStorageのデータも更新
+			const user: User = { ...userData, name: newName };
+			localStorage.setItem("userID", JSON.stringify(user));
 
-            // ダイアログを閉じる
-            setIsEditing(false);
+			// ダイアログを閉じる
+			setIsEditing(false);
 		} catch (error) {
 			console.error("エラーが発生しました:", error);
 		}
-	}
+	};
 
-    return (
+	return (
 		<div className="flex flex-col gap-2">
 			<Input
 				type="text"
 				placeholder="新しいユーザー名を入力"
 				value={name}
 				onChange={(e) => handleInputChange(e.target.value)}
+				onCompositionStart={handleCompositionStart}
+				onCompositionEnd={handleCompositionEnd}
 				aria-label="ユーザー名入力"
 			/>
 			{error && <p className="text-red-500 text-sm">{error}</p>}
@@ -77,7 +99,7 @@ export function RenameDialog(
 					variant="default"
 					className="bg-[#333333]"
 					onClick={() => handleNameChange(name)}
-					disabled={!name.trim()} // 名前が空の時はボタンを無効化
+					disabled={!name.trim() || !!error} // 名前が空またはエラーがある場合はボタンを無効化
 				>
 					保存
 				</Button>
@@ -93,5 +115,5 @@ export function RenameDialog(
 				</Button>
 			</div>
 		</div>
-    )
+	);
 }
