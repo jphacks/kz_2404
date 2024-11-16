@@ -115,11 +115,21 @@ export async function POST(req: NextRequest) {
 
 	const score = await scoreRegister(scoreData, assignmentId);
 
+	const japaneseText = await prisma.word.findFirst({
+		where: {
+			english: assignment,
+		},
+		select: {
+			japanese: true,
+		},
+	});
+
 	const response: ScoreResponse = {
 		text: caption || "",
 		score: score?.point || 0,
 		similarity: resSimilarity.similarity,
 		assignmentId: assignmentId,
+		japaneseText: japaneseText?.japanese || "",
 	};
 
 	return new Response(JSON.stringify(response), {

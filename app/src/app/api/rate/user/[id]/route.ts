@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
 	}
 
 	try {
+		// ユーザー情報の取得
 		const user = await prisma.user.findUnique({
 			where: { id },
 			include: {
@@ -32,30 +33,35 @@ export async function GET(req: NextRequest) {
 			return NextResponse.json({ error: "User not found" }, { status: 404 });
 		}
 
+		// 次のレート情報の取得
 		const nextRate = await prisma.rate.findFirst({
-			where: { minRange: { gt: user.rate.maxRange } },
+			where: { minRange: { gt: user.ratePoint } },
 			orderBy: { minRange: "asc" },
 			select: { name: true, minRange: true },
 		});
 
-		const nextRateName = nextRate ? nextRate.name : "";
-		const pointsToNextRate = nextRate
-			? nextRate.minRange - user.ratePoint
-			: user.rate.maxRange - user.ratePoint;
-
+		// 必要なレスポンスデータの組み立て
 		const result = {
 			ratePoint: user.ratePoint,
 			rate: {
 				name: user.rate.name,
 				minRange: user.rate.minRange,
 				maxRange: user.rate.maxRange,
-				nextRateName,
-				pointsToNextRate,
 			},
+			nextRate: nextRate
+				? {
+						name: nextRate.name,
+						pointsToNextRate: nextRate.minRange - user.ratePoint,
+					}
+				: {
+						name: "",
+						pointsToNextRate: 0,
+					},
 		};
 
 		return NextResponse.json(result, { status: 200 });
 	} catch (error) {
+		console.error("RatePoint取得エラー:", error);
 		return NextResponse.json(
 			{ error: "Failed to get ratePoint", details: error },
 			{ status: 500 },

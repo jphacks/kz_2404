@@ -135,6 +135,7 @@ export interface ScoreResponse {
 	score: number;
 	similarity: number;
 	assignmentId: number;
+	japaneseText: string;
 }
 
 export interface ChangeStatus {
@@ -142,4 +143,17 @@ export interface ChangeStatus {
 	similarityPoint: number;
 	totalPoint: number;
 	id: number;
+}
+
+export interface UserRate {
+	ratePoint: number;
+	rate: {
+		name: string;
+		minRange: number;
+		maxRange: number;
+	};
+	nextRate: {
+		name: string;
+		pointsToNextRate: number;
+	};
 }

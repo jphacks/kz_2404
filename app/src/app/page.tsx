@@ -152,10 +152,10 @@ export default function Home() {
 						}}
 					>
 						<div className="text-center mb-4">
-							<h2 className="text-lg font-semibold mb-2">今日のお題</h2>
+							<h2 className="text-lg text-[#333333] font-semibold mb-2">今日のお題</h2>
 							<p className="text-sm text-gray-600">撮影してスコアを競おう！</p>
 						</div>
-						<h1 className="text-3xl font-bold text-center mb-4">
+						<h1 className="text-4xl font-bold text-[#333333] text-center mb-4">
 							{todayAssignment?.english}
 						</h1>
 						<div className="flex justify-center w-full">
@@ -207,11 +207,8 @@ export default function Home() {
 				<Card className="flex flex-col items-center aspect-square w-full p-6 bg-white/80 backdrop-blur-sm">
 					<h2 className="text-lg font-semibold mb-4">過去のチャレンジ</h2>
 					{myScore.length === 0 ? (
-						<div className="text-gray-500 text-center py-8">
-							<p>まだチャレンジの記録がありません</p>
-							<p className="text-sm mt-2">
-								新しいチャレンジに挑戦してみましょう！
-							</p>
+						<div className="text-gray-500 text-center py-8 mt-12">
+							<p className="font-bold">まだチャレンジの記録がありません</p>
 							<p className="text-sm mt-2">
 								新しいチャレンジに挑戦してみましょう！
 							</p>

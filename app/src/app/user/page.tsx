@@ -13,6 +13,7 @@ import type {
 	ChangeStatus,
 	MyScoreDetail,
 	DBUser as User,
+	UserRate,
 	experiencePoint,
 } from "@/types";
 import { useEffect, useState } from "react";
@@ -30,6 +31,7 @@ const UserPage = () => {
 	const [isOpen, setIsOpen] = useStatusChangeDialog();
 	const handleOpenDialog = () => setIsOpen(true);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
+	const [userRate, setUserRate] = useState<UserRate>();
 
 	useEffect(() => {
 		const userIdString = localStorage.getItem("userID");
@@ -62,24 +64,36 @@ const UserPage = () => {
 			} catch (error) {
 				console.error("エラーが発生しました:", error);
 			}
-
 			try {
-				const response = await fetch(`/api/experiencePoint/me/${userData.id}`);
-				if (!response.ok) {
-					throw new Error("データの取得に失敗しました");
+				const [experienceResponse, rateResponse] = await Promise.all([
+					fetch(`/api/experiencePoint/me/${userData.id}`),
+					fetch(`/api/rate/user/${userData.id}`),
+				]);
+
+				if (!experienceResponse.ok) {
+					throw new Error("経験値データの取得に失敗しました");
+				}
+				if (!rateResponse.ok) {
+					throw new Error("レートデータの取得に失敗しました");
 				}
 
-				const data = await response.json();
-				setUserStatus(data);
+				const [experienceData, rateData] = await Promise.all([
+					experienceResponse.json(),
+					rateResponse.json(),
+				]);
+
+				setUserStatus(experienceData);
 				setPoint({
-					speedPoint: data.speedPoint,
-					similarityPoint: data.similarityPoint,
-					totalPoint: data.totalPoint,
+					speedPoint: experienceData.speedPoint,
+					similarityPoint: experienceData.similarityPoint,
+					totalPoint: experienceData.totalPoint,
 					id: Number(userData.id),
 				});
+				setUserRate(rateData);
 			} catch (error) {
-				console.error("エラーが発生しました", error);
+				console.error("データ取得でエラーが発生しました:", error);
 			}
+
 			setIsLoading(false);
 		};
 
@@ -131,7 +145,10 @@ const UserPage = () => {
 				<div className="ml-4 flex flex-col gap-1">
 					<div className="flex items-center">
 						{isEditing ? (
-							<RenameDialog setIsEditing={setIsEditing} setUserData={setUserData} />
+							<RenameDialog
+								setIsEditing={setIsEditing}
+								setUserData={setUserData}
+							/>
 						) : (
 							<>
 								<span className="text-xl font-bold text-[#333333]">
@@ -166,14 +183,14 @@ const UserPage = () => {
 					<p className="text-xs text-muted-foreground">最高点</p>
 				</Card>
 			</div>
-			<PlayerRankCard rankPoint={2800} />
+			{userRate && <PlayerRankCard rate={userRate} />}
 			<button type="button" onClick={() => handleOpenDialog()}>
 				<StatusList
 					speedPoint={userStatus?.speedPoint || 0}
 					similarityPoint={userStatus?.similarityPoint || 0}
 				/>
 			</button>
-			<Card className="flex flex-col items-center border-none p-8">
+			<Card className="w-[21rem] flex flex-col items-center border-none p-8">
 				<h2 className="text-2xl font-bold mb-4">過去のチャレンジ</h2>
 				<div className="w-full overflow-y-auto">
 					{myScore.length === 0 ? (
