@@ -232,7 +232,7 @@ const CameraApp = () => {
 				const percentSimilarity = Math.floor(data.similarity * 100);
 
 				setMessage(
-					`キャプション: ${data.text} \n類似度: ${percentSimilarity}% スコア: ${data.score} \nランキングから順位を確認しましょう!`,
+					`生成文章: ${data.text} \n日本語: ${data.japaneseText} \n類似度: ${percentSimilarity}% スコア: ${data.score} \nランキングから順位を確認しましょう!`,
 				);
 				const newAssignments = assignments.map((assignment) => {
 					if (assignment.assignmentId === data.assignmentId) {
