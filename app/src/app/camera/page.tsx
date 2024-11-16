@@ -380,7 +380,6 @@ const CameraApp = () => {
 						</AlertDialogContent>
 					</AlertDialog>
 					{isUploading && <LoadingSpinner />}
-					<Toaster />
 					{todayAssignment?.english && (
 						<AssignmentBadge
 							assignment={todayAssignment}
@@ -392,6 +391,7 @@ const CameraApp = () => {
 			) : (
 				<Answered assignments={assignments} />
 			)}
+			<Toaster />
 		</>
 	);
 };
