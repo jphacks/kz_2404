@@ -88,10 +88,10 @@ const UserPage = () => {
 
 	const handleToggleEmailSubscription = async () => {
 		if (!userData) return;
-
+	
 		try {
-			const response = await fetch("/api/user/updateEmailPreference", {
-				method: "POST",
+			const response = await fetch("/api/user/updateReceivedMail", {
+				method: "PUT",
 				headers: {
 					"Content-Type": "application/json",
 				},
@@ -100,16 +100,16 @@ const UserPage = () => {
 					isReceivedMail: !isSubscribed,
 				}),
 			});
-
+	
 			if (!response.ok) {
 				throw new Error("設定の更新に失敗しました");
 			}
-
+	
 			setIsSubscribed((prev) => !prev);
 		} catch (error) {
 			console.error("エラーが発生しました:", error);
 		}
-	};
+	}
 
 	if (!userData) return null;
 	if (isLoading) {
