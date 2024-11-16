@@ -21,47 +21,43 @@ const Footer = () => {
 	}, [pathname]);
 
 	const handleClick = (path: string) => {
-		router.push(path);
+		router.push(path); // クライアントサイドでのページ遷移
 	};
 
 	return (
 		<footer className="w-full flex justify-evenly py-2 shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] sticky bottom-0 bg-white z-10">
-			<a href="/camera">
-				<Button
-					variant={activeButton === "camera" ? "iconActive" : "iconDefault"}
-					className="flex flex-col items-center justify-center w-16 h-16"
-				>
-					<PhotoCameraIcon />
-					<div className="text-xs">撮影</div>
-				</Button>
-			</a>
-			<a href="/">
-				<Button
-					variant={activeButton === "theme" ? "iconActive" : "iconDefault"}
-					className="flex flex-col items-center justify-center w-16 h-16"
-				>
-					<ThemeIcon />
-					<div className="text-xs">お題</div>
-				</Button>
-			</a>
-			<a href="/ranking">
-				<Button
-					variant={activeButton === "ranking" ? "iconActive" : "iconDefault"}
-					className="flex flex-col items-center justify-center w-16 h-16"
-				>
-					<RankingIcon />
-					<div className="text-xs">ランキング</div>
-				</Button>
-			</a>
-			<a href="/user">
-				<Button
-					variant={activeButton === "user" ? "iconActive" : "iconDefault"}
-					className="flex flex-col items-center justify-center w-16 h-16"
-				>
-					<UserIcon />
-					<div className="text-xs">アカウント</div>
-				</Button>
-			</a>
+			<Button
+				onClick={() => handleClick("/camera")}
+				variant={activeButton === "camera" ? "iconActive" : "iconDefault"}
+				className="flex flex-col items-center justify-center w-16 h-16"
+			>
+				<PhotoCameraIcon />
+				<div className="text-xs">撮影</div>
+			</Button>
+			<Button
+				onClick={() => handleClick("/")}
+				variant={activeButton === "theme" ? "iconActive" : "iconDefault"}
+				className="flex flex-col items-center justify-center w-16 h-16"
+			>
+				<ThemeIcon />
+				<div className="text-xs">お題</div>
+			</Button>
+			<Button
+				onClick={() => handleClick("/ranking")}
+				variant={activeButton === "ranking" ? "iconActive" : "iconDefault"}
+				className="flex flex-col items-center justify-center w-16 h-16"
+			>
+				<RankingIcon />
+				<div className="text-xs">ランキング</div>
+			</Button>
+			<Button
+				onClick={() => handleClick("/user")}
+				variant={activeButton === "user" ? "iconActive" : "iconDefault"}
+				className="flex flex-col items-center justify-center w-16 h-16"
+			>
+				<UserIcon />
+				<div className="text-xs">アカウント</div>
+			</Button>
 		</footer>
 	);
 };
