@@ -3,10 +3,16 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { LoadingSpinner } from "@/components/view/LoadingSpinner";
 import PlayerRankCard from "@/components/view/user/PlayerRankCard";
 import { useStatusChangeDialog } from "@/lib/atom";
 import { signOut } from "@/lib/signOut";
-import type { MyScoreDetail, DBUser as User } from "@/types";
+import type {
+	ChangeStatus,
+	MyScoreDetail,
+	DBUser as User,
+	experiencePoint,
+} from "@/types";
 import { useEffect, useState } from "react";
 import { FiEdit2 } from "react-icons/fi";
 import { LuClock, LuFlame, LuTrophy } from "react-icons/lu";
@@ -15,9 +21,13 @@ import { VscAccount } from "react-icons/vsc";
 const UserPage = () => {
 	const [userData, setUserData] = useState<User | null>(null);
 	const [myScore, setMyScore] = useState<MyScoreDetail[]>([]);
+	const [userStatus, setUserStatus] = useState<experiencePoint>();
+	const [point, setPoint] = useState<ChangeStatus>();
 	const [isEditing, setIsEditing] = useState(false);
 	const [isSubscribed, setIsSubscribed] = useState<boolean>(true);
 	const [isOpen, setIsOpen] = useStatusChangeDialog();
+	const handleOpenDialog = () => setIsOpen(true);
+	const [isLoading, setIsLoading] = useState<boolean>(true);
 
 	useEffect(() => {
 		const userIdString = localStorage.getItem("userID");
@@ -50,6 +60,25 @@ const UserPage = () => {
 			} catch (error) {
 				console.error("エラーが発生しました:", error);
 			}
+
+			try {
+				const response = await fetch(`/api/experiencePoint/me/${userData.id}`);
+				if (!response.ok) {
+					throw new Error("データの取得に失敗しました");
+				}
+
+				const data = await response.json();
+				setUserStatus(data);
+				setPoint({
+					speedPoint: data.speedPoint,
+					similarityPoint: data.similarityPoint,
+					totalPoint: data.totalPoint,
+					id: Number(userData.id),
+				});
+			} catch (error) {
+				console.error("エラーが発生しました", error);
+			}
+			setIsLoading(false);
 		};
 
 		fetchUserData();
@@ -81,10 +110,13 @@ const UserPage = () => {
 	};
 
 	if (!userData) return null;
-
+	if (isLoading) {
+		return <LoadingSpinner />;
+	}
 	return (
 		<div className="w-screen min-h-screen flex flex-col gap-4 items-center p-4 pt-10 bg-gradient-to-t from-gray-300 via-gray-200 to-gray-50">
-			<div className="flex items-center">
+			{isOpen && point && <StatusChangeDialog data={point} />}
+			<div className="flex items-center mb-4">
 				{userData.photoUrl ? (
 					<img
 						src={userData.photoUrl}
@@ -143,7 +175,13 @@ const UserPage = () => {
 				</Card>
 			</div>
 			<PlayerRankCard rankPoint={2800} />
-			<Card className="flex flex-col items-center border-none p-8 h-96">
+			<button type="button" onClick={() => handleOpenDialog()}>
+				<StatusList
+					speedPoint={userStatus?.speedPoint || 0}
+					similarityPoint={userStatus?.similarityPoint || 0}
+				/>
+			</button>
+			<Card className="flex flex-col items-center border-none p-8">
 				<h2 className="text-2xl font-bold mb-4">過去のチャレンジ</h2>
 				<div className="w-full overflow-y-auto">
 					{myScore.length === 0 ? (

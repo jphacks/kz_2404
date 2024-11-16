@@ -16,10 +16,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Toaster } from "@/components/ui/sonner";
+import { LoadingSpinner } from "@/components/view/LoadingSpinner";
 import { PointDialog } from "@/components/view/PointDialog";
-import { shapeCaption } from "@/functions/shapeCaption";
-import { postSimilarity } from "@/functions/simirality";
-import { usePointDialogOpen } from "@/lib/atom";
+import { useOpenPointDialog, usePointDialog } from "@/lib/atom";
 import type { ScoreResponse, DBUser as User, todayAssignment } from "@/types";
 import imageCompression from "browser-image-compression";
 import type React from "react";
@@ -61,13 +60,6 @@ const DialogImagePreview = ({ image }: { image: string | null }) => {
 	);
 };
 
-const LoadingSpinner = () => (
-	<div className="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center z-50">
-		<div className="animate-spin rounded-full h-24 w-24 border-t-4 border-b-4 border-blue-500 mb-4" />
-		<p className="text-white text-lg">アップロード中...</p>
-	</div>
-);
-
 const imageDataToBase64 = (imageData: ImageData): string => {
 	const canvas = document.createElement("canvas");
 	canvas.width = imageData.width;
@@ -81,8 +73,8 @@ const imageDataToBase64 = (imageData: ImageData): string => {
 };
 
 const CameraApp = () => {
-	const [image, setImage] = useState<string | null>(null);
-	const [showImage, setShowImage] = useState<boolean>(false);
+	const [, setImage] = useState<string | null>(null);
+	const [, setShowImage] = useState<boolean>(false);
 	const [isUploading, setIsUploading] = useState<boolean>(false);
 	const [showConfirmDialog, setShowConfirmDialog] = useState<boolean>(false);
 	const [tempImage, setTempImage] = useState<string | null>(null);
@@ -96,8 +88,9 @@ const CameraApp = () => {
 		todayAssignment | undefined
 	>();
 	const [assignments, setAssignments] = useState<todayAssignment[]>([]);
-	const [isActive, setIsActive] = useState<boolean>(false);
-	const [isPointDialogOpen, setIsPointDialogOpen] = usePointDialogOpen();
+	const [isActive, setIsActive] = useState<boolean>(true);
+	const [isPointDialogOpen, _] = usePointDialog();
+	const openDialog = useOpenPointDialog();
 	const [loginUser, setLoginUser] = useState<User>();
 
 	useEffect(() => {
@@ -253,6 +246,9 @@ const CameraApp = () => {
 
 				setTodayAssignment(notAnsweredAssignment);
 
+				if (typeof openDialog === "function") {
+					openDialog();
+				}
 				setIsUploading(false);
 				toast(message);
 				setAssignments(newAssignments);
@@ -260,7 +256,6 @@ const CameraApp = () => {
 				if (newAssignments.every((assignment) => assignment.isAnswered)) {
 					setIsActive(false);
 				}
-				setIsPointDialogOpen(true);
 			} catch (error) {
 				setIsUploading(false);
 				console.error("アップロード中にエラーが発生しました:", error);
@@ -285,9 +280,9 @@ const CameraApp = () => {
 
 	return (
 		<>
+			{isPointDialogOpen && <PointDialog type="photo" />}
 			{isActive ? (
 				<>
-					{isPointDialogOpen && <PointDialog type="photo" />}
 					<div className="flex items-center justify-center">
 						<Camera
 							ref={camera}

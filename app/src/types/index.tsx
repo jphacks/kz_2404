@@ -136,3 +136,10 @@ export interface ScoreResponse {
 	similarity: number;
 	assignmentId: number;
 }
+
+export interface ChangeStatus {
+	speedPoint: number;
+	similarityPoint: number;
+	totalPoint: number;
+	id: number;
+}

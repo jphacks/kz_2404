@@ -4,131 +4,167 @@ import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
-	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
+import { useStatusChangeDialog } from "@/lib/atom";
+import type { ChangeStatus } from "@/types";
+import type React from "react";
 import { useEffect, useState } from "react";
 
-interface StatusChangeDialogProps {
-	isOpen: boolean;
-	onClose: () => void;
-	initialSpeed: number;
-	initialSimilarity: number;
-}
+type ChangeStatusProps = {
+	data: ChangeStatus;
+};
 
-interface PlayStyleSettings {
-	speed: number;
-	similarity: number;
-	total: number;
-}
-
-export default function StatusChangeDialog({
-	isOpen,
-	onClose,
-	initialSpeed,
-	initialSimilarity,
-}: StatusChangeDialogProps) {
-	const [settings, setSettings] = useState<PlayStyleSettings>({
-		speed: initialSpeed,
-		similarity: initialSimilarity,
-		total: 100,
+export const StatusChangeDialog: React.FC<ChangeStatusProps> = ({ data }) => {
+	const [isOpen, setIsOpen] = useStatusChangeDialog();
+	const [formData, setFormData] = useState<ChangeStatus>({
+		speedPoint: data.speedPoint,
+		similarityPoint: data.similarityPoint,
+		totalPoint: data.totalPoint,
+		id: data.id,
 	});
+	const [remainingPoint, setRemainingPoint] = useState(data.totalPoint);
+	const [isDisabled, setIsDisabled] = useState<boolean>();
+
+	// 残りポイント計算
+	useEffect(() => {
+		const usedPoint =
+			formData.speedPoint -
+			data.speedPoint +
+			formData.similarityPoint -
+			data.similarityPoint;
+		setRemainingPoint(data.totalPoint - usedPoint);
+	}, [formData.speedPoint, formData.similarityPoint, data]);
 
 	useEffect(() => {
-		setSettings({
-			speed: initialSpeed,
-			similarity: initialSimilarity,
-			total: 100,
-		});
-	}, [initialSpeed, initialSimilarity]);
+		if (remainingPoint < 0) {
+			setIsDisabled(true);
+		} else {
+			setIsDisabled(false);
+		}
+	}, [remainingPoint]);
 
-	const handleSave = async () => {
-		onClose();
+	// フォームデータを更新する関数
+	const handleFormDataChange = (field: keyof ChangeStatus, value: number) => {
+		setFormData((prevData) => ({
+			...prevData,
+			[field]: value,
+		}));
 	};
 
-	const remainingPoints =
-		settings.total - (settings.speed + settings.similarity);
+	// 更新処理
+	const handleUpdate = async () => {
+		try {
+			const response = await fetch(
+				`/api/experiencePoint/status/${formData.id}`,
+				{
+					method: "PUT",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						speedPoint: formData.speedPoint,
+						similarityPoint: formData.similarityPoint,
+						totalPoint: remainingPoint,
+					}),
+				},
+			);
+			if (!response.ok) {
+				throw new Error("データの更新に失敗しました");
+			}
+		} catch (error) {
+			console.error("エラー", error);
+		}
+		setIsOpen(false);
+		// note useRoute使えなった。
+		window.location.reload();
+	};
 
 	return (
-		<Dialog open={isOpen} onOpenChange={onClose}>
+		<Dialog open={isOpen} onOpenChange={setIsOpen}>
 			<DialogContent className="p-6 rounded-xl max-w-[90vw]">
 				<DialogHeader>
 					<DialogTitle className="text-xl font-semibold">
 						プレイスタイルの調整
 					</DialogTitle>
-					<DialogDescription>
-						指定したポイントを速度と正確性に振り分けてプレイスタイルをカスタマイズできます。
-					</DialogDescription>
 				</DialogHeader>
-				<div className="space-y-4">
-					<div className="flex flex-col items-center">
-						<div className="space-y-2 w-[80%]">
-							<div className="flex justify-between items-center">
-								<label htmlFor="speed" className="font-medium">
+				<div className="w-full max-w-[90vw] sm:max-w-[300px] space-y-4 sm:space-y-6 py-4">
+					<p className="text-sm text-left text-muted-foreground">
+						未割り当てポイントを使用して速度と正確性を調整できます。
+					</p>
+					<div className="space-y-4 sm:space-y-6 px-10">
+						<div className="space-y-2">
+							<div className="flex justify-between">
+								<label
+									htmlFor="speed"
+									className="text-[#333333] text-sm font-bold"
+								>
 									スピード
 								</label>
-								<span className="text-gray-500 mt-2">
-									<span className="font-bold text-[#333333]">
-										{settings.speed}
-									</span>{" "}
-									/ {settings.total}
+								<span className="text-sm text-muted-foreground">
+									{formData.speedPoint} / {data.speedPoint + data.totalPoint}
 								</span>
 							</div>
 							<Slider
 								id="speed"
-								min={0}
-								max={settings.total}
+								min={data.speedPoint}
+								max={data.speedPoint + data.totalPoint}
 								step={1}
-								value={[settings.speed]}
+								value={[formData.speedPoint]}
 								onValueChange={([value]) =>
-									setSettings({ ...settings, speed: value })
+									handleFormDataChange("speedPoint", value)
 								}
 								className="w-full"
 								trackClassName="h-3"
 								thumbClassName="h-6 w-6"
 							/>
 						</div>
-						<div className="space-y-2 w-[80%] mt-8">
+						<div className="space-y-2 mt-8">
 							<div className="flex justify-between items-center">
-								<label htmlFor="similarity" className="font-medium">
+								<label
+									htmlFor="similarity"
+									className="text-[#333333] text-sm font-bold"
+								>
 									正確性
 								</label>
-								<span className="text-gray-500 mt-2">
-									<span className="font-bold text-[#333333]">
-										{settings.similarity}
-									</span>
-									/ {settings.total}
+								<span className="text-sm text-muted-foreground">
+									{formData.similarityPoint} /
+									{data.similarityPoint + data.totalPoint}
 								</span>
 							</div>
 							<Slider
 								id="similarity"
-								min={0}
-								max={settings.total}
+								min={data.similarityPoint}
+								max={data.similarityPoint + data.totalPoint}
 								step={1}
-								value={[settings.similarity]}
+								value={[formData.similarityPoint]}
 								onValueChange={([value]) =>
-									setSettings({ ...settings, similarity: value })
+									handleFormDataChange("similarityPoint", value)
 								}
 								className="w-full"
 								trackClassName="h-3"
 								thumbClassName="h-6 w-6"
 							/>
 						</div>
-						<div className="flex self-start mt-10">
-							<span className="font-medium">未割り当てポイント：</span>
-							<span className="text-green-500 font-medium">
-								{remainingPoints}
-							</span>
-						</div>
+					</div>
+					<div className="flex justify-start text-sm">
+						<span>未割り当てポイント：</span>
+						<span
+							className={`font-medium ml-1 ${
+								remainingPoint < 0 ? "text-red-600" : "text-green-600"
+							}`}
+						>
+							{remainingPoint}
+						</span>
 					</div>
 					<DialogFooter className="flex flex-row justify-end space-x-2">
-						<Button variant="outline" onClick={onClose}>
+						<Button variant="outline" onClick={() => setIsOpen(false)}>
 							キャンセル
 						</Button>
-						<Button className="px-9" onClick={handleSave}>
+						<Button onClick={handleUpdate} disabled={isDisabled}>
 							保存
 						</Button>
 					</DialogFooter>
@@ -136,4 +172,4 @@ export default function StatusChangeDialog({
 			</DialogContent>
 		</Dialog>
 	);
-}
+};
