@@ -107,17 +107,16 @@ const CameraApp = () => {
 			);
 			const assignmentData = await resAssignment.json();
 
-			if (assignmentData.length === 0) {
-				setIsActive(false);
-				return;
-			}
-
 			const isAnsweredAll = assignmentData.every(
 				(assignment: todayAssignment) => assignment.isAnswered,
 			);
-			if (isAnsweredAll) {
-				setIsActive(false);
+
+			if (assignmentData.length === 0) {
 				return;
+			}
+
+			if (!isAnsweredAll) {
+				setIsActive(true);
 			}
 
 			const notAnsweredAssignment = assignmentData.find(
@@ -376,7 +375,6 @@ const CameraApp = () => {
 						</AlertDialogContent>
 					</AlertDialog>
 					{isUploading && <LoadingSpinner />}
-					<Toaster />
 					{todayAssignment?.english && (
 						<AssignmentBadge
 							assignment={todayAssignment}
@@ -388,6 +386,7 @@ const CameraApp = () => {
 			) : (
 				<Answered assignments={assignments} />
 			)}
+			<Toaster />
 		</>
 	);
 };
