@@ -1,7 +1,4 @@
-"use server";
-
 import { prisma } from "@lib/prisma";
-import { revalidatePath } from "next/cache";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
@@ -29,8 +26,6 @@ export async function PUT(req: NextRequest) {
 			where: { id },
 			data: { name : name },
 		});
-
-		revalidatePath("/ranking");
 
 		return NextResponse.json({ putName }, { status: 200 });
 	} catch (error) {
