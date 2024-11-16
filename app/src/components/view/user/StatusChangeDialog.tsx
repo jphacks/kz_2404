@@ -98,7 +98,7 @@ export const StatusChangeDialog: React.FC<ChangeStatusProps> = ({ data }) => {
 					<div className="space-y-4 sm:space-y-6 px-10">
 						<div className="space-y-2">
 							<div className="flex justify-between">
-								<label htmlFor="speed" className="text-sm font-medium">
+								<label htmlFor="speed" className="text-[#333333] text-sm font-bold">
 									スピード
 								</label>
 								<span className="text-sm text-muted-foreground">
@@ -119,13 +119,13 @@ export const StatusChangeDialog: React.FC<ChangeStatusProps> = ({ data }) => {
 								thumbClassName="h-6 w-6"
 							/>
 						</div>
-						<div className="space-y-2 w-[80%] mt-8">
+						<div className="space-y-2 mt-8">
 							<div className="flex justify-between items-center">
-								<label htmlFor="similarity" className="font-medium">
+								<label htmlFor="similarity" className="text-[#333333] text-sm font-bold">
 									正確性
 								</label>
 								<span className="text-sm text-muted-foreground">
-									{formData.similarityPoint} /{" "}
+									{formData.similarityPoint} /
 									{data.similarityPoint + data.totalPoint}
 								</span>
 							</div>
@@ -143,10 +143,10 @@ export const StatusChangeDialog: React.FC<ChangeStatusProps> = ({ data }) => {
 								thumbClassName="h-6 w-6"
 							/>
 						</div>
-						<div className="flex justify-center items-center text-sm">
-							<span>未割り当てポイント：</span>
-							<span className="font-medium ml-1">{remainingPoint}</span>
-						</div>
+					</div>
+					<div className="flex justify-start text-sm">
+						<span>未割り当てポイント：</span>
+						<span className="font-medium ml-1 text-green-600">{remainingPoint}</span>
 					</div>
 					<DialogFooter className="flex flex-row justify-end space-x-2">
 						<Button variant="outline" onClick={() => setIsOpen(false)}>
