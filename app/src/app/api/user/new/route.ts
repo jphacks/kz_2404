@@ -1,7 +1,6 @@
 import type { DBUser as User } from "@/types";
 import { prisma } from "@lib/prisma";
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 type ResponseData = {
 	message: string;
@@ -38,6 +37,7 @@ export async function POST(req: NextRequest) {
 			name: user.displayName,
 			email: user.email,
 			photoUrl: user.photoURL,
+			ratePoint: 0,
 			experiencePoint: {
 				create: {
 					speedPoint: 0,
