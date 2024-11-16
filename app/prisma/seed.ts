@@ -32,6 +32,25 @@ async function main() {
 
 	console.log("Inserted Assignments:", assignments);
 
+	// Rate データの投入
+	const rateData = [
+		{ name: "ブロンズ", minRange: 0, maxRange: 199 },
+		{ name: "シルバー", minRange: 200, maxRange: 399 },
+		{ name: "ゴールド", minRange: 400, maxRange: 599 },
+		{ name: "プラチナ", minRange: 600, maxRange: 699 },
+		{ name: "ダイヤモンド", minRange: 700, maxRange: 799 },
+		{ name: "マスター", minRange: 800, maxRange: 899 },
+		{ name: "プレデター", minRange: 900, maxRange: 999 },
+	];
+
+	const rates = await prisma.rate.createMany({
+		data: rateData,
+	});
+
+	console.log("Inserted Rates:", rates);
+
+	const allRates = await prisma.rate.findMany();
+
 	// User データの投入
 	const users = await prisma.user.createMany({
 		data: [
@@ -40,6 +59,7 @@ async function main() {
 				name: "Alice",
 				email: "alice@example.com",
 				photoUrl: "https://example.com/photos/alice.jpg",
+				rateId: allRates[4]?.id || 1, // ダイヤモンドのレート
 				ratePoint: 750,
 			},
 			{
@@ -47,6 +67,7 @@ async function main() {
 				name: "Bob",
 				email: "bob@example.com",
 				photoUrl: "https://example.com/photos/bob.jpg",
+				rateId: allRates[6]?.id || 1, // プレデターのレート
 				ratePoint: 950,
 			},
 			{
@@ -54,6 +75,7 @@ async function main() {
 				name: "Charlie",
 				email: "charlie@example.com",
 				photoUrl: "https://example.com/photos/charlie.jpg",
+				rateId: allRates[0]?.id || 1, // ブロンズのレート
 				ratePoint: 0,
 			},
 		],
@@ -80,38 +102,6 @@ async function main() {
 	}
 
 	console.log("Inserted Scores");
-
-	const rateData = [
-		{ name: "ブロンズ", minRange: 0, maxRange: 199 },
-		{ name: "シルバー", minRange: 200, maxRange: 399 },
-		{ name: "ゴールド", minRange: 400, maxRange: 599 },
-		{ name: "プラチナ", minRange: 600, maxRange: 699 },
-		{ name: "ダイヤモンド", minRange: 700, maxRange: 799 },
-		{ name: "マスター", minRange: 800, maxRange: 899 },
-		{ name: "プレデター", minRange: 900, maxRange: 999 },
-	];
-
-	// Rate データの投入
-	const rates = await prisma.rate.createMany({
-		data: rateData,
-	});
-
-	console.log("Inserted Rates:", rates);
-
-	const allRates = await prisma.rate.findMany();
-
-	// UserRate データの投入
-	for (const user of allUsers) {
-		const randomRate = allRates[Math.floor(Math.random() * allRates.length)];
-		await prisma.userRate.create({
-			data: {
-				userId: user.id,
-				rateId: randomRate.id,
-			},
-		});
-	}
-
-	console.log("Inserted UserRates");
 
 	// ExperiencePoint データの投入
 	for (const user of allUsers) {

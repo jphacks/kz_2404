@@ -12,7 +12,6 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
 model User {
   id  Int  @id @default(autoincrement())
   uid String @unique
@@ -21,12 +20,15 @@ model User {
   photoUrl String
   scores Score[]
   experiencePoint ExperiencePoint? @relation()
-  userRates UserRate[]
+  rateId Int @default(1)
   ratePoint Int
+  // todo メール受信のフラグを追記。APIは別で作成する
+  isReceivedMail Boolean @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
   @@index([uid])
+  rate Rate @relation(fields: [rateId], references: [id])
 }
 
 model Score {
@@ -79,17 +81,6 @@ model ExperiencePoint {
   user User @relation(fields: [userId], references: [id])
 }
 
-model UserRate {
-  id Int @id @default(autoincrement())
-  userId Int
-  rateId Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-
-  user User @relation(fields: [userId], references: [id])
-  rate Rate @relation(fields: [rateId], references: [id])
-}
-
 model Rate {
   id Int @id @default(autoincrement())
   name String
@@ -98,5 +89,5 @@ model Rate {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  userRates UserRate[]
+  user User[]
 }
