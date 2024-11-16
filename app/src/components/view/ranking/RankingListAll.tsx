@@ -1,32 +1,32 @@
 import { Card } from "@/components/ui/card";
 import type { RankingScores } from "@/types";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { LoadingSpinner } from "../LoadingSpinner";
 
-export default function RankingListWeekly() {
+export default function RankingListAll() {
 	const [data, setData] = useState<RankingScores[]>([]);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 
-	useEffect(() => {
-		const fetchData = () => {
-			setIsLoading(true);
-			return fetch("/api/score/week",{cache: "reload"})
-				.then((response) => {
-					if (!response.ok) {
-						throw new Error("Failed to fetch data");
-					}
-					return response.json();
-				})
-				.then((result) => setData(result))
-				.catch((error) => console.error("Error fetching data:", error))
-				.finally(() => setIsLoading(false));
-		};
+	// データ取得関数を定義
+	const fetchData = async () => {
+		setIsLoading(true);
+		try {
+			const response = await fetch("/api/score/all", { cache: "reload" });
+			if (!response.ok) {
+				throw new Error("Failed to fetch data");
+			}
+			const result = await response.json();
+			setData(result);
+		} catch (error) {
+			console.error("Error fetching data:", error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
+	// 初回ロード時にデータを取得
+	if (data.length === 0 && !isLoading) {
 		fetchData();
-	}, []);
-
-	if (isLoading) {
-		return <LoadingSpinner />;
 	}
 
 	const getEmoji = (rank: number) => {
@@ -42,8 +42,16 @@ export default function RankingListWeekly() {
 		}
 	};
 
+	if (isLoading) {
+		return <LoadingSpinner />;
+	}
+
 	return (
 		<div className="mt-4 space-y-4">
+			{/* biome-ignore lint/a11y/useButtonType: <explanation> */}
+			<button onClick={fetchData} className="mb-4 bg-blue-500 text-white p-2 rounded">
+				更新
+			</button>
 			{data.length >= 3 && (
 				<div className="flex justify-center items-end space-x-4">
 					{data[1] && (
