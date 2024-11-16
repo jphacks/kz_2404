@@ -125,8 +125,7 @@ export async function POST(req: NextRequest) {
 		assignmentId: assignmentId,
 	};
 
-	revalidatePath("/api/score/week");
-	revalidatePath("/api/score/month");
+	revalidatePath("/ranking");
 
 	return new Response(JSON.stringify(response), {
 		status: 200,

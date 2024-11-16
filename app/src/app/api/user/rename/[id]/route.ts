@@ -30,7 +30,7 @@ export async function PUT(req: NextRequest) {
 			data: { name : name },
 		});
 
-		revalidatePath("/api/user");
+		revalidatePath("/ranking");
 
 		return NextResponse.json({ putName }, { status: 200 });
 	} catch (error) {
